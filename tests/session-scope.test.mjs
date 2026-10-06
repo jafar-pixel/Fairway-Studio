@@ -101,6 +101,7 @@ function renderShell({ path = `/w/${workspace}/ideas`, list, listError, data = r
     '@/lib/studio/session-scope': scope,
     './profile-avatar': { ProfileAvatar: noop, ProfilePhotoProvider: ({ children }) => children },
     './profile-photo-editor': { ProfilePhotoEditor: noop },
+    './idea-whiteboard': { IdeaWhiteboard: noop },
     '@/lib/studio/profile-photo': { activityLabel: () => 'Activity' },
     '@/lib/studio/business/shell': businessShell,
     '@/lib/studio/business/canonical-hydration': { mergeCanonicalTarget: value => value },

@@ -98,16 +98,54 @@ export async function readWorkspace(
   workspaceId: string,
 ): Promise<StudioWorkspace> {
   const { client, user, role } = await authorize(workspaceId);
-  const { data: workspace, error } = await client
-    .from("workspaces")
-    .select("*")
-    .eq("id", workspaceId)
-    .single();
+  // Every read below depends only on the authorized workspace, so they run together:
+  // sequential round trips to the database were most of the "Checking access" wait.
+  const readTable = async ([key, table]: [string, string]) => {
+    let query = client
+      .from(table)
+      .select("*")
+      .eq("workspace_id", workspaceId)
+      .order("created_at", { ascending: false })
+      .limit(500);
+    // Restricted legacy file labels have no verified ACL. Do not disclose them through this endpoint.
+    if (key === "files")
+      query = query.or(
+        `permission_scope.eq.workspace,added_by.eq.${user.id}`,
+      );
+    const { data, error } = await query;
+    if (error) {
+      if (databaseError(error).code === "SCHEMA_REQUIRED")
+        return [key, [], table] as const;
+      throw databaseError(error);
+    }
+    return [key, data ?? [], null] as const;
+  };
+  const [
+    { data: workspace, error },
+    { data: members, error: memberError },
+    inviteResult,
+    tableResults,
+    { error: revisionError },
+  ] = await Promise.all([
+    client.from("workspaces").select("*").eq("id", workspaceId).single(),
+    client.from("workspace_members").select("*").eq("workspace_id", workspaceId),
+    role === "owner" || role === "admin"
+      ? client
+          .from("workspace_invites")
+          .select("id,workspace_id,created_by,created_at,expires_at")
+          .eq("workspace_id", workspaceId)
+          .order("created_at", { ascending: false })
+          .limit(100)
+      : null,
+    Promise.all(Object.entries(tables).map(readTable)),
+    // An absent RPC is detected on mutation; column absence also marks legacy schema as requiring migration.
+    client
+      .from("brand_ideas")
+      .select("revision")
+      .eq("workspace_id", workspaceId)
+      .limit(1),
+  ]);
   if (error) throw databaseError(error);
-  const { data: members, error: memberError } = await client
-    .from("workspace_members")
-    .select("*")
-    .eq("workspace_id", workspaceId);
   if (memberError) throw databaseError(memberError);
   const memberIds = (members ?? []).map((member) => String(member.user_id));
   const { data: profiles, error: profileError } = memberIds.length
@@ -126,51 +164,16 @@ export async function readWorkspace(
   }));
   const missingSchema: string[] = [];
   let invites: unknown[] = [];
-  if (role === "owner" || role === "admin") {
-    const inviteResult = await client
-      .from("workspace_invites")
-      .select("id,workspace_id,created_by,created_at,expires_at")
-      .eq("workspace_id", workspaceId)
-      .order("created_at", { ascending: false })
-      .limit(100);
-    if (inviteResult.error) {
-      if (databaseError(inviteResult.error).code === "SCHEMA_REQUIRED")
-        missingSchema.push("workspace_invites.id");
-      else throw databaseError(inviteResult.error);
-    } else invites = inviteResult.data ?? [];
-  }
+  if (inviteResult?.error) {
+    if (databaseError(inviteResult.error).code === "SCHEMA_REQUIRED")
+      missingSchema.push("workspace_invites.id");
+    else throw databaseError(inviteResult.error);
+  } else if (inviteResult) invites = inviteResult.data ?? [];
   const result: Record<string, unknown> = {};
-  await Promise.all(
-    Object.entries(tables).map(async ([key, table]) => {
-      let query = client
-        .from(table)
-        .select("*")
-        .eq("workspace_id", workspaceId)
-        .order("created_at", { ascending: false })
-        .limit(500);
-      // Restricted legacy file labels have no verified ACL. Do not disclose them through this endpoint.
-      if (key === "files")
-        query = query.or(
-          `permission_scope.eq.workspace,added_by.eq.${user.id}`,
-        );
-      const { data, error } = await query;
-      if (error) {
-        if (databaseError(error).code === "SCHEMA_REQUIRED") {
-          missingSchema.push(table);
-          result[key] = [];
-          return;
-        }
-        throw databaseError(error);
-      }
-      result[key] = data ?? [];
-    }),
-  );
-  // An absent RPC is detected on mutation; column absence also marks legacy schema as requiring migration.
-  const { error: revisionError } = await client
-    .from("brand_ideas")
-    .select("revision")
-    .eq("workspace_id", workspaceId)
-    .limit(1);
+  for (const [key, data, missing] of tableResults) {
+    result[key] = data;
+    if (missing) missingSchema.push(missing);
+  }
   if (revisionError && databaseError(revisionError).code === "SCHEMA_REQUIRED")
     missingSchema.push("studio_mutate / revision columns");
   else if (revisionError) throw databaseError(revisionError);
