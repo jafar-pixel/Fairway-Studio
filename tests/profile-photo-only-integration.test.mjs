@@ -105,26 +105,56 @@ test('authenticated focus refresh changes image request identity and disposes it
   h.unmount(); assert.equal(h.listeners.size, 0);
 });
 
-test('revoked image failures synchronously show initials and subsequent user or revision cannot reuse the failed image element', () => {
-  let failed = null;
-  const scope = { viewerId: userId, demo: false, version: 0 };
-  const { ProfileAvatar } = loadModule('components/studio/profile-avatar.tsx', {
-    react: { ...React, useContext: () => scope, useState: () => [failed, value => { failed = value; }] },
-    'react/jsx-runtime': jsx, '@/lib/studio/profile-photo': rules, './profile-photo.css': {},
+function avatarHarness(scope) {
+  const calls = [], revoked = [], responses = new Map();
+  let states = [], cursor = 0, made = 0;
+  const react = { ...React, useContext: () => scope, useEffect: () => {}, useState(initial) { const i = cursor++; if (!(i in states)) states[i] = initial; return [states[i], value => { states[i] = typeof value === 'function' ? value(states[i]) : value; }]; } };
+  const module = loadModule('components/studio/profile-avatar.tsx', { react, 'react/jsx-runtime': jsx, '@/lib/studio/profile-photo': rules, './profile-photo.css': {} }, {
+    window: {},
+    URL: { createObjectURL: () => `blob:photo-${++made}`, revokeObjectURL: url => revoked.push(url) },
+    setTimeout: fn => fn(),
+    fetch: async (url, options) => { calls.push({ url, options }); const status = responses.get(url) ?? 200; return { ok: status === 200, headers: { get: () => 'image/jpeg' }, blob: async () => ({}) }; },
   });
-  let tree = ProfileAvatar({ name: 'First Member', userId });
+  const flush = () => new Promise(resolve => setImmediate(resolve));
+  return { calls, revoked, responses, flush, render(props) { cursor = 0; return module.ProfileAvatar(props); }, reset() { states = []; } };
+}
+
+test('revoked image failures synchronously show initials and subsequent user or revision cannot reuse the failed image element', async () => {
+  const scope = { viewerId: userId, demo: false, version: 0 };
+  const h = avatarHarness(scope);
+  assert.equal(h.render({ name: 'First Member', userId }).props.children, 'FM', 'initials while the first photo loads');
+  assert.deepEqual(h.calls.map(call => call.url), [rules.profileImageUrl(userId, 0)]);
+  assert.equal(h.calls[0].options.cache, 'no-store'); assert.equal(h.calls[0].options.credentials, 'same-origin');
+  await h.flush();
+  let tree = h.render({ name: 'First Member', userId });
   const before = tree.props.children;
+  assert.equal(before.type, 'img'); assert.match(before.props.src, /^blob:/);
   before.props.onError();
-  tree = ProfileAvatar({ name: 'First Member', userId });
-  assert.equal(tree.props.children, 'FM');
-  tree = ProfileAvatar({ name: 'Second Member', userId: otherUserId });
+  assert.equal(h.render({ name: 'First Member', userId }).props.children, 'FM');
+  h.reset(); h.render({ name: 'Second Member', userId: otherUserId }); await h.flush();
+  tree = h.render({ name: 'Second Member', userId: otherUserId });
   assert.notEqual(tree.props.children.key, before.key);
-  assert.match(tree.props.children.props.src, new RegExp(otherUserId));
-  scope.version++;
-  tree = ProfileAvatar({ name: 'First Member', userId });
+  assert.match(h.calls.at(-1).url, new RegExp(otherUserId));
+  h.reset(); scope.version++;
+  tree = h.render({ name: 'First Member', userId });
+  assert.equal(tree.props.children.props?.src ?? null, before.props.src, 'previous photo stays visible while the new revision loads');
+  await h.flush();
+  tree = h.render({ name: 'First Member', userId });
   assert.notEqual(tree.props.children.key, before.key);
+  assert.ok(h.revoked.includes(before.props.src), 'replaced photo bytes are released');
   tree.props.children.props.onError();
-  assert.equal(ProfileAvatar({ name: 'First Member', userId }).props.children, 'FM');
+  assert.equal(h.render({ name: 'First Member', userId }).props.children, 'FM');
+});
+
+test('a removed photo falls back to initials once the new revision answers', async () => {
+  const scope = { viewerId: userId, demo: false, version: 0 };
+  const h = avatarHarness(scope);
+  h.render({ name: 'First Member', userId }); await h.flush();
+  assert.equal(h.render({ name: 'First Member', userId }).props.children.type, 'img');
+  scope.version++; h.responses.set(rules.profileImageUrl(userId, 1), 404);
+  assert.equal(h.render({ name: 'First Member', userId }).props.children.type, 'img', 'no flash while checking');
+  await h.flush();
+  assert.equal(h.render({ name: 'First Member', userId }).props.children, 'FM');
 });
 
 test('private profile bytes are excluded from public service-worker caching and generic private datasets', () => {

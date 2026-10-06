@@ -92,11 +92,13 @@ test('failed save keeps the crop available for retry, refreshes revision and nev
   await h.fileInput().props.onChange({target:{files:[{type:'image/jpeg',size:20}]}});h.render();await h.button('Save photo').props.onClick();h.render();
   assert.ok(h.button('Save photo'));assert.match(h.text(),/changed in another tab/);assert.doesNotMatch(h.text(),/Profile photo saved/);assert.equal(h.revoked.length,0);assert.equal(h.calls.filter(c=>!c.options.method).length,2);
 });
-test('avatar image failure falls back to initials and retries when the scoped revision changes',()=>{
-  let stored=null;const scope={viewerId:userId,demo:false,version:0};
-  const fakeReact={...React,useContext:()=>scope,useState:()=>[stored,value=>{stored=value}]};
-  const {ProfileAvatar}=loadModule('components/studio/profile-avatar.tsx',{react:fakeReact,'react/jsx-runtime':runtime,'@/lib/studio/profile-photo':rules,'./profile-photo.css':{}});
-  let tree=ProfileAvatar({name:'Jane Smith',userId});assert.equal(tree.props.children.type,'img');tree.props.children.props.onError();tree=ProfileAvatar({name:'Jane Smith',userId});assert.equal(tree.props.children,'JS');scope.version++;tree=ProfileAvatar({name:'Jane Smith',userId});assert.equal(tree.props.children.type,'img');assert.match(tree.props.children.props.src,/v=1$/);
+test('avatar image failure falls back to initials and retries when the scoped revision changes',async()=>{
+  const scope={viewerId:userId,demo:false,version:0},calls=[];let states=[],cursor=0,made=0;
+  const fakeReact={...React,useContext:()=>scope,useEffect:()=>{},useState(initial){const i=cursor++;if(!(i in states))states[i]=initial;return [states[i],value=>{states[i]=typeof value==='function'?value(states[i]):value}]}};
+  const {ProfileAvatar}=loadModule('components/studio/profile-avatar.tsx',{react:fakeReact,'react/jsx-runtime':runtime,'@/lib/studio/profile-photo':rules,'./profile-photo.css':{}},{window:{},setTimeout:fn=>fn(),URL:{createObjectURL:()=>`blob:jane-${++made}`,revokeObjectURL(){}},fetch:async url=>{calls.push(url);return {ok:true,headers:{get:()=>'image/jpeg'},blob:async()=>({})}}});
+  const render=()=>{cursor=0;return ProfileAvatar({name:'Jane Smith',userId})},flush=()=>new Promise(r=>setImmediate(r));
+  render();await flush();let tree=render();assert.equal(tree.props.children.type,'img');tree.props.children.props.onError();tree=render();assert.equal(tree.props.children,'JS');
+  scope.version++;render();await flush();tree=render();assert.equal(tree.props.children.type,'img');assert.match(calls.at(-1),/v=1$/);
 });
 function navigationHarness(state) {
   const listeners=new Map(),actions=[];let cleanup,confirmation=false;
