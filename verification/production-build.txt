@@ -1,0 +1,38 @@
+$ next build
+▲ Next.js 16.3.3 (Turbopack)
+- Environments: .env.local
+✓ Running next.config.mjs took 13ms
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 825ms
+  Running TypeScript ...
+  Finished TypeScript in 2.8s ...
+  Collecting page data using 8 workers ...
+  Generating static pages using 8 workers (0/7) ...
+  Generating static pages using 8 workers (1/7) 
+  Generating static pages using 8 workers (3/7) 
+  Generating static pages using 8 workers (5/7) 
+✓ Generating static pages using 8 workers (7/7) in 293ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ○ /
+├ ○ /_not-found
+├ ƒ /api/studio/generation
+├ ƒ /api/studio/guide
+├ ƒ /api/studio/media
+├ ƒ /api/studio/starter-asset
+├ ƒ /api/studio/workflow
+├ ƒ /api/studio/workspace
+├ ƒ /auth/callback
+├ ○ /auth/error
+├ ƒ /demo/[[...view]]
+├ ○ /manifest.webmanifest
+└ ƒ /w/[workspaceId]/[[...view]]
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

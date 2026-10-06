@@ -1,0 +1,13 @@
+/* Media players retain status and controls in layouts originally sized for still images. */
+.fc-library-image:has(.fm-player) > div { height: auto; min-height: 180px; border-radius: 10px; }
+.fc-library-card:has(.fm-player) { align-self: start; }
+.fc-library-card .fm-player { margin-top: 0; }
+.fc-library-card .fm-player p { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.fc-library-card .fm-player .fm-button { white-space: normal; }
+.fc-task-attachments > div:has(.fm-player) { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.fc-task-attachments > div > div:has(.fm-player) { min-width: 0; }
+.fc-library-list .fc-library-card:has(.fm-player) { grid-template-columns: minmax(180px, 1fr) minmax(160px, 1fr); }
+@media (max-width: 600px) { .fc-library-list .fc-library-card:has(.fm-player) { display: block; } }
+.fc-library-image > button > div { width: 100%; aspect-ratio: 1.31; }
+.fc-library-image:has(.fm-player) > div { aspect-ratio: auto; }
+.fc-library-list .fc-library-image > button > div { aspect-ratio: 1.31; }

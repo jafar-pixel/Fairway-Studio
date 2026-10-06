@@ -1,0 +1,26 @@
+import { requestOrigin } from './request-origin-test-loader.mjs';
+// Real Route Handler -> production server/contract -> isolated PostgreSQL RPC round trip.
+import fs from 'node:fs';import vm from 'node:vm';import assert from 'node:assert/strict';import ts from 'typescript';
+const {PGlite}=await import(process.env.PGLITE_MODULE||'@electric-sql/pglite');const db=new PGlite(),root=new URL('../',import.meta.url);let checks=0;
+function load(path,deps={}){const code=ts.transpileModule(fs.readFileSync(new URL(path,root),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText;const ctx={exports:{},Response,Request,URL,URLSearchParams,TextEncoder,crypto,require:k=>deps[k]};vm.runInNewContext(code,ctx);return ctx.exports;}
+const shared=load('lib/studio/contracts.ts'),contract=load('lib/studio/social/contracts.ts',{'../contracts':shared});
+const w='20000000-0000-4000-8000-000000000001',u='10000000-0000-4000-8000-000000000001';
+const check=(v,m)=>{assert.ok(v,m);console.log(`PASS ${++checks}: ${m}`)};
+const calls={studio_social_capabilities:['p_workspace'],studio_social_read:['p_workspace','p_post','p_page','p_options','p_query'],studio_social_mutate:['p_workspace','p_operation','p_request','p_input'],studio_social_export:['p_workspace','p_snapshot'],studio_social_asset:['p_workspace','p_snapshot','p_index']};
+const client={rpc:async(name,input)=>{try{const keys=calls[name];const values=keys.map(k=>k==='p_input'?JSON.stringify(input[k]):input[k]);const q=`select public.${name}(${keys.map((_,i)=>'$'+(i+1)).join(',')}) data`;return {data:(await db.query(q,values)).rows[0].data,error:null};}catch(error){return{data:null,error}}}};
+function databaseError(e){if(e.code==='42501')return new shared.StudioError('Forbidden','FORBIDDEN',403);if(e.code==='40001')return new shared.StudioError('Conflict','CONFLICT',409);return new shared.StudioError('Invalid values','VALIDATION',422)}
+const server=load('lib/studio/social/server.ts',{'../contracts':shared,'./contracts':contract,'../server':{authorize:async()=>({client}),databaseError}});
+const route=load('app/api/studio/social/route.ts',{'@/lib/studio/request-origin':requestOrigin,'@/lib/studio/contracts':shared,'@/lib/studio/social/contracts':contract,'@/lib/studio/social/server':server});
+const post=b=>route.POST(new Request('https://fairway.example/api/studio/social',{method:'POST',headers:{origin:'https://fairway.example','content-type':'application/json'},body:JSON.stringify(b)}));
+try{
+ await db.exec(fs.readFileSync(new URL('tests/fixtures/legacy-schema.sql',root),'utf8'));await db.exec(fs.readFileSync(new URL('tests/fixtures/verified-studio-schema.sql',root),'utf8'));await db.exec(fs.readFileSync(new URL('tests/fixtures/verified-workflows.sql',root),'utf8'));await db.exec(fs.readFileSync(new URL('supabase/migrations/20261002233903_social_content_workflow.sql',root),'utf8'));
+ await db.query('insert into auth.users(id) values($1)',[u]);await db.query("insert into profiles(id,display_name) values($1,'Owner')",[u]);await db.query("insert into workspaces(id,name,created_by) values($1,'API fixture',$2)",[w,u]);await db.query("insert into workspace_members(workspace_id,user_id,role) values($1,$2,'owner') on conflict do nothing",[w,u]);await db.exec('set role authenticated');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[u]);
+ const body={workspaceId:w,requestId:crypto.randomUUID(),operation:'saveDraft',input:{title:'API persistence',purpose:'Test API to SQL',audience:'Team',channel:'instagram',account_label:'@fairway',format:'story',caption:'Saved through actual route',owner_id:u,timezone:'Etc/UTC',stage:'idea',assets:[]}};
+ const saved=await post(body);check(saved.status===200,'Actual HTTP contract and server persist through PostgreSQL RPC');const result=(await saved.json()).data;check(typeof result.postId==='string'&&result.revision===0,'Route returns canonical persisted identity and revision');
+ const again=await post(body);check(JSON.stringify((await again.json()).data)===JSON.stringify(result),'Real API retry is idempotent');
+ const loaded=await route.GET(new Request(`https://fairway.example/api/studio/social?workspaceId=${w}&postId=${result.postId}`));check((await loaded.json()).post.caption===body.input.caption,'Fresh HTTP GET reloads database-backed draft');
+ const updated=await post({...body,requestId:crypto.randomUUID(),input:{...body.input,post_id:result.postId,expected_revision:0,caption:'Updated'}});check(updated.status===200,'Actual route applies current expected revision');
+ const stale=await post({...body,requestId:crypto.randomUUID(),input:{...body.input,post_id:result.postId,expected_revision:0}});check(stale.status===409,'Actual database revision conflict reaches HTTP 409');
+ await db.exec('reset role');await db.query('delete from workspace_members where workspace_id=$1 and user_id=$2',[w,u]);await db.exec('set role authenticated');const denied=await post(body);check(denied.status===403,'Actual API replay fails after membership revocation');check((await denied.json()).code==='FORBIDDEN','Denied API response discloses no cached draft');
+ console.log(`PASS: ${checks} API-to-PostgreSQL runtime checks; no live traffic.`);
+}catch(error){console.error(error);process.exitCode=1}finally{await db.close()}

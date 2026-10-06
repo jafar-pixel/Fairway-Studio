@@ -1,0 +1,1 @@
+Generation SQL: migration, idempotency collision, creator RLS, forbidden writes, lease expiry, stale completion, cancellation, exactly-once retain, provenance, no auto-canvas insertion and request/attempt quotas passed.

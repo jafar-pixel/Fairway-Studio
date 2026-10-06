@@ -1,0 +1,10 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+const root=new URL('../',import.meta.url),read=p=>fs.readFileSync(new URL(p,root),'utf8');
+const sql=read('supabase/migrations/20261002234957_private_business_records.sql');
+test('restricted migration never writes broad files projects tasks activity or request results',()=>{assert.doesNotMatch(sql,/\b(insert\s+into|update|delete\s+from)\s+(public\.)?(workspace_files|studio_projects|studio_tasks|studio_activity|studio_requests|studio_versions|studio_review_rounds|studio_decisions)\b/i)});
+test('restricted tables cannot be incorporated into generic workspace datasets accidentally',()=>{assert.doesNotMatch(read('lib/studio/server.ts'),/studio_private_(books|records|document_versions|budget_approvals|record_history)/)});
+test('server has no privileged credentials logging or external URL fetching',()=>{const code=read('lib/studio/private-business/server.ts');assert.doesNotMatch(code,/service_role|SERVICE_ROLE|console\.|fetch\(|localStorage|studio_requests/)});
+test('API strips database error messages and exposes only safe errors',()=>{const code=read('lib/studio/private-business/server.ts');assert.doesNotMatch(code,/error\.message/);assert.match(code,/safeDatabaseError/)});
+test('capabilities tell truth about unavailable payments signatures and uploads',()=>{assert.match(sql,/'documentUploads',false/);assert.match(sql,/'payments',false/);assert.match(sql,/'signatures',false/)});
+test('snapshot purpose is separate from creative and publication decisions',()=>{assert.match(sql,/manual_budget_plan_only/);assert.doesNotMatch(sql,/insert into public\.studio_(reviews|decisions|kits)/)});
+test('search text is excluded from access log URLs',()=>{assert.match(read('app/api/studio/private-business/route.ts'),/Send private searches in the POST body/)});

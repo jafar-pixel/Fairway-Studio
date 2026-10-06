@@ -1,0 +1,39 @@
+-- Isolated fixture only; never apply to remote. Matches tested legacy prerequisites.
+
+create role anon; create role authenticated;
+create schema auth; create schema app_private; create schema storage;
+create table storage.objects(id uuid primary key default gen_random_uuid(),bucket_id text not null,name text not null);
+grant usage on schema storage to authenticated; grant select,insert,update,delete on storage.objects to authenticated;
+create table auth.users(id uuid primary key,email text);
+create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+grant usage on schema auth,app_private to authenticated;
+create table public.profiles(id uuid primary key references auth.users(id),display_name text not null default '');
+create table public.workspaces(id uuid primary key default gen_random_uuid(),name text not null,created_by uuid not null references auth.users(id),created_at timestamptz not null default now(),updated_at timestamptz not null default now());
+create table public.workspace_members(workspace_id uuid references public.workspaces(id),user_id uuid references auth.users(id),role text not null default 'editor' check(role in ('owner','admin','editor')),joined_at timestamptz default now(),primary key(workspace_id,user_id));
+create table public.brand_ideas(id uuid primary key default gen_random_uuid(),workspace_id uuid not null references public.workspaces(id),author_id uuid not null references auth.users(id),title text not null check(length(title) between 1 and 160),body text not null default '' check(length(body)<=3000),category text not null default 'Brand',status text not null default 'exploring' check(status in ('exploring','shortlist','approved')),created_at timestamptz default now(),updated_at timestamptz default now());
+create table public.studio_tasks(id uuid primary key default gen_random_uuid(),workspace_id uuid not null references public.workspaces(id),created_by uuid not null references auth.users(id),title text not null,details text not null default '' check(length(details)<=2000),category text not null default 'Brand',status text not null default 'open' check(status in ('open','in_progress','done')),assigned_to uuid references public.profiles(id),created_at timestamptz default now(),updated_at timestamptz default now());
+create table public.saved_references(id uuid primary key default gen_random_uuid(),workspace_id uuid not null references public.workspaces(id),author_id uuid not null references auth.users(id),title text not null,url text not null,image_url text,note text not null default '',source text not null default 'pinterest',created_at timestamptz default now());
+create table public.workspace_files(id uuid primary key default gen_random_uuid(),workspace_id uuid not null references public.workspaces(id),added_by uuid not null references auth.users(id),title text not null,url text not null constraint workspace_files_url_check check(url ~ '^https://'),provider text not null default 'other',context_note text not null default '',tags text[] not null default '{}',permission_scope text not null default 'workspace' check(permission_scope in ('workspace','restricted')),created_at timestamptz default now());
+create table public.workspace_rooms(id uuid primary key default gen_random_uuid(),workspace_id uuid not null references public.workspaces(id),created_by uuid not null references auth.users(id),title text not null,work_mode text,etiquette text,calendar_intent text,starts_at timestamptz,ends_at timestamptz,meeting_url text,created_at timestamptz default now());
+create table public.workspace_invites(token uuid primary key default gen_random_uuid(),workspace_id uuid not null references public.workspaces(id),created_by uuid not null references auth.users(id),created_at timestamptz default now(),expires_at timestamptz default now()+interval '14 days');
+create table public.workspace_messages(id uuid primary key default gen_random_uuid(),workspace_id uuid not null references public.workspaces(id),author_id uuid not null references auth.users(id),body text not null check(length(trim(body)) between 1 and 4000),created_at timestamptz default now());
+create function app_private.is_workspace_member(w uuid) returns bool language sql security definer set search_path=public as $$ select exists(select 1 from public.workspace_members where workspace_id=w and user_id=auth.uid()) $$;
+create function app_private.is_workspace_admin(w uuid) returns bool language sql security definer set search_path=public as $$ select exists(select 1 from public.workspace_members where workspace_id=w and user_id=auth.uid() and role in ('owner','admin')) $$;
+grant select,insert,update,delete,truncate,references,trigger on all tables in schema public to authenticated;
+
+alter table public.profiles enable row level security; create policy read_profile on public.profiles for select to authenticated using(id=auth.uid() or exists(select 1 from public.workspace_members mine join public.workspace_members other on mine.workspace_id=other.workspace_id where mine.user_id=auth.uid() and other.user_id=profiles.id));
+alter table workspaces enable row level security; create policy legacy_read on workspaces for select to authenticated using(app_private.is_workspace_member(id));
+create policy legacy_write on workspaces for all to authenticated using(app_private.is_workspace_member(id)) with check(app_private.is_workspace_member(id));
+alter table workspace_members enable row level security; create policy legacy_read on workspace_members for select to authenticated using(app_private.is_workspace_member(workspace_id));
+alter table brand_ideas enable row level security; create policy legacy_read on brand_ideas for select to authenticated using(app_private.is_workspace_member(workspace_id));
+create policy legacy_write on brand_ideas for all to authenticated using(app_private.is_workspace_member(workspace_id)) with check(app_private.is_workspace_member(workspace_id));
+alter table studio_tasks enable row level security; create policy legacy_read on studio_tasks for select to authenticated using(app_private.is_workspace_member(workspace_id));
+create policy legacy_write on studio_tasks for all to authenticated using(app_private.is_workspace_member(workspace_id)) with check(app_private.is_workspace_member(workspace_id));
+alter table saved_references enable row level security; create policy legacy_read on saved_references for select to authenticated using(app_private.is_workspace_member(workspace_id));
+create policy legacy_write on saved_references for all to authenticated using(app_private.is_workspace_member(workspace_id)) with check(app_private.is_workspace_member(workspace_id));
+alter table workspace_files enable row level security; create policy legacy_read on workspace_files for select to authenticated using(app_private.is_workspace_member(workspace_id));
+create policy legacy_write on workspace_files for all to authenticated using(app_private.is_workspace_member(workspace_id)) with check(app_private.is_workspace_member(workspace_id));
+alter table workspace_rooms enable row level security; create policy legacy_read on workspace_rooms for select to authenticated using(app_private.is_workspace_member(workspace_id));
+create policy legacy_write on workspace_rooms for all to authenticated using(app_private.is_workspace_member(workspace_id)) with check(app_private.is_workspace_member(workspace_id));
+alter table workspace_messages enable row level security; create policy legacy_read on workspace_messages for select to authenticated using(app_private.is_workspace_member(workspace_id));
+create policy legacy_write on workspace_messages for all to authenticated using(app_private.is_workspace_member(workspace_id)) with check(app_private.is_workspace_member(workspace_id));

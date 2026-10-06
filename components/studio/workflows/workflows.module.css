@@ -1,0 +1,8 @@
+.nav { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+.nav a { color:var(--fs-ink, #263c32); border:1px solid #d8dfd5; border-radius:8px; text-decoration:none; padding:11px 14px; font-size:14px; font-weight:600; background:#fffdf8; }
+.nav a[aria-current="page"] { background:#253e32; color:white; border-color:#253e32; }
+.nav a:focus-visible, .help summary:focus-visible { outline:3px solid #be884f; outline-offset:3px; }
+.help { border:1px solid #d8dfd5; background:#f7f7ef; border-radius:10px; padding:13px 16px; margin-bottom:20px; color:#263c32; }
+.help summary { cursor:pointer; font-weight:600; }
+.help p { max-width:80ch; line-height:1.65; margin:12px 0 0; }
+@media(max-width:600px) { .nav { gap:6px; } .nav a { flex:1 1 140px; text-align:center; min-height:44px; } .help { padding:12px; } }

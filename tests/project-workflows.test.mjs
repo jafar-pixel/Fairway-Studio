@@ -1,0 +1,19 @@
+import test from 'node:test'
+import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import vm from 'node:vm'
+import ts from 'typescript'
+const code=ts.transpileModule(fs.readFileSync(new URL('../lib/studio/project-helpers.ts',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020}}).outputText
+const context={exports:{},Map,Set};vm.runInNewContext(code,context)
+const {projectRoundActions,mergeProjectOutcomes}=context.exports
+const round={id:'round',status:'open',reviewers:['a','b'],policy:'unanimous'}
+const response=(reviewer,disposition,extra={})=>({round_id:'round',reviewer_id:reviewer,disposition,rating:5,...extra})
+test('reject requires every assigned response and actual request for changes',()=>{assert.equal(projectRoundActions(round,[response('a','request_changes')],'owner').reject,false);const actions=projectRoundActions(round,[response('a','request_changes'),response('b','approve')],'owner');assert.equal(actions.reject,true);assert.equal(actions.approve,false)})
+test('defer is an explicit owner-only action independent of voting',()=>{assert.equal(projectRoundActions(round,[],'owner').defer,true);assert.equal(projectRoundActions(round,[],'editor').defer,false);assert.equal(projectRoundActions({...round,status:'closed'},[],'owner').defer,false)})
+test('drafts, other rounds and unassigned users never satisfy outcome policy',()=>{const reviews=[response('a','approve'),response('b','request_changes',{status:'draft'}),response('outsider','request_changes'),response('b','approve',{round_id:'old'})];const actions=projectRoundActions(round,reviews,'owner');assert.equal(actions.reject,false);assert.equal(actions.approve,false);assert.equal(actions.allResponded,false)})
+test('threshold allows abstention only after all respond and no changes block',()=>{const threshold={...round,policy:'threshold',threshold:1};assert.equal(projectRoundActions(threshold,[response('a','approve'),response('b','abstain')],'admin').approve,true);assert.equal(projectRoundActions(threshold,[response('a','approve'),response('b','request_changes')],'admin').approve,false)})
+test('outcomes merge without changing old decision or importing other projects',()=>{const old={id:'old',project_id:'p',outcome:'approved',created_at:'2026-01-01'};const merged=mergeProjectOutcomes([old],[{id:'rejected',round_id:'r',outcome:'rejected'},{id:'other',project_id:'q'}],'p',['r']);assert.equal(merged.length,2);assert.equal(old.outcome,'approved');assert.equal(merged.find(x=>x.id==='old').outcome,'approved')})
+test('replacement lifecycle allows retry only after a non-approved round closes',()=>{const state=context.exports.projectReplacementState;const link={round_id:'round',replacement_decision_id:null};assert.equal(state(link,[round]),'open');assert.equal(state(link,[{...round,status:'closed'}]),'closed_without_approval');assert.equal(state({...link,replacement_decision_id:'new'},[{...round,status:'closed'}]),'completed');assert.equal(state(link,[]),'unavailable')})
+
+test('admins keep ordinary approvals but cannot reject or defer',()=>{const changed=[response('a','request_changes'),response('b','approve')];assert.equal(projectRoundActions(round,changed,'owner').reject,true);assert.equal(projectRoundActions(round,changed,'admin').reject,false);assert.equal(projectRoundActions(round,changed,'admin').defer,false);assert.equal(projectRoundActions(round,[response('a','approve'),response('b','approve')],'admin').approve,true)})
+test('replacement and new outcome UI is explicitly owner-only',()=>{const ui=fs.readFileSync(new URL('../components/studio/projects.tsx',import.meta.url),'utf8').replaceAll('"',"'").replace(/\s/g,'');assert.match(ui,/modal==='supersede'&&data\.role==='owner'/);assert.match(ui,/decisionOutcome==='approve'\|\|data\.role==='owner'/);assert.match(ui,/data\.role==='owner'&&roundState\(round\)==='open'/)})

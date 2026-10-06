@@ -1,0 +1,326 @@
+{
+  "schema_version": 1,
+  "received_date": "2026-10-02",
+  "asset_source": "User-uploaded originals",
+  "notes": [
+    "Original bytes and Library identity retained.",
+    "These are creative poster/moodboard layouts, not Fairway app screenshots.",
+    "Mappings indicate related subjects only; no exact embedded source match was identified among the first eight files.",
+    "Generated recreations are retained under /mockup-assets/ and have not been overwritten.",
+    "No crop, background removal, new image generation or remote write was performed.",
+    "Original business artwork is stored outside public/ and must be delivered only through the authenticated, version-bound app endpoint."
+  ],
+  "assets": [
+    {
+      "file": "slim-silhouette-golf-bag.png",
+      "path": "assets/originals/slim-silhouette-golf-bag.png",
+      "title": "Slim silhouette golf bag",
+      "original_filename": "Slim silhouette cream and burgundy golf bag-5.png",
+      "library_file_id": "libfile_2b06b8a45af08191881c3d5b04699abb",
+      "library_version": 0,
+      "sha256": "6e5eda142232c5547c04f41270bc38ed672af06852bafc91ad67c89a40a57593",
+      "size_bytes": 2227063,
+      "width": 1024,
+      "height": 1536,
+      "classification": "product-concept-poster",
+      "provenance": "User-supplied original upload; generation history unverified",
+      "approval_status": "Not inferred from upload",
+      "contains_typography": true,
+      "is_app_ui_screenshot": false,
+      "is_text_free_standalone_product_image": false,
+      "exact_mockup_match": false,
+      "related_projects": [
+        "Signature golf bag"
+      ],
+      "related_mockups": [
+        "09-project-canvas.png",
+        "11-mobile-canvas.png",
+        "04-library.png"
+      ],
+      "thematically_related_generated_assets": [
+        "golf-bag-cream.png",
+        "leather-detail.png"
+      ],
+      "description": "Slim cream/burgundy stand bag and fabric/zipper detail inset on cream background; SLIM SILHOUETTE and DESIGN EXPLORATION typography. Distinct from rounded CF-monogram bag embedded in mockups.",
+      "presentation": "Preserve complete composition with object-fit: contain for review; no pixel edits made.",
+      "is_generated_recreation": false,
+      "source_kind": "user_upload",
+      "delivery": "Authenticated version-bound endpoint; configured separately by app",
+      "filename": "slim-silhouette-golf-bag.png",
+      "logical_path": "/original-assets/slim-silhouette-golf-bag.png"
+    },
+    {
+      "file": "ageless-golf-style.png",
+      "path": "assets/originals/ageless-golf-style.png",
+      "title": "Ageless golf style",
+      "original_filename": "Ageless golf style, redefined-2.png",
+      "library_file_id": "libfile_816f1f1ccf1c8191988faff99107ea07",
+      "library_version": 0,
+      "sha256": "24cc8f4ebe888c093a77d88fb816ef68b4e71fc0ec45101f94fde419801fbe2b",
+      "size_bytes": 2362143,
+      "width": 1024,
+      "height": 1536,
+      "classification": "campaign-poster",
+      "provenance": "User-supplied original upload; generation history unverified",
+      "approval_status": "Not inferred from upload",
+      "contains_typography": true,
+      "is_app_ui_screenshot": false,
+      "is_text_free_standalone_product_image": false,
+      "exact_mockup_match": false,
+      "related_projects": [
+        "First apparel collection",
+        "Campaign: Generations of style"
+      ],
+      "related_mockups": [
+        "01-home.png",
+        "02-ideas.png",
+        "03-projects.png",
+        "04-library.png"
+      ],
+      "thematically_related_generated_assets": [
+        "apparel-generations.png"
+      ],
+      "description": "Three generations wearing burgundy/cream rugby top, royal-blue polo, and brown jacket beside clubhouse and golf bag; STYLE HAS NO AGE headline. Different composition from two men in caps in mockups.",
+      "presentation": "Preserve complete composition with object-fit: contain for review; no pixel edits made.",
+      "is_generated_recreation": false,
+      "source_kind": "user_upload",
+      "delivery": "Authenticated version-bound endpoint; configured separately by app",
+      "filename": "ageless-golf-style.png",
+      "logical_path": "/original-assets/ageless-golf-style.png"
+    },
+    {
+      "file": "generations-on-fairway.png",
+      "path": "assets/originals/generations-on-fairway.png",
+      "title": "Generations on the fairway",
+      "original_filename": "Generations on the fairway-3.png",
+      "library_file_id": "libfile_97fcef64333c8191964e925810ae0f09",
+      "library_version": 0,
+      "sha256": "2f352522bfece89f0d6b1ba98f9e5170c01b336e2b21c69a3ec50702c8968ecb",
+      "size_bytes": 2338897,
+      "width": 1024,
+      "height": 1536,
+      "classification": "campaign-poster",
+      "provenance": "User-supplied original upload; generation history unverified",
+      "approval_status": "Not inferred from upload",
+      "contains_typography": true,
+      "is_app_ui_screenshot": false,
+      "is_text_free_standalone_product_image": false,
+      "exact_mockup_match": false,
+      "related_projects": [
+        "Campaign: Generations of style"
+      ],
+      "related_mockups": [
+        "02-ideas.png",
+        "03-projects.png",
+        "04-library.png"
+      ],
+      "thematically_related_generated_assets": [
+        "apparel-generations.png",
+        "campaign-generations-back.png"
+      ],
+      "description": "Two golfers walking at sunset in blue and burgundy polos with a cream/burgundy bag; THE NEXT ROUND headline. Front-facing campaign poster, not rear-view wide banner shown in mockup.",
+      "presentation": "Preserve complete composition with object-fit: contain for review; no pixel edits made.",
+      "is_generated_recreation": false,
+      "source_kind": "user_upload",
+      "delivery": "Authenticated version-bound endpoint; configured separately by app",
+      "filename": "generations-on-fairway.png",
+      "logical_path": "/original-assets/generations-on-fairway.png"
+    },
+    {
+      "file": "three-generations-collection.png",
+      "path": "assets/originals/three-generations-collection.png",
+      "title": "Three generations, one collection",
+      "original_filename": "Three Generations, One Golf Collection-1.png",
+      "library_file_id": "libfile_96bb137cb9bc81919c1d6e65826ba962",
+      "library_version": 0,
+      "sha256": "adbb4210d5476d38b47ca56566afc8fef4afed80d30bbd176d86829bc2d1d971",
+      "size_bytes": 2195143,
+      "width": 1024,
+      "height": 1536,
+      "classification": "campaign-poster",
+      "provenance": "User-supplied original upload; generation history unverified",
+      "approval_status": "Not inferred from upload",
+      "contains_typography": true,
+      "is_app_ui_screenshot": false,
+      "is_text_free_standalone_product_image": false,
+      "exact_mockup_match": false,
+      "related_projects": [
+        "First apparel collection",
+        "Campaign: Generations of style"
+      ],
+      "related_mockups": [
+        "01-home.png",
+        "02-ideas.png",
+        "03-projects.png",
+        "04-library.png"
+      ],
+      "thematically_related_generated_assets": [
+        "apparel-generations.png"
+      ],
+      "description": "Three vertical portraits in burgundy polos, cream and brown trousers; ONE COLLECTION. THREE GENERATIONS. headline. Related campaign concept, not exact embedded mockup image.",
+      "presentation": "Preserve complete composition with object-fit: contain for review; no pixel edits made.",
+      "is_generated_recreation": false,
+      "source_kind": "user_upload",
+      "delivery": "Authenticated version-bound endpoint; configured separately by app",
+      "filename": "three-generations-collection.png",
+      "logical_path": "/original-assets/three-generations-collection.png"
+    },
+    {
+      "file": "complete-the-look.png",
+      "path": "assets/originals/complete-the-look.png",
+      "title": "Complete the look",
+      "original_filename": "Complete the look_ golf streetwear-14.png",
+      "library_file_id": "libfile_2f0f98be09b88191b565e975d596ab61",
+      "library_version": 0,
+      "sha256": "536fbdb2e6bfbea01d6ac27c391f0f3bb75e6b8040a9108f9ecce593070f1551",
+      "size_bytes": 2925028,
+      "width": 1024,
+      "height": 1536,
+      "classification": "product-styling-moodboard",
+      "provenance": "User-supplied original upload; generation history unverified",
+      "approval_status": "Not inferred from upload",
+      "contains_typography": true,
+      "is_app_ui_screenshot": false,
+      "is_text_free_standalone_product_image": false,
+      "exact_mockup_match": false,
+      "related_projects": [
+        "First apparel collection",
+        "Signature golf bag"
+      ],
+      "related_mockups": [
+        "02-ideas.png",
+        "04-library.png",
+        "06-tasks.png"
+      ],
+      "thematically_related_generated_assets": [
+        "burgundy-moodboard.png",
+        "cream-polo.png"
+      ],
+      "description": "Cream polo, burgundy jacket/cap, brown trousers, cream sneakers and cream/burgundy golf bag, textiles and golf landscape prints. Full styling moodboard; not isolated item images.",
+      "presentation": "Preserve complete composition with object-fit: contain for review; no pixel edits made.",
+      "is_generated_recreation": false,
+      "source_kind": "user_upload",
+      "delivery": "Authenticated version-bound endpoint; configured separately by app",
+      "filename": "complete-the-look.png",
+      "logical_path": "/original-assets/complete-the-look.png"
+    },
+    {
+      "file": "detail-challenge.png",
+      "path": "assets/originals/detail-challenge.png",
+      "title": "The detail challenge",
+      "original_filename": "Golf streetwear detail challenge-13.png",
+      "library_file_id": "libfile_d143a07ce40481918a434098ddda5733",
+      "library_version": 0,
+      "sha256": "0f1a32857f3cdb777aae3915f460babef566502385082d9b438ae6337e18a31a",
+      "size_bytes": 3096292,
+      "width": 1024,
+      "height": 1536,
+      "classification": "design-detail-moodboard",
+      "provenance": "User-supplied original upload; generation history unverified",
+      "approval_status": "Not inferred from upload",
+      "contains_typography": true,
+      "is_app_ui_screenshot": false,
+      "is_text_free_standalone_product_image": false,
+      "exact_mockup_match": false,
+      "related_projects": [
+        "First apparel collection",
+        "Signature golf bag"
+      ],
+      "related_mockups": [
+        "04-library.png",
+        "06-tasks.png"
+      ],
+      "thematically_related_generated_assets": [
+        "burgundy-moodboard.png",
+        "cream-knit.png",
+        "leather-detail.png"
+      ],
+      "description": "Burgundy polo and collar/pocket sketches, cream bag detail, five fabric swatches, three styling photographs. No CF embroidery; do not map to CF mark tasks as exact asset.",
+      "presentation": "Preserve complete composition with object-fit: contain for review; no pixel edits made.",
+      "is_generated_recreation": false,
+      "source_kind": "user_upload",
+      "delivery": "Authenticated version-bound endpoint; configured separately by app",
+      "filename": "detail-challenge.png",
+      "logical_path": "/original-assets/detail-challenge.png"
+    },
+    {
+      "file": "founders-five.png",
+      "path": "assets/originals/founders-five.png",
+      "title": "Founders Five",
+      "original_filename": "Founders Five golf streetwear moodboard-11.png",
+      "library_file_id": "libfile_88c85c1cc0088191811eeec0855f846e",
+      "library_version": 0,
+      "sha256": "13dfe8e18e4f34083a82418135569651238d5d0a6babb366154c98688ef149ef",
+      "size_bytes": 2920345,
+      "width": 1024,
+      "height": 1536,
+      "classification": "product-range-moodboard",
+      "provenance": "User-supplied original upload; generation history unverified",
+      "approval_status": "Not inferred from upload",
+      "contains_typography": true,
+      "is_app_ui_screenshot": false,
+      "is_text_free_standalone_product_image": false,
+      "exact_mockup_match": false,
+      "related_projects": [
+        "First apparel collection",
+        "Signature golf bag"
+      ],
+      "related_mockups": [
+        "04-library.png",
+        "06-tasks.png"
+      ],
+      "thematically_related_generated_assets": [
+        "burgundy-moodboard.png",
+        "royal-blue-cap.png"
+      ],
+      "description": "Five pinned concept panels: burgundy polo, cream/brown golf bag, royal-blue unbranded cap, burgundy stitching and golfer; FOUNDERS FIVE heading. Full moodboard, not founder-review notes or brand logo artwork.",
+      "presentation": "Preserve complete composition with object-fit: contain for review; no pixel edits made.",
+      "is_generated_recreation": false,
+      "source_kind": "user_upload",
+      "delivery": "Authenticated version-bound endpoint; configured separately by app",
+      "filename": "founders-five.png",
+      "logical_path": "/original-assets/founders-five.png"
+    },
+    {
+      "file": "keep-change-remove.png",
+      "path": "assets/originals/keep-change-remove.png",
+      "title": "Keep, change, remove",
+      "original_filename": "Keep, change, remove_ Golf streetwear moodboard-12.png",
+      "library_file_id": "libfile_4ad273d5d8e08191b780dc3eae0c570b",
+      "library_version": 0,
+      "sha256": "909d3bb5a3fb3df0e365b0c9f0c706d7ebbc34ef3c169d5313918c18a4ec4725",
+      "size_bytes": 2978333,
+      "width": 1024,
+      "height": 1536,
+      "classification": "comparison-moodboard",
+      "provenance": "User-supplied original upload; generation history unverified",
+      "approval_status": "Not inferred from upload",
+      "contains_typography": true,
+      "is_app_ui_screenshot": false,
+      "is_text_free_standalone_product_image": false,
+      "exact_mockup_match": false,
+      "related_projects": [
+        "Signature golf bag",
+        "First apparel collection"
+      ],
+      "related_mockups": [
+        "04-library.png",
+        "06-tasks.png",
+        "09-project-canvas.png"
+      ],
+      "thematically_related_generated_assets": [
+        "burgundy-moodboard.png",
+        "golf-bag-cream.png",
+        "golf-bag-connected.png"
+      ],
+      "description": "Three columns of burgundy, blue and neutral bags, apparel, fabric samples and sketches headed KEEP / CHANGE / REMOVE. Labels are artwork text; not recorded user decisions.",
+      "presentation": "Preserve complete composition with object-fit: contain for review; no pixel edits made.",
+      "is_generated_recreation": false,
+      "source_kind": "user_upload",
+      "delivery": "Authenticated version-bound endpoint; configured separately by app",
+      "filename": "keep-change-remove.png",
+      "logical_path": "/original-assets/keep-change-remove.png"
+    }
+  ],
+  "workspace_id": "754ccd24-80be-4298-9f64-737d031ed9fd"
+}

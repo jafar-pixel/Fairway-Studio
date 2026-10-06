@@ -1,0 +1,847 @@
+{
+  "status": "photo_only_guarded_slice",
+  "schema_prerequisite": {
+    "migration": "private_profile_photos20261003020300",
+    "sha256": "bb8aca24192ec7e6499e2b2a17b575de2013dd811b381dc74409cf26991238ea",
+    "execution": "already verified applied by parent; no SQL executed by this artifact"
+  },
+  "reviewed_profile_source": [
+    {
+      "path": "app/api/studio/profile-photo/route.ts",
+      "sha256": "2d5c585088fe778f405752a1ba9baeb8f4fcc52514371266bb4448f6cd6e00c9"
+    },
+    {
+      "path": "app/globals.css",
+      "sha256": "a7720d5a07bd85976eff2ab8203802dce7627f6986ebb29d1356aa444541384f",
+      "pre_guide_sha256": "0d86d140a0154d43b36774462b5c1d84c7cea5ba993951b8ad41efa9f4c18a87",
+      "reviewed_guide_change": "Intentional guided-cursor integration. Exact original and reviewed combined bytes are retained as separate hashes; this file is not claimed unchanged."
+    },
+    {
+      "path": "components/studio/app.tsx",
+      "sha256": "c8d8cddaa544e3fedd5315546b5738436e32fec5a6d6614bb12a29147d53995c"
+    },
+    {
+      "path": "components/studio/collections.tsx",
+      "sha256": "96a933d8b222322581560c649316d28f268396060503c32dbf6a10bf00074e2b"
+    },
+    {
+      "path": "components/studio/profile-avatar.tsx",
+      "sha256": "3d35a67cbda3247829c1cd3b542d4155fae4d60a73ace26a87d1eb97a2446ae7"
+    },
+    {
+      "path": "components/studio/profile-photo-editor.tsx",
+      "sha256": "917e87d100ae8076ed14b04bd3e5ba2a7b106adb4bf40711f1213ac39b70b9a2"
+    },
+    {
+      "path": "components/studio/profile-photo-navigation.ts",
+      "sha256": "601570bcd57bc54f3e7bf5bbeb36071e6ecf0e41b6496e332c747b21efcb8a7f"
+    },
+    {
+      "path": "components/studio/profile-photo.css",
+      "sha256": "a04ffe5dad2e6681d509e9bfbe75be9e725c9675a7a4e08ecba5963d7837923b"
+    },
+    {
+      "path": "components/studio/projects.tsx",
+      "sha256": "a373748f34a88d638bfd099bb090fddc7a951befb9d855b6fdcb014612c12bad",
+      "pre_guide_sha256": "1fb11c0b5a2060e43596182d60d0dbe12190311d7252e9533db9516eae5ce2f5",
+      "reviewed_guide_change": "Intentional guided-cursor integration. Exact original and reviewed combined bytes are retained as separate hashes; this file is not claimed unchanged."
+    },
+    {
+      "path": "lib/studio/profile-photo-server.ts",
+      "sha256": "a8706f5232c92853274a0a8ee185224fcbbdba0e49318f0d78584a8b95436e61",
+      "pre_origin_helper_sha256": "dc00efbd966afa4f23cd3f9ed7977d413ed9819150657f591a97d1412f7a7feb",
+      "reviewed_change": "91eb101 delegates the existing origin guard to the shared helper; other route logic remains unchanged. The helper is separately pinned and adversarially tested."
+    },
+    {
+      "path": "lib/studio/profile-photo.ts",
+      "sha256": "e8953dd7187885b0c800d37ffaa28283ff893082bb5f428eb132dc8a96d1804a"
+    }
+  ],
+  "preserved_baseline": [
+    {
+      "path": "app/api/studio/business/route.ts",
+      "sha256": "d91be1aae5df79553f24b823d8b334a3ccd62d2a3ce7c2983b61453838a4f142",
+      "pre_origin_helper_sha256": "d2d60c9bd8794876021ac5a9054a97ab064b56c999f691eb09488ed24028cdbc",
+      "reviewed_change": "91eb101 delegates the existing origin guard to the shared helper; other route logic remains unchanged. The helper is separately pinned and adversarially tested."
+    },
+    {
+      "path": "app/api/studio/business/target/route.ts",
+      "sha256": "1b4384dce907c5c2ed48543e860d7bbc651eb7f429d41d2d0cef1657769bcb24"
+    },
+    {
+      "path": "app/api/studio/generation/route.ts",
+      "sha256": "67b218de9206c1cf45baad9ca6b5c5986b38fca5d2864e1da78b5f8ffb5709f8",
+      "pre_origin_helper_sha256": "d11bf786e04d4f4a90a3c0516c0b0d2ecfb0292ae4d4a554c5dbf641a329180c",
+      "reviewed_change": "91eb101 delegates the existing origin guard to the shared helper; other route logic remains unchanged. The helper is separately pinned and adversarially tested."
+    },
+    {
+      "path": "app/api/studio/guide/route.ts",
+      "sha256": "a1f82aff612aa4b45cf252f1129c33910f4f9d105e902b24546115b42455a82e",
+      "pre_origin_helper_sha256": "70814549dc1aea4bb5fa44e82e219d1ceb2d64e75ac9183b09d4d7ec908b0591",
+      "reviewed_change": "91eb101 delegates the existing origin guard to the shared helper; other route logic remains unchanged. The helper is separately pinned and adversarially tested."
+    },
+    {
+      "path": "app/api/studio/media/jobs/route.ts",
+      "sha256": "e2e84c65f3286fc187d27735dfb0494977d5fbbe0e53c417625d741639c58ab3",
+      "pre_origin_helper_sha256": "c4ac54a97e92c7839af1e1e9e2c6f10c35ebf1c446889ea8c17ea21d2aaff441",
+      "reviewed_change": "91eb101 delegates the existing origin guard to the shared helper; other route logic remains unchanged. The helper is separately pinned and adversarially tested."
+    },
+    {
+      "path": "app/api/studio/media/route.ts",
+      "sha256": "94e094353bd32f4fc9eeb6d0f952961bc9396b3b6d120b5b867d2b76f71bc5f4"
+    },
+    {
+      "path": "app/api/studio/media/worker/route.ts",
+      "sha256": "a527b3ef47907858cc97103ebc753869e1efd123985649695cfc57bb9e048cf9"
+    },
+    {
+      "path": "app/api/studio/private-business/route.ts",
+      "sha256": "4cae3a50453ac7f10e396b16b3918c465bcf5600017092cf5170c3a805cdc3fa",
+      "pre_origin_helper_sha256": "dae4c38513243fcdbded59e5f67346628657202973c48cf65dce3d3f0877be87",
+      "reviewed_change": "91eb101 delegates the existing origin guard to the shared helper; other route logic remains unchanged. The helper is separately pinned and adversarially tested.",
+      "pre_account_binding_sha256": "6b23a7f6d33862ef96599c2b128dd6e675293d9803bdee0304c6c814d40b31be",
+      "reviewed_account_binding_change": "Accepts expectedUserId in POST read bodies for server validation; shared origin policy, body limits and no-store response headers remain unchanged. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "app/api/studio/social/route.ts",
+      "sha256": "76d4e15677a4cc7dae8002a68c6baafae7b3f1ae36211ce7e7b40a1297f73ed2",
+      "pre_origin_helper_sha256": "32e0de7b4f8d13e0950e0724f1cc6a18440c129dc47c311fbdb90b11d95cfa43",
+      "reviewed_change": "91eb101 delegates the existing origin guard to the shared helper; other route logic remains unchanged. The helper is separately pinned and adversarially tested."
+    },
+    {
+      "path": "app/api/studio/starter-asset/route.ts",
+      "sha256": "d373b0350e095b88dda53de4a0450003d0eb45dca720e2172f66fcee43268666"
+    },
+    {
+      "path": "app/api/studio/workflow/route.ts",
+      "sha256": "7c5609774370e8928b5e0d40c5a9af47a436dc272c202c185a989c38a244f721",
+      "pre_origin_helper_sha256": "8ca53e334a409dce0583467d41e30844deb616991096e641c6f18457d52adcb1",
+      "reviewed_change": "91eb101 delegates the existing origin guard to the shared helper; other route logic remains unchanged. The helper is separately pinned and adversarially tested."
+    },
+    {
+      "path": "app/api/studio/workspace/route.ts",
+      "sha256": "25cb0ad0059e311f36cb8c8cc6cb8bd342ce39a2ad4e574cff06598abc2e6295"
+    },
+    {
+      "path": "app/auth/callback/route.ts",
+      "sha256": "a10266c7392ad6227e86eb5746f323fc2c696eb6beca835ddd0c25bf1212467e"
+    },
+    {
+      "path": "app/auth/error/page.tsx",
+      "sha256": "e48c6dd9a241f9487a2e89ee69459664ba60b0ae0acccc4439b767f525bd0bac"
+    },
+    {
+      "path": "app/demo/[[...view]]/page.tsx",
+      "sha256": "5b2a9bcd1a9ead7e4526967cb98aeefb3cb732786217a20c5f63f196c81df44a"
+    },
+    {
+      "path": "app/layout.tsx",
+      "sha256": "e01b65d3d9bcef85bd8e97ba468a3fc5b9607bcd798b877f36ba6181baf0a755"
+    },
+    {
+      "path": "app/manifest.ts",
+      "sha256": "333ca8685aebf880eb6425322adaedda7c07e55fecdd4d5ae201bfeb59a54bd9"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "65073dd1903a2207fe4d879bab1ef8ada4a6dd26527760663f96e350f4719ac1"
+    },
+    {
+      "path": "app/w/[workspaceId]/[[...view]]/page.tsx",
+      "sha256": "96c61bccbc463e10956652b19f6c835767f7e1850c33a8c4737e40a1a94877b5"
+    },
+    {
+      "path": "components/studio-auth.tsx",
+      "sha256": "4c6014adef0d6a22dc52ad64d066acfd65d3923b50c29ec24af843cf5ba23aea"
+    },
+    {
+      "path": "components/studio-collaboration.tsx",
+      "sha256": "d30f1b6b390b3d99c87b34bcce0fcaf5edd5322806a0d3e0152e0e52a91b62b2"
+    },
+    {
+      "path": "components/studio-conversation.tsx",
+      "sha256": "5203435d5fd5618fcab73f49a0a4e6a6e6a1024c04f27f75e615d2c43f87ba45"
+    },
+    {
+      "path": "components/studio-live-room.tsx",
+      "sha256": "31245f6bd8ec9b565ec21b648eed2720bcf7a0d5796614d3601fcde02957a8d6"
+    },
+    {
+      "path": "components/studio-workspace.tsx",
+      "sha256": "9237f832e5b44870b58269dca13f5254d6c215e7285d58ddf547917cf2abd3f9"
+    },
+    {
+      "path": "components/studio/brand-kit.tsx",
+      "sha256": "f965b6ba5f1f1df9c343a165df061631336488c8cb1af50e0bcbdedd72cf1bbb"
+    },
+    {
+      "path": "components/studio/business/board.tsx",
+      "sha256": "c8ab9c0f58f911fa7eae3f39ddae8426b727c58cd06f2a8bc01ad27d4fe809d6"
+    },
+    {
+      "path": "components/studio/business/business.module.css",
+      "sha256": "da779f6394fdb7c63f85a02848452eff642fc67c0e881d575acba40325e2562f"
+    },
+    {
+      "path": "components/studio/business/client.test.mjs",
+      "sha256": "deb7d9ea1342ea177ef75701546878417e1f78c109922d5142ff05d0ccbe65af"
+    },
+    {
+      "path": "components/studio/business/index.ts",
+      "sha256": "18b3211889e3f154fd15ab82e1f71402c29d828caf5b5d305b2ac0d24d292179"
+    },
+    {
+      "path": "components/studio/business/links.tsx",
+      "sha256": "eb8714c81134e52fbab801c3833fd3192e0ab5318f1166e8271dfaa7729217e9"
+    },
+    {
+      "path": "components/studio/business/plan-detail.tsx",
+      "sha256": "aeb292fdfdbb778609eebb6d04014ce2bd494dbe229a1cfdfd30c99ac90d9171"
+    },
+    {
+      "path": "components/studio/business/plan-editor.tsx",
+      "sha256": "e4a935b1de50f0ad845826590b86abfcd702abb62f5cd9e7419a2393f4e86196"
+    },
+    {
+      "path": "components/studio/business/swot.tsx",
+      "sha256": "4c8432faedd825b566bd4ad171476b8b524d307702b34cc02bc074e780672234"
+    },
+    {
+      "path": "components/studio/business/ui.tsx",
+      "sha256": "f9b0b13adddd31ddc66ce677f225faaa894c89aab8444710d54490f939ff725d"
+    },
+    {
+      "path": "components/studio/business/versions.tsx",
+      "sha256": "e6120eb4be6db94c72af21797dbcaf906d456f6ae7e62b51602029f71ce55258"
+    },
+    {
+      "path": "components/studio/business/workspace-boundary.tsx",
+      "sha256": "adf8d5537b03a29fa5f7c317feff11df4384b9067ef6cd3f36dacc276642884a"
+    },
+    {
+      "path": "components/studio/collections-visual.css",
+      "sha256": "b2884fe1293473e5cad27b19c74ff461f96701cda6c2875bf51acb7cc2e21086"
+    },
+    {
+      "path": "components/studio/creator-flow.css",
+      "sha256": "e4d114fa852df92befffc439112772c6a24380a219f21c8a9cf09526c6239091"
+    },
+    {
+      "path": "components/studio/creator-navigation.ts",
+      "sha256": "22c00e1506e71709211f175fb4d008404d69ba517a5f1f951eb6e1c44eb08c62"
+    },
+    {
+      "path": "components/studio/generation-panel.tsx",
+      "sha256": "895919d0a572573fbabc2d615de95240d613ae370289ba7ffbe9b899681334cb"
+    },
+    {
+      "path": "components/studio/media-player.tsx",
+      "sha256": "f718a2237474ac728b27da0064d3a9449e838a1fc3c4ea24c0a3415b9a822f88"
+    },
+    {
+      "path": "components/studio/media-upload.tsx",
+      "sha256": "3353bcb2a0e804eb312a6bf51a1e7c3ab361ee241e5c44eabaccaa91c4778809"
+    },
+    {
+      "path": "components/studio/media.css",
+      "sha256": "44f7d61dc0fed60cda5afa97c1d1bc5930cbc3fa828dc6998c5b6f61ef63543b"
+    },
+    {
+      "path": "components/studio/notifications.tsx",
+      "sha256": "34c79651ba0e9d525e7b9fc413a6dfc9acbc7b7d44036b817b28e50bb3c5d2a0"
+    },
+    {
+      "path": "components/studio/onboarding-guide.tsx",
+      "sha256": "87bab4dbd298f68bba4959f48fb649c6b7eb128bee1e9b8333e7d52ac0374e73",
+      "pre_guide_sha256": "710a05e878f86d898a12e046b34eec1ec6dfe6b755db58c6a5dc6c534ef98b8e",
+      "reviewed_guide_change": "Intentional guided-cursor integration. Exact original and reviewed combined bytes are retained as separate hashes; this file is not claimed unchanged."
+    },
+    {
+      "path": "components/studio/private-business/board.tsx",
+      "sha256": "6aacbc6da48b89b6f45090fe27e263915fe5f7507090c3f34a10fd449707f4f2",
+      "pre_account_binding_sha256": "307f3894cd1a120b6ac0a5d2dfaa9fbdb8f74db7d6408456edfbed4c66e0bd37",
+      "reviewed_account_binding_change": "Passes the existing userId into the private client constructor; no other board change. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "components/studio/private-business/forms.tsx",
+      "sha256": "ed0f9ef88bd54ab41f0c9b7a4ea73aa471d87bba090b866ad41d7c9f0e429fa2"
+    },
+    {
+      "path": "components/studio/private-business/index.ts",
+      "sha256": "d12047d143f1280d71badae31d028d8d9bc5470b85efb34478d8faa98b029390"
+    },
+    {
+      "path": "components/studio/private-business/private-business.module.css",
+      "sha256": "2b50615ebc274a9be632bf5cd57fa2f853ffad80ef9a28a154a1f38a8b642555"
+    },
+    {
+      "path": "components/studio/projects-visual.css",
+      "sha256": "10dfd89ca3cab3cc90d18943d0693605bd5719f03ed0b486d6df485aaf1a16a1"
+    },
+    {
+      "path": "components/studio/pwa-controls.tsx",
+      "sha256": "9f99507067455c45b318373ae6395e01756115efd4093eece5535b4baafc2b56"
+    },
+    {
+      "path": "components/studio/social/board.tsx",
+      "sha256": "601369558e20e93ca49c96611b03660b0567aab5cecb9295d2567b44cea26409"
+    },
+    {
+      "path": "components/studio/social/calendar.tsx",
+      "sha256": "1a99e6376448cc92321a0ae93750ed4163125edd15d486ae727b70eb8c740f1f"
+    },
+    {
+      "path": "components/studio/social/client.test.mjs",
+      "sha256": "0fb6dccedcccbd319e95ed64c63d2bbb6c9f35f9af7436ce5e79df2409f0a371"
+    },
+    {
+      "path": "components/studio/social/detail.tsx",
+      "sha256": "f06bdb3960e4c1a4bebad82e12a46bf6e07f30582200714ff1182749fe9e81ca"
+    },
+    {
+      "path": "components/studio/social/editor.tsx",
+      "sha256": "e209c626ed5ddb634b97191a677aea6bb7fbf3ea79259c11ed140dee018b1420"
+    },
+    {
+      "path": "components/studio/social/feedback.tsx",
+      "sha256": "8408bf9ba1fafff205f8b65c2a303249c364dcbe11afa9a1a968af838f843cd0"
+    },
+    {
+      "path": "components/studio/social/index.ts",
+      "sha256": "66edb3e6b09ebf7f26c9eb9c3b9e506cbd0da776eb122feb958719b87967f04a"
+    },
+    {
+      "path": "components/studio/social/publication.tsx",
+      "sha256": "4fcd69378516efb56e38285b3011bea72e6ab7f94c79f4b91896f80d3fac99df"
+    },
+    {
+      "path": "components/studio/social/review.tsx",
+      "sha256": "e0048b5cb9b1934bd1a794972b09cbcead4e7fb1823d0f9b31af015f4f5b4e1f"
+    },
+    {
+      "path": "components/studio/social/social.module.css",
+      "sha256": "79127f172d7d5fa96a374bf8fe05c4e60f2dfdc521b2e7e333b15296b3f77bed"
+    },
+    {
+      "path": "components/studio/social/source-picker.tsx",
+      "sha256": "02bb60de635ba516a4612fce37f25eb6271433ccd8feb10aa54f5a1ee0dd8c54"
+    },
+    {
+      "path": "components/studio/social/ui.tsx",
+      "sha256": "09202266c5affd759ce7ce23e744431f4c75a723810794c4a922aba4ea7ad211"
+    },
+    {
+      "path": "components/studio/workflows/connected-boundary.tsx",
+      "sha256": "e3b7a04ceca3871f6fbc48f71b5d3e50afbb4aa9a43347db9a22687a2beabe84"
+    },
+    {
+      "path": "components/studio/workflows/context-help.tsx",
+      "sha256": "d8848714b204140330f50b87b7124e0c11107bcea262c08846ebacdad801b028"
+    },
+    {
+      "path": "components/studio/workflows/workflows.module.css",
+      "sha256": "0423abd4aaf53b4eedd9b6121a7557b7e66f5b93d6dcb2601f3fd9864c8806c7"
+    },
+    {
+      "path": "components/ui/button.tsx",
+      "sha256": "4e679215c9c8480ea8b876cf74d77c1225da544adaf6acba43634a434275a69d"
+    },
+    {
+      "path": "lib/studio/business/canonical-hydration.ts",
+      "sha256": "85dd3b5a04d68f77764809f1f10856efa21ce2478798047ead4a2f7597e24737"
+    },
+    {
+      "path": "lib/studio/business/canonical-target.ts",
+      "sha256": "4030199100c352348cdaff36e9710cd98abd9fc1d82eab244fbe4fcf061ec75e"
+    },
+    {
+      "path": "lib/studio/business/client.ts",
+      "sha256": "49cb29f64d00bfa8d31a9b269fc44d83ad31bc54e326e9323cbc33dafdbc4d5b"
+    },
+    {
+      "path": "lib/studio/business/contracts.ts",
+      "sha256": "de9055ef47b734ef12078d9bfbd2210c528506b5bea4eb427989ac9115874ae0"
+    },
+    {
+      "path": "lib/studio/business/server.ts",
+      "sha256": "4543921243b3263a6c0bfaaaf6e746565036980b727bd3ed5a6e87d4af91b5ec"
+    },
+    {
+      "path": "lib/studio/business/shell.ts",
+      "sha256": "8e4c1dc0072fa6b049ca2507ebe1ba7842ded2cbf2a16e53155b62fcfb3217bd"
+    },
+    {
+      "path": "lib/studio/collection-helpers.ts",
+      "sha256": "6b96814eeddddfbaa336802b8bce10977db1c9a993c5737ba50eaf240f5ce4aa"
+    },
+    {
+      "path": "lib/studio/contracts.ts",
+      "sha256": "da777115ff32258024b9f710f5e20381f5aba90b7b3676eb71f622e53e4f4153"
+    },
+    {
+      "path": "lib/studio/creator-flow.ts",
+      "sha256": "efa8b06683db41a960c1f24ce306cb16c5d6397d5cc9a3328a1416c7c2b68258"
+    },
+    {
+      "path": "lib/studio/demo-session.ts",
+      "sha256": "a48762c6ed0ee42d5fbe3f169c56800a0cce13116f07d9764d3925ac43befdaa"
+    },
+    {
+      "path": "lib/studio/demo.ts",
+      "sha256": "fad9d6cb21ff5658453dfbdfb5b8ae72f24a87b0e0bc17e2bbf33fe6f7f3a656"
+    },
+    {
+      "path": "lib/studio/domain.mjs",
+      "sha256": "deac538892e1203015b9a40f300ea0189a5cd9dbfdee4f6f6f4bfb2bb10b0e73"
+    },
+    {
+      "path": "lib/studio/domain.test.mjs",
+      "sha256": "cf56391c3359a79fbdbe3c9079bd86645e970b240820af290a8c2659db9cbd54"
+    },
+    {
+      "path": "lib/studio/generation-context.ts",
+      "sha256": "efc253c7cd121d5c861b1de97de144fa4c3c5ac9cbe15c66af4e35f598983ea6"
+    },
+    {
+      "path": "lib/studio/generation.ts",
+      "sha256": "45aedb22be6f41df98ee1af212fd15f5e7b9d8449575006458d79b1aea3d8cc1"
+    },
+    {
+      "path": "lib/studio/guide-playback.ts",
+      "sha256": "8b032d78479bf483c00e11426b79d1b82ffad71f7473dc787580d28fdfd890ae",
+      "pre_guide_sha256": "801f9cc4e3b8a0d38d10b918703b3bf4fd348e3a90db0612d725fad89a5c1a7f",
+      "reviewed_guide_change": "Intentional guided-cursor integration. Exact original and reviewed combined bytes are retained as separate hashes; this file is not claimed unchanged."
+    },
+    {
+      "path": "lib/studio/imported-content.ts",
+      "sha256": "96e85a08816de181ed9e8e82854601e5125a27b8d4596f94dc69be005d1ade31"
+    },
+    {
+      "path": "lib/studio/media-preview-state.ts",
+      "sha256": "217874db5d3e12028f9fb26588822a8e16f5dd7d9a4b8c5b940f4671c6d2618b"
+    },
+    {
+      "path": "lib/studio/media-upload-controller.ts",
+      "sha256": "7b219fca46cc6f9d8b36a9975c5a00cb3a1e983c4948bee998e72e4f62f7fc7b"
+    },
+    {
+      "path": "lib/studio/media-upload-transport.ts",
+      "sha256": "84d18bac608d9e9000ed229648ed8efe491fdf791e39988aff7e7c15820d3355"
+    },
+    {
+      "path": "lib/studio/media.ts",
+      "sha256": "89b2fd5cbd7dc6954edc4ef702ca445392b50db5f1d028ca739d6c72cb9de623"
+    },
+    {
+      "path": "lib/studio/media/dispatch.ts",
+      "sha256": "ee73ef632712d775ce6e5a199e6424add9dc555f85871b59c89f2059d7e854b6"
+    },
+    {
+      "path": "lib/studio/media/jobs.ts",
+      "sha256": "47e54abdb5daabfc46d1ddc9721f47a5dcfe948cffea29ab8140624a959595a7"
+    },
+    {
+      "path": "lib/studio/media/native.ts",
+      "sha256": "a1c22380f411b74546264ac0f343518f749ad0606d71801932f3b09004d3fced"
+    },
+    {
+      "path": "lib/studio/media/portable-native.ts",
+      "sha256": "841cbb2aac3aa684617bea38fa3afcd652b261775dd707c704beeb7db91e4e63"
+    },
+    {
+      "path": "lib/studio/media/request.ts",
+      "sha256": "15ebc7e621cbde86e2d6c3333d7bf4bf52f6d328aa4a10bf55b1021e3a0f977a"
+    },
+    {
+      "path": "lib/studio/media/storage.ts",
+      "sha256": "8718ed189c1c15b8da4a77f7d9a23f43cd9a6d14c746566f065bd2abd0e44e43"
+    },
+    {
+      "path": "lib/studio/media/validation.ts",
+      "sha256": "9c4f527472235a9669fb8f32539f34ad6760c243e4507f2a3c0d538ae4b0435b"
+    },
+    {
+      "path": "lib/studio/mockup-asset-hashes.json",
+      "sha256": "3e7637f2341fdb50bc8d4d927e201a5d17f1504cee9afcc62e88f651b51bc633"
+    },
+    {
+      "path": "lib/studio/mockup-content.json",
+      "sha256": "f9e2a90c7a269990980b59407fc831b35deb8526a8e482f2134ddcef6792dc72"
+    },
+    {
+      "path": "lib/studio/offline.ts",
+      "sha256": "a7e71f4562d5223c12b3bacedf7d2cc3bb074061b8aae8efe87c58c1a864a57b"
+    },
+    {
+      "path": "lib/studio/onboarding.ts",
+      "sha256": "dbd847ad915962c32c14f4283f4ac9d675fcfc85ab9e8d81fe75c1207dca828f"
+    },
+    {
+      "path": "lib/studio/original-assets.json",
+      "sha256": "eea64fe576c22fe6e9c2917acb434e62664cee5c0b3ede73a9b241347229463c"
+    },
+    {
+      "path": "lib/studio/original-media.ts",
+      "sha256": "65c526c535c15c22d3867ce65f79a4f8f7c5456cb18b6f5beede7fd1c25f22d0"
+    },
+    {
+      "path": "lib/studio/private-business/client.ts",
+      "sha256": "a3d6f8435d813b20c436f55196ae93c26cf7558453edf1fe16632b60f94affab",
+      "pre_account_binding_sha256": "5a5cbdf107c06bfdee54aefa03a14eae8f9e79a4b0fd502eaa9bd3b9697bd9eb",
+      "reviewed_account_binding_change": "Binds read and immutable retry envelopes to the original expectedUserId; preserves no-store transport and permission-epoch erasure. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "lib/studio/private-business/contracts.ts",
+      "sha256": "b21baa682cf458074cfb8ac8b3f807858a0192074355a794af5fe6a39930d0f7",
+      "pre_account_binding_sha256": "9fb1e3812991409b0527326103955cd902dc70b675e6506b3115c1768d637529",
+      "reviewed_account_binding_change": "Requires a valid expectedUserId in the mutation envelope; existing operation and record-field validation remains unchanged. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "lib/studio/private-business/server.ts",
+      "sha256": "cc76d698af3e07559bbb530f5d45e786c0c8af7becf1418fe1818cf21f10037b",
+      "pre_account_binding_sha256": "b060707e48fa7fc7cb58cfe658149971c4a859164958fe0b2c1fd07367129b8c",
+      "reviewed_account_binding_change": "Validates intended account, then compares authorize().user.id before capability, read, or mutation RPC; existing RPC ACL checks remain authoritative. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "lib/studio/project-helpers.ts",
+      "sha256": "08085381d4b8e5a88ce0c3f68e3cc8c933c15e7d352e552247a0a8bc1d4ba788"
+    },
+    {
+      "path": "lib/studio/server.ts",
+      "sha256": "1b9fa7ac6a8c7aa9be483a9c129aeff7b9658507b50856823911541683543033"
+    },
+    {
+      "path": "lib/studio/session-scope.ts",
+      "sha256": "25a774c3fec08369f2e961c121111e3d6675800d912306db3b7895f906bdd9eb"
+    },
+    {
+      "path": "lib/studio/social/client.ts",
+      "sha256": "12eab97d722d38f1c1377b41c627419eaff6aebf3b35a000d96006163c1f79f6"
+    },
+    {
+      "path": "lib/studio/social/contracts.ts",
+      "sha256": "5669e092d58476748c02be51ca3b0929ba9c52a72d7d00aa9ea4bd678115e9ae"
+    },
+    {
+      "path": "lib/studio/social/server.ts",
+      "sha256": "d06b8c85e70928f557b17327d531ba270669009565ac4f2da1cfa5b08fef7f4b"
+    },
+    {
+      "path": "lib/studio/use-guide-playback.ts",
+      "sha256": "f9632dce70c418780fc957e94b21a15d50c955bb1d069c423363d475c0d1d617",
+      "pre_guide_sha256": "fa61e6d63dfd0f7170d60d7b355220b62f3b157713a6d02dd7a5a74bf0c0283d",
+      "reviewed_guide_change": "Intentional guided-cursor integration. Exact original and reviewed combined bytes are retained as separate hashes; this file is not claimed unchanged."
+    },
+    {
+      "path": "lib/studio/workflow.ts",
+      "sha256": "e8b7abdfe60dd2c45ec841e9f7973a852e8a8299f29f654d1d351e6fa676da54"
+    },
+    {
+      "path": "lib/studio/workflows/routes.ts",
+      "sha256": "4b9a5151be92993ed0eab5f4336e3912854ae137e0fede8264792d6806f812b5"
+    },
+    {
+      "path": "lib/supabase/client.ts",
+      "sha256": "1cb017f7213c99219e787a9173b31c816bc04272f27ab41aa6de7eff97574dc4"
+    },
+    {
+      "path": "lib/supabase/proxy.ts",
+      "sha256": "283c2c95e40186d7aca66ddd2a526954f999f2bc998059343a09d77e71f26b56"
+    },
+    {
+      "path": "lib/supabase/server.ts",
+      "sha256": "0257b73079b958868939f5738053f32ca08de8641dc9719d4331a9ede38eb32e"
+    },
+    {
+      "path": "lib/utils.ts",
+      "sha256": "e46429536f43f5910f5b2b0c50bb2769b510a4558bb4b5d20a3b0a9091dbf7c3"
+    },
+    {
+      "path": "next.config.mjs",
+      "sha256": "9f6781ddac6981d358fc2a2de2d8ecb3ee87185b099b919ebe0d6644761695a5"
+    },
+    {
+      "path": "package.json",
+      "sha256": "382f69359985b42c0fd9fe176f56822434b1edc771ef2d8c2835df44348d1bf9"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "272a41ce2705ecd0c7d457411bcc25ab72c247df1b99e454e937c804d79ec9ab"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "sha256": "4a22f988a70a4c4ff26c2dd604f2c02eb97ee1775124f350a8188f037d1f8187"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "sha256": "54b5708e687b8c9ecc8dbeebf29801dbec1213f890c5e018d7ca9c1541a6f7e3"
+    },
+    {
+      "path": "proxy.ts",
+      "sha256": "33413557564ad35ff01423affcccf0ecc2810b6bf73cd1657699139ed063428f"
+    },
+    {
+      "path": "public/sw.js",
+      "sha256": "5b8244e60bef5b88b8f403194a6f8df45521b0bf5001c155f1971e9c2652a542"
+    },
+    {
+      "path": "scripts/generate-media-fixtures.mjs",
+      "sha256": "1f1414cee2a10030b8d555c13438db0f8a9867f4f3dad684ff341d145ca4dcf5"
+    },
+    {
+      "path": "scripts/media-image-worker.cjs",
+      "sha256": "37e62e9f0ef884c32a4304cd21f1fd963ffe000e14d2dcbec1ba4c565dd22062"
+    },
+    {
+      "path": "scripts/media-worker.mjs",
+      "sha256": "151d7b1be76e0528bf616b14fbaff557102ae8c929ff10d94a26309695ad2c9a"
+    },
+    {
+      "path": "scripts/prepare-media-runtime.mjs",
+      "sha256": "790fb0f58d7e38567d3b0ab08cc5a00f9b23aa930520cbfa1d91dbc426fb20f0"
+    },
+    {
+      "path": "scripts/prepare-mockup-import.mjs",
+      "sha256": "5d2616e1faa927f10608184d3000ffd04cbf8566d92a825742663e4533fd3637"
+    },
+    {
+      "path": "scripts/prepare-starter-library-files.mjs",
+      "sha256": "bf052fb4ef02b83f63c89ad801feec8f84279271fadd1db4bf17454a722f7386"
+    },
+    {
+      "path": "scripts/private-original-content.json",
+      "sha256": "871016e31325c0ff8dffeb08c2d478b880077fdafc3bb9296bf3d22c8b9aa134"
+    },
+    {
+      "path": "scripts/test-portable-limits.mjs",
+      "sha256": "89927c96ee9c87b3428b55ed08820a561c30af147977b65da8e7b33edc847a44"
+    },
+    {
+      "path": "scripts/test-portable.mjs",
+      "sha256": "e469f0a5ec8303fc59e4658138d4cfb1635bfb2745b196a865c199db7594202d"
+    },
+    {
+      "path": "scripts/vendor/media-limit.c",
+      "sha256": "b8778c8fb0a9d6ed7e55e43f708b5ba421d1e666e877f6d9b2133ab7125bb513"
+    },
+    {
+      "path": "supabase/migrations/20261002224730_business_foundation.sql",
+      "sha256": "d86fc569bdd91d5b2268c80285d79f4092e6eb2a0095fd79b0446f5f3f9fe456"
+    },
+    {
+      "path": "supabase/migrations/20261002233903_social_content_workflow.sql",
+      "sha256": "29f05c517ccd3d23a652d1b38129e3cf7b28d60cf23a811de22dc8a7801903ae"
+    },
+    {
+      "path": "supabase/migrations/20261002234957_private_business_records.sql",
+      "sha256": "2cf6450d2d2f0b364cc14b9d017281028a4ea6929f563de894923ce9c257ce85"
+    },
+    {
+      "path": "supabase/mockup-content-import.manifest.json",
+      "sha256": "b0ebcb2e76ab16adfe815631188a74a519d8ada770e2a73552a3918343854335"
+    },
+    {
+      "path": "supabase/mockup-content-import.sql",
+      "sha256": "174c215213bbd29735ab4ec6df6bdf4c26d15321fb71331aa49a8638a73d369f"
+    },
+    {
+      "path": "supabase/pending-ai-jobs.sql",
+      "sha256": "288365040833cbdc1fe6ca27c45ba254be8b3170402c25a259ee43dae94f1168"
+    },
+    {
+      "path": "supabase/pending-media.sql",
+      "sha256": "2276bec552fc9e31ad2c252bf89e5b81d4cf60215c127f4e4ca6bfa28a5c0c48"
+    },
+    {
+      "path": "supabase/pending-schema.sql",
+      "sha256": "4dc83edd7f36699ad44c16631fcf4ab99937a35c208c24ba20d3c51765c41260"
+    },
+    {
+      "path": "supabase/pending-workflows.sql",
+      "sha256": "ad62a2e778b6fc4b9643266317a896d72eb6d72a69a4f2afe80a7dbf4a43aefc"
+    },
+    {
+      "path": "supabase/tests/studio-integration.sql",
+      "sha256": "8fc31e3d7e897ba8afabb22a037e1d2330bf93e3896b96b63a9ea4bcb2f8100f"
+    },
+    {
+      "path": "tsconfig.json",
+      "sha256": "f2fc3309a966ecb35a51a17b2b7ab03c92d88b7c663ddbed5cb626f597c83277"
+    }
+  ],
+  "absent_paths": [
+    "app/api/studio/relationships",
+    "components/studio/relationships",
+    "lib/studio/relationships",
+    "supabase/migrations/20261003012426_relationships_register.sql",
+    "app/api/studio/private-business/uploads",
+    "components/studio/private-business/uploads.tsx",
+    "lib/studio/private-business/uploads-client.ts",
+    "lib/studio/private-business/uploads-server.ts",
+    "lib/studio/private-business/upload-validation.ts",
+    "supabase/migrations/20261003015213_private_document_uploads.sql",
+    "supabase/pending-private-document-uploads.sql",
+    "supabase/pending-native-documents.sql",
+    "supabase/pending-relationships.sql"
+  ],
+  "reviewed_origin_source": [
+    {
+      "path": "lib/studio/request-origin.ts",
+      "sha256": "3d0be41d25a17e3556486358316633e9f24f70085619b8ddb5466ad959a78848",
+      "recovered_91eb101_sha256": "dccd21da92c92301729196df0f67c450f64aeecddd5ed6eae8b41db4c3903e7d",
+      "reviewed_change": "Restrict forwarded metadata fallback to the two exact known HTTPS Fairway origins; reject ambiguous protocol/host lists and prevent synthesized origins. Missing-Origin semantics and route-specific Fetch Metadata checks stay unchanged."
+    }
+  ],
+  "reviewed_guide_integration": {
+    "baseline_commit": "91eb101b03ad3ad0384204eb86b2e81e167657ef",
+    "manifest_sha256": "ec8b300bda94d5992b8e458a5edbf0f48e06b91f7a54d5494fe5887007eabe9a",
+    "modified_file_count": 6,
+    "added_file_count": 12,
+    "files": [
+      {
+        "path": "app/globals.css",
+        "status": "modified",
+        "before_sha256": "0d86d140a0154d43b36774462b5c1d84c7cea5ba993951b8ad41efa9f4c18a87",
+        "sha256": "a7720d5a07bd85976eff2ab8203802dce7627f6986ebb29d1356aa444541384f"
+      },
+      {
+        "path": "components/studio/guide/guide-motion.ts",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "bb2ae285d23fbda7a73266dfa919a6e905f9ad5ef2a7b2cba974159b0ad8d959"
+      },
+      {
+        "path": "components/studio/guide/guide-pointer.tsx",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "f254da891fa9cc57c4450f54d2be3e83bdb839a52e6db1ed85c8cc72b728f47b"
+      },
+      {
+        "path": "components/studio/guide/guide-target.ts",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "f5fa0043c15350570316551799e75a64a65d172a7a985b08bcd6039cf6e33319"
+      },
+      {
+        "path": "components/studio/guide/guide-toolbar.tsx",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "af3ea5f65bb9dda39f4f0b7c6b3603c7ba6d491c66169393819033f7ec358418"
+      },
+      {
+        "path": "components/studio/guide/guide.css",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "5d52e5d556649f0be067f11e3e6fc9adc62f25ddde23688250f679f33624d287"
+      },
+      {
+        "path": "components/studio/guide/index.ts",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "f981a36ee47600e372cfcee09c8a9efa24085328566cbb1f1c623320b7ce2fe3"
+      },
+      {
+        "path": "components/studio/guide/use-guide-motion.ts",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "c8dc3fd78df05a9ab1fe7a22e89ec79e5829e8345b6cab037e5cebcbd35d8bab"
+      },
+      {
+        "path": "components/studio/guide/use-guide-target.ts",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "6f2cafa2691ada2bd72288fba0a8b67e284a4eef5f566c12907bff0c79e40e9c"
+      },
+      {
+        "path": "components/studio/onboarding-guide.tsx",
+        "status": "modified",
+        "before_sha256": "710a05e878f86d898a12e046b34eec1ec6dfe6b755db58c6a5dc6c534ef98b8e",
+        "sha256": "87bab4dbd298f68bba4959f48fb649c6b7eb128bee1e9b8333e7d52ac0374e73"
+      },
+      {
+        "path": "components/studio/projects.tsx",
+        "status": "modified",
+        "before_sha256": "1fb11c0b5a2060e43596182d60d0dbe12190311d7252e9533db9516eae5ce2f5",
+        "sha256": "a373748f34a88d638bfd099bb090fddc7a951befb9d855b6fdcb014612c12bad"
+      },
+      {
+        "path": "lib/studio/guide-playback.ts",
+        "status": "modified",
+        "before_sha256": "801f9cc4e3b8a0d38d10b918703b3bf4fd348e3a90db0612d725fad89a5c1a7f",
+        "sha256": "8b032d78479bf483c00e11426b79d1b82ffad71f7473dc787580d28fdfd890ae"
+      },
+      {
+        "path": "lib/studio/use-guide-playback.ts",
+        "status": "modified",
+        "before_sha256": "fa61e6d63dfd0f7170d60d7b355220b62f3b157713a6d02dd7a5a74bf0c0283d",
+        "sha256": "f9632dce70c418780fc957e94b21a15d50c955bb1d069c423363d475c0d1d617"
+      },
+      {
+        "path": "tests/guide-components.test.mjs",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "f672295e68f683138a4227abc7c78ef18ec5edc555a9c7f4f7ccba55caba0c28"
+      },
+      {
+        "path": "tests/guide-load-component.mjs",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "46dee36979ccd1b04400d0c07aa2dbf9ef231e9ccdb0facffe5dd2a72b5c8391"
+      },
+      {
+        "path": "tests/guide-motion.test.mjs",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "bcbfe11f1b1df1fcf3582d196b3b7a671398b2349252a6dd3c5e4a1ebf3f5bd5"
+      },
+      {
+        "path": "tests/guide-playback.test.mjs",
+        "status": "modified",
+        "before_sha256": "bfb3ba6f46d2c8e6e13b21eb5ec933d27e065915a918373fa9212e042f27f8db",
+        "sha256": "029d6e8c9a18bcb47c70d3be99a1362c66eea17801ecee31e9271b5c83878ba3"
+      },
+      {
+        "path": "tests/guide-target.test.mjs",
+        "status": "added",
+        "before_sha256": null,
+        "sha256": "833613fce5f96adacc16d791560a0d86e815aac5f38d5df34f0f67ee7169d6a9"
+      }
+    ]
+  },
+  "reviewed_private_account_security": {
+    "baseline": "fairway-guide-release",
+    "schema_changes": 0,
+    "production_files": [
+      {
+        "path": "app/api/studio/private-business/route.ts",
+        "before_sha256": "6b23a7f6d33862ef96599c2b128dd6e675293d9803bdee0304c6c814d40b31be",
+        "sha256": "4cae3a50453ac7f10e396b16b3918c465bcf5600017092cf5170c3a805cdc3fa",
+        "reviewed_change": "Accepts expectedUserId in POST read bodies for server validation; shared origin policy, body limits and no-store response headers remain unchanged. Explicit security change; not claimed unchanged."
+      },
+      {
+        "path": "components/studio/private-business/board.tsx",
+        "before_sha256": "307f3894cd1a120b6ac0a5d2dfaa9fbdb8f74db7d6408456edfbed4c66e0bd37",
+        "sha256": "6aacbc6da48b89b6f45090fe27e263915fe5f7507090c3f34a10fd449707f4f2",
+        "reviewed_change": "Passes the existing userId into the private client constructor; no other board change. Explicit security change; not claimed unchanged."
+      },
+      {
+        "path": "lib/studio/private-business/client.ts",
+        "before_sha256": "5a5cbdf107c06bfdee54aefa03a14eae8f9e79a4b0fd502eaa9bd3b9697bd9eb",
+        "sha256": "a3d6f8435d813b20c436f55196ae93c26cf7558453edf1fe16632b60f94affab",
+        "reviewed_change": "Binds read and immutable retry envelopes to the original expectedUserId; preserves no-store transport and permission-epoch erasure. Explicit security change; not claimed unchanged."
+      },
+      {
+        "path": "lib/studio/private-business/contracts.ts",
+        "before_sha256": "9fb1e3812991409b0527326103955cd902dc70b675e6506b3115c1768d637529",
+        "sha256": "b21baa682cf458074cfb8ac8b3f807858a0192074355a794af5fe6a39930d0f7",
+        "reviewed_change": "Requires a valid expectedUserId in the mutation envelope; existing operation and record-field validation remains unchanged. Explicit security change; not claimed unchanged."
+      },
+      {
+        "path": "lib/studio/private-business/server.ts",
+        "before_sha256": "b060707e48fa7fc7cb58cfe658149971c4a859164958fe0b2c1fd07367129b8c",
+        "sha256": "cc76d698af3e07559bbb530f5d45e786c0c8af7becf1418fe1818cf21f10037b",
+        "reviewed_change": "Validates intended account, then compares authorize().user.id before capability, read, or mutation RPC; existing RPC ACL checks remain authoritative. Explicit security change; not claimed unchanged."
+      }
+    ]
+  }
+}

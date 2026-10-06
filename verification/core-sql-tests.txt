@@ -1,0 +1,2 @@
+Migration compiles successfully on local PGlite PostgreSQL.
+Rollback integration tests passed.

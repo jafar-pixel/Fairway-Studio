@@ -1,0 +1,461 @@
+{
+  "project_id": "xljhxmyigtxhjtxxzuwk",
+  "access": "read_only_no_mutations",
+  "baseline": {
+    "ids": {
+      "files": [
+        "6486bbc2-6464-545e-81f4-783aa49b3283",
+        "6e31854b-753c-8422-2b57-7557816e1ad9",
+        "73bbbb60-1c3a-634c-31a7-69a1ec101949",
+        "88f88831-a66c-6afc-d0be-4fea277b827a",
+        "97f2e122-eed8-e9f6-588e-e13bc500aa9b",
+        "b021c421-988a-8ea3-b76e-fb0a7b4183e7"
+      ],
+      "ideas": [
+        "716af959-5e6e-5721-8c1a-ddada47a5f07",
+        "76278f89-2465-5615-a5ae-1aeae3724667",
+        "86570fa6-407e-5154-8cf0-73d69d4b4552",
+        "92f622b3-e88b-5698-abfe-2b5c66cbb3e9",
+        "b8063bbb-6389-510c-b7f8-d3b815778b78",
+        "b973a2cd-1d3d-4bcc-b8d0-a379f40e2984",
+        "d26c9b54-f800-5839-a2e9-c97065e85e3e"
+      ],
+      "projects": [
+        "3962a0b6-0577-5d9e-bf44-f0b45849c841",
+        "56dc12de-c922-544c-a6a3-83ce12e6fb10",
+        "b9ecc597-9849-5215-b87f-3f8c1d7cbed8",
+        "f5434fd4-1f8b-51ca-8c3b-656fefbd14a3"
+      ],
+      "versions": [
+        "01ff2e82-0b99-5a18-a965-ee578bb51126",
+        "110faea8-a7a4-5340-acd8-c969e44ffba8",
+        "165ee248-5065-56f2-a7c2-d2083612f61b",
+        "16ccb2c3-a461-5e53-847a-e074b60cde4a",
+        "2fea1114-0155-5353-b7c5-2570958ec1e8",
+        "33f75916-8dff-5d84-9dae-a795818ebb56",
+        "380fe99c-19dd-534e-aa93-fba3c10a5978",
+        "48feba9a-af71-50b5-9d5d-d0288814f59f",
+        "4a7782b5-6fbf-5682-ba62-b1b26c4a4c02",
+        "4f7eaaf2-28a4-5038-8f3d-d45cb0421cc9",
+        "579e36ab-e249-5571-8b97-c4663540b98b",
+        "66837adc-e857-5c72-9b37-d1f052e68508",
+        "685d439c-7ac7-58e2-bf44-724c75854013",
+        "6c590f7d-43c0-5db6-8541-b907f57f7a3d",
+        "6fdd1987-613b-5555-87ec-9f893aae6893",
+        "799da79a-db8f-58b1-82d9-6be94d685e9f",
+        "7c32c2ed-67c3-5d5f-8f33-b91a1ea74bf0",
+        "9551b4ce-0c3e-52c3-a2e3-f1956d835a06",
+        "9dfefe06-c0bd-5d90-94b6-e6d82cf473ef",
+        "a6e9aa64-d941-5eed-b2a3-3bb6a15bf7fa",
+        "b7daf246-e994-5106-85f0-f8127fe42f17",
+        "bcf00194-1358-54d4-a885-059f4ab60ebf",
+        "ca469646-99d8-5156-b9fb-491701b2132a",
+        "cfc1ff76-40cd-5dc3-9b09-70011f80e7b9",
+        "d1ef7d44-4ba5-566c-ba98-d90bd09ee77e",
+        "d3513182-8399-5575-a7c1-ad56ab4d8f76",
+        "d82e622e-8c4f-54f0-801b-634ec48082df",
+        "db931a11-8f53-5f2a-8c4b-8a88f52c1c2c",
+        "dca307dd-98b2-57b5-8aba-0108a50d520c",
+        "e753f8eb-71aa-5c98-aaea-47a81cbea17b",
+        "eceab331-852f-51bf-a7fd-774c803a8176",
+        "f1497ee6-5a40-5f89-bd99-78234bc50d56"
+      ]
+    },
+    "counts": {
+      "files": 6,
+      "ideas": 7,
+      "projects": 4,
+      "versions": 32
+    },
+    "columns": [
+      {
+        "data_type": "uuid",
+        "table_name": "brand_ideas",
+        "column_name": "id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "brand_ideas",
+        "column_name": "workspace_id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "brand_ideas",
+        "column_name": "author_id"
+      },
+      {
+        "data_type": "text",
+        "table_name": "brand_ideas",
+        "column_name": "title"
+      },
+      {
+        "data_type": "text",
+        "table_name": "brand_ideas",
+        "column_name": "body"
+      },
+      {
+        "data_type": "text",
+        "table_name": "brand_ideas",
+        "column_name": "category"
+      },
+      {
+        "data_type": "text",
+        "table_name": "brand_ideas",
+        "column_name": "status"
+      },
+      {
+        "data_type": "timestamp with time zone",
+        "table_name": "brand_ideas",
+        "column_name": "created_at"
+      },
+      {
+        "data_type": "timestamp with time zone",
+        "table_name": "brand_ideas",
+        "column_name": "updated_at"
+      },
+      {
+        "data_type": "integer",
+        "table_name": "brand_ideas",
+        "column_name": "revision"
+      },
+      {
+        "data_type": "ARRAY",
+        "table_name": "brand_ideas",
+        "column_name": "tags"
+      },
+      {
+        "data_type": "timestamp with time zone",
+        "table_name": "brand_ideas",
+        "column_name": "archived_at"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "brand_ideas",
+        "column_name": "project_id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_decisions",
+        "column_name": "id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_decisions",
+        "column_name": "workspace_id"
+      },
+      {
+        "data_type": "timestamp with time zone",
+        "table_name": "studio_decisions",
+        "column_name": "created_at"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_decisions",
+        "column_name": "round_id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_decisions",
+        "column_name": "project_id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_decisions",
+        "column_name": "version_id"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_decisions",
+        "column_name": "scope"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_decisions",
+        "column_name": "rationale"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_decisions",
+        "column_name": "outcome"
+      },
+      {
+        "data_type": "jsonb",
+        "table_name": "studio_decisions",
+        "column_name": "evidence"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_decisions",
+        "column_name": "created_by"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_projects",
+        "column_name": "id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_projects",
+        "column_name": "workspace_id"
+      },
+      {
+        "data_type": "timestamp with time zone",
+        "table_name": "studio_projects",
+        "column_name": "created_at"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_projects",
+        "column_name": "title"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_projects",
+        "column_name": "brief"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_projects",
+        "column_name": "category"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_projects",
+        "column_name": "status"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_projects",
+        "column_name": "lead_id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_projects",
+        "column_name": "idea_id"
+      },
+      {
+        "data_type": "integer",
+        "table_name": "studio_projects",
+        "column_name": "revision"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_projects",
+        "column_name": "created_by"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_projects",
+        "column_name": "kit_id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_versions",
+        "column_name": "id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_versions",
+        "column_name": "workspace_id"
+      },
+      {
+        "data_type": "timestamp with time zone",
+        "table_name": "studio_versions",
+        "column_name": "created_at"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_versions",
+        "column_name": "project_id"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_versions",
+        "column_name": "title"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_versions",
+        "column_name": "body"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_versions",
+        "column_name": "file_id"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_versions",
+        "column_name": "image_url"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_versions",
+        "column_name": "source_url"
+      },
+      {
+        "data_type": "text",
+        "table_name": "studio_versions",
+        "column_name": "media_verification"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_versions",
+        "column_name": "parent_id"
+      },
+      {
+        "data_type": "jsonb",
+        "table_name": "studio_versions",
+        "column_name": "provenance"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "studio_versions",
+        "column_name": "created_by"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "workspace_files",
+        "column_name": "id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "workspace_files",
+        "column_name": "workspace_id"
+      },
+      {
+        "data_type": "text",
+        "table_name": "workspace_files",
+        "column_name": "title"
+      },
+      {
+        "data_type": "text",
+        "table_name": "workspace_files",
+        "column_name": "url"
+      },
+      {
+        "data_type": "text",
+        "table_name": "workspace_files",
+        "column_name": "provider"
+      },
+      {
+        "data_type": "text",
+        "table_name": "workspace_files",
+        "column_name": "context_note"
+      },
+      {
+        "data_type": "ARRAY",
+        "table_name": "workspace_files",
+        "column_name": "tags"
+      },
+      {
+        "data_type": "text",
+        "table_name": "workspace_files",
+        "column_name": "permission_scope"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "workspace_files",
+        "column_name": "added_by"
+      },
+      {
+        "data_type": "timestamp with time zone",
+        "table_name": "workspace_files",
+        "column_name": "created_at"
+      },
+      {
+        "data_type": "integer",
+        "table_name": "workspace_files",
+        "column_name": "revision"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "workspace_members",
+        "column_name": "workspace_id"
+      },
+      {
+        "data_type": "uuid",
+        "table_name": "workspace_members",
+        "column_name": "user_id"
+      },
+      {
+        "data_type": "text",
+        "table_name": "workspace_members",
+        "column_name": "role"
+      },
+      {
+        "data_type": "timestamp with time zone",
+        "table_name": "workspace_members",
+        "column_name": "joined_at"
+      },
+      {
+        "data_type": "boolean",
+        "table_name": "workspace_members",
+        "column_name": "is_founder"
+      }
+    ],
+    "policies": [
+      {
+        "qual": "(EXISTS ( SELECT 1\n   FROM workspace_members m\n  WHERE ((m.workspace_id = studio_decisions.workspace_id) AND (m.user_id = ( SELECT auth.uid() AS uid)))))",
+        "tablename": "studio_decisions",
+        "policyname": "studio_member_read",
+        "with_check": null
+      },
+      {
+        "qual": "(EXISTS ( SELECT 1\n   FROM workspace_members m\n  WHERE ((m.workspace_id = studio_versions.workspace_id) AND (m.user_id = ( SELECT auth.uid() AS uid)))))",
+        "tablename": "studio_versions",
+        "policyname": "studio_member_read",
+        "with_check": null
+      },
+      {
+        "qual": "((added_by = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM workspace_members m\n  WHERE ((m.workspace_id = workspace_files.workspace_id) AND (m.user_id = ( SELECT auth.uid() AS uid))))))",
+        "tablename": "workspace_files",
+        "policyname": "studio_files_delete_owner",
+        "with_check": null
+      },
+      {
+        "qual": "((EXISTS ( SELECT 1\n   FROM workspace_members m\n  WHERE ((m.workspace_id = workspace_files.workspace_id) AND (m.user_id = ( SELECT auth.uid() AS uid))))) AND (added_by = ( SELECT auth.uid() AS uid)))",
+        "tablename": "workspace_files",
+        "policyname": "studio_files_update_owner",
+        "with_check": "((added_by = ( SELECT auth.uid() AS uid)) AND (EXISTS ( SELECT 1\n   FROM workspace_members m\n  WHERE ((m.workspace_id = workspace_files.workspace_id) AND (m.user_id = ( SELECT auth.uid() AS uid))))))"
+      },
+      {
+        "qual": "((EXISTS ( SELECT 1\n   FROM workspace_members m\n  WHERE ((m.workspace_id = workspace_files.workspace_id) AND (m.user_id = ( SELECT auth.uid() AS uid))))) AND ((permission_scope = 'workspace'::text) OR (added_by = ( SELECT auth.uid() AS uid))))",
+        "tablename": "workspace_files",
+        "policyname": "studio_files_visibility",
+        "with_check": null
+      },
+      {
+        "qual": "((added_by = ( SELECT auth.uid() AS uid)) OR app_private.is_workspace_admin(workspace_id))",
+        "tablename": "workspace_files",
+        "policyname": "workspace_files_delete_creator_or_admin",
+        "with_check": null
+      },
+      {
+        "qual": null,
+        "tablename": "workspace_files",
+        "policyname": "workspace_files_insert_member",
+        "with_check": "((added_by = ( SELECT auth.uid() AS uid)) AND app_private.is_workspace_member(workspace_id))"
+      },
+      {
+        "qual": "app_private.is_workspace_member(workspace_id)",
+        "tablename": "workspace_files",
+        "policyname": "workspace_files_select_member",
+        "with_check": null
+      },
+      {
+        "qual": "((added_by = ( SELECT auth.uid() AS uid)) OR app_private.is_workspace_admin(workspace_id))",
+        "tablename": "workspace_files",
+        "policyname": "workspace_files_update_creator_or_admin",
+        "with_check": "app_private.is_workspace_member(workspace_id)"
+      },
+      {
+        "qual": "app_private.is_workspace_member(workspace_id)",
+        "tablename": "workspace_members",
+        "policyname": "workspace_members_select_member",
+        "with_check": null
+      }
+    ],
+    "observed_at": "2026-10-02T23:53:19.728862+00:00"
+  }
+}
