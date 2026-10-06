@@ -34,7 +34,9 @@ try {
   check(matePrivate.owner_id===mate,'Teammate gets their own private board');
   boards=(await op('ensureBoards',{idea_id:idea})).boards;check(boards.length===2,'Opening again does not duplicate boards');
 
+  check((await op('claimSeed',{board_id:team.id})).claimed===true,'First opener claims filling the new Team board');
   await as(owner);
+  check((await op('claimSeed',{board_id:team.id})).claimed===false,'A second opener never fills it again');
   boards=(await op('ensureBoards',{idea_id:idea})).boards;const ownerPrivate=boards.find(b=>b.scope==='private');
   check(boards.length===2 && boards.find(b=>b.scope==='team').id===team.id,'Owner sees the same Team board plus their own private board');
   check((await sql('select id from studio_boards')).length===2,'RLS hides the teammate private board from the owner');
@@ -63,6 +65,7 @@ try {
   const comment=await op('addComment',{board_id:team.id,item_id:note.id,body:'Love this direction'});
   check(comment.author_id===mate,'Teammate can comment on a Team item');
   await fails(()=>op('addItem',{board_id:ownerPrivate.id,kind:'note',body:'peek'}),'42501','Teammate cannot write to someone else\'s private board');
+  await fails(()=>op('claimSeed',{board_id:matePrivate.id}),'22023','Private boards are not filled from the idea');
   await fails(()=>op('addItem',{board_id:team.id,kind:'library',reference_id:ref('Mate private pin')}),'42501','Private Library items cannot be pinned to the Team board');
   check((await op('addItem',{board_id:matePrivate.id,kind:'library',reference_id:ref('Mate private pin')})).title==='Mate private pin','Own private Library item can go on own private board');
   const pinned=await op('addItem',{board_id:team.id,kind:'library',reference_id:ref('Shared pin')});

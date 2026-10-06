@@ -95,12 +95,15 @@ function useRemoteBoards(workspaceId: string, ideaId: string, enabled: boolean) 
     if (seeding.current === boardId) return;
     seeding.current = boardId;
     try {
+      // The database lets exactly one opener fill the board, so simultaneous openers never duplicate it.
+      const claim = await post("claimSeed", { board_id: boardId });
+      if (!claim?.claimed) return;
       const src = ideaImage(idea);
       const palette = await extractPalette(src);
       for (const item of seedItems(idea, palette, storableImage(src, window.location.origin)))
         await post("addItem", { ...item, board_id: boardId });
     } catch { /* The board still works empty; members can add items themselves. */ }
-    await query.mutate();
+    finally { await query.mutate(); }
   }
   const boards = query.data?.boards;
   useEffect(() => {

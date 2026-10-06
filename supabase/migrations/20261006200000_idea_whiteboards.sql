@@ -13,8 +13,10 @@ create table if not exists public.studio_boards (
   idea_id uuid not null references public.brand_ideas(id) on delete cascade,
   scope text not null check (scope in ('team', 'private')),
   owner_id uuid not null,
+  seeded_at timestamptz,
   created_at timestamptz not null default now()
 );
+alter table public.studio_boards add column if not exists seeded_at timestamptz;
 create unique index if not exists studio_boards_team_idx on public.studio_boards(idea_id) where scope = 'team';
 create unique index if not exists studio_boards_private_idx on public.studio_boards(idea_id, owner_id) where scope = 'private';
 create index if not exists studio_boards_workspace_idx on public.studio_boards(workspace_id);
@@ -115,7 +117,7 @@ begin
   end if;
 
   -- Every other operation acts on a board the actor can see.
-  if p_operation in ('addItem', 'addComment') then
+  if p_operation in ('addItem', 'addComment', 'claimSeed') then
     target_board := (p_input->>'board_id')::uuid;
   elsif p_operation = 'deleteComment' then
     select c.board_id into target_board from public.studio_board_comments c where c.workspace_id = p_workspace and c.id = (p_input->>'id')::uuid;
@@ -130,7 +132,13 @@ begin
   end if;
   is_owner := board.owner_id = actor;
 
-  if p_operation = 'addItem' then
+  if p_operation = 'claimSeed' then
+    -- Exactly one opener fills a new Team board with its starter items, even if several open it at once.
+    if board.scope <> 'team' then raise exception 'Only Team boards are filled from their idea' using errcode = '22023'; end if;
+    update public.studio_boards set seeded_at = now() where id = board.id and seeded_at is null;
+    return jsonb_build_object('claimed', found);
+
+  elsif p_operation = 'addItem' then
     if p_input->>'kind' = 'library' then
       if p_input->>'reference_id' is not null then
         select * into ref_row from public.saved_references r where r.workspace_id = p_workspace and r.id = (p_input->>'reference_id')::uuid;

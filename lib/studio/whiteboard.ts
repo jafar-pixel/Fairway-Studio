@@ -14,7 +14,7 @@ export type BoardItem = {
 export type BoardComment = { id: string; board_id: string; item_id: string | null; author_id: string; body: string; created_at: string };
 export type BoardSnapshot = { boards: Board[]; items: BoardItem[]; comments: BoardComment[] };
 
-export const BOARD_OPERATIONS = ["ensureBoards", "addItem", "updateItem", "deleteItem", "checkOut", "checkIn", "copyToPrivate", "addComment", "deleteComment"] as const;
+export const BOARD_OPERATIONS = ["ensureBoards", "claimSeed", "addItem", "updateItem", "deleteItem", "checkOut", "checkIn", "copyToPrivate", "addComment", "deleteComment"] as const;
 export type BoardOperation = (typeof BOARD_OPERATIONS)[number];
 export const ITEM_KINDS: BoardItemKind[] = ["note", "swatch", "fabric", "image", "library"];
 export const ITEM_LABELS: Record<BoardItemKind, string> = { note: "Note", swatch: "Colour", fabric: "Fabric", image: "Image", library: "Library item" };
@@ -31,6 +31,7 @@ export function boardInputError(operation: string, input: Record<string, unknown
   for (const key of ["created_by", "author_id", "owner_id", "workspace_id", "checked_out_by"]) if (key in input) return "Identity is assigned by the server.";
   const id = (key: string) => typeof input[key] === "string" && uuid.test(input[key] as string);
   if (operation === "ensureBoards") return id("idea_id") ? null : "Choose an idea.";
+  if (operation === "claimSeed") return id("board_id") ? null : "Choose a board.";
   if (operation === "addComment") {
     if (!id("board_id")) return "Choose a board.";
     if (input.item_id != null && !id("item_id")) return "Choose a board item.";
