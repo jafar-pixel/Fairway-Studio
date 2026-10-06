@@ -21,9 +21,9 @@ export function JLInfluenceFooter() {
         <a href="/" aria-label="Fairway Studio by JL Influence" className="block w-full max-w-sm shrink-0">
           <img
             src="/brand/jl-footer-banner.png"
-            alt="JL Influence — Fairway Studio · jlinfluence.com"
-            width={2880}
-            height={480}
+            alt="JL Influence — Fairway Studio · © 2010 jlinfluence.com · All rights reserved"
+            width={425}
+            height={154}
             className="h-auto w-full"
           />
         </a>
