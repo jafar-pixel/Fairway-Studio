@@ -24,6 +24,7 @@ import {
   Archive,
   Copy,
   FolderOpen,
+  Presentation,
   MoreHorizontal,
   Sparkles,
   MessageCircle,
@@ -772,6 +773,9 @@ function IdeasCollection(props: CollectionProps) {
   const [editorAction, setEditorAction] = useState("");
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
+  // Clicking an idea opens its Team/Private whiteboard; details stay in the card menu.
+  const openBoard = (item: Row) =>
+    onNavigate(`${workspaceId === "demo" ? "/demo" : `/w/${workspaceId}`}/ideas/${encodeURIComponent(item.id)}/board`);
   const all: Row[] = (data.ideas || []).map((i: Row) => ({
     ...i,
     status: i.archived_at ? "archived" : i.status,
@@ -917,9 +921,13 @@ function IdeasCollection(props: CollectionProps) {
                   <MoreHorizontal size={20} />
                 </summary>
                 <div className="fc-popover">
+                  <button onClick={() => openBoard(item)}>
+                    <Presentation size={16} />
+                    Open whiteboard
+                  </button>
                   <button onClick={() => setSelected(item)}>
                     <FolderOpen size={16} />
-                    Open idea
+                    Edit details
                   </button>
                   <button
                     onClick={() => {
@@ -948,15 +956,15 @@ function IdeasCollection(props: CollectionProps) {
             </div>
             <button
               className="fc-idea-image"
-              onClick={() => setSelected(item)}
-              aria-label={`Open ${item.title}`}
+              onClick={() => openBoard(item)}
+              aria-label={`Open the whiteboard for ${item.title}`}
             >
               <Preview workspaceId={props.workspaceId} userId={props.userId} item={item} />
             </button>
             <div className="fc-idea-card-copy">
               <button
                 className="fc-card-title"
-                onClick={() => setSelected(item)}
+                onClick={() => openBoard(item)}
               >
                 {item.title}
               </button>

@@ -83,6 +83,7 @@ import { hydrateImportedContent } from "@/lib/studio/imported-content";
 
 import { ProfileAvatar, ProfilePhotoProvider } from "./profile-avatar";
 import { ProfilePhotoEditor } from "./profile-photo-editor";
+import { IdeaWhiteboard } from "./idea-whiteboard";
 import { activityLabel } from "@/lib/studio/profile-photo";
 
 const EXPECTED = "xljhxmyigtxhjtxxzuwk";
@@ -1159,7 +1160,9 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
                     onAi={() => setAi(true)}
                   />
                 )}
-                {view === "ideas" && <IdeasView {...creativeCommon} />}
+                {view === "ideas" && (route[1] && route[2] === "board"
+                  ? <IdeaWhiteboard key={`${userId}:${workspaceId}:${route[1]}`} data={data} workspaceId={workspaceId || "demo"} ideaId={route[1]} userId={userId} demo={demo} onNavigate={navigate} />
+                  : <IdeasView {...creativeCommon} />)}
                 {businessRoute && <BusinessSubnav base={base} route={workflowRoute} onNavigate={navigate} />}
                 {operationalRoute && <WorkflowHelp route={workflowRoute} />}
                 {businessRoute && workflowRoute.kind === "plans" && <BusinessWorkspaceBoundary key={`${userId}:${workspaceId}:${businessPlanId || "index"}`} workspaceId={workspaceId || ""} planId={businessPlanId} base={base} demo={demo} onNavigate={navigate} onChanged={refreshCanonicalLists} onBlocked={setNotice} onNavigationStateChange={setBusinessNavigation} />}
