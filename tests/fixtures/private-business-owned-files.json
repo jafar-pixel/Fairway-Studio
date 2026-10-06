@@ -1,0 +1,111 @@
+{
+  "status": "review_only_not_applied_not_deployed",
+  "base_export": "fairway-current-6dccf18",
+  "requires": "reviewed Business foundation first",
+  "production_dependencies_added": [],
+  "owned_production_files": [
+    {
+      "path": "lib/studio/private-business/client.ts",
+      "sha256": "a3d6f8435d813b20c436f55196ae93c26cf7558453edf1fe16632b60f94affab",
+      "upstream_sha256": "166ac2943109db1ec0b6f119165e90b4518f30a02f0a9209edd97cc7ae5fbf7f",
+      "reviewed_hotfix": "Default transport calls globalThis.fetch with its browser receiver; no API/server/migration change.",
+      "pre_account_binding_sha256": "5a5cbdf107c06bfdee54aefa03a14eae8f9e79a4b0fd502eaa9bd3b9697bd9eb",
+      "reviewed_account_binding_change": "Binds read and immutable retry envelopes to the original expectedUserId; preserves no-store transport and permission-epoch erasure. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "lib/studio/private-business/contracts.ts",
+      "sha256": "b21baa682cf458074cfb8ac8b3f807858a0192074355a794af5fe6a39930d0f7",
+      "pre_account_binding_sha256": "9fb1e3812991409b0527326103955cd902dc70b675e6506b3115c1768d637529",
+      "reviewed_account_binding_change": "Requires a valid expectedUserId in the mutation envelope; existing operation and record-field validation remains unchanged. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "lib/studio/private-business/server.ts",
+      "sha256": "cc76d698af3e07559bbb530f5d45e786c0c8af7becf1418fe1818cf21f10037b",
+      "pre_account_binding_sha256": "b060707e48fa7fc7cb58cfe658149971c4a859164958fe0b2c1fd07367129b8c",
+      "reviewed_account_binding_change": "Validates intended account, then compares authorize().user.id before capability, read, or mutation RPC; existing RPC ACL checks remain authoritative. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "components/studio/private-business/board.tsx",
+      "sha256": "6aacbc6da48b89b6f45090fe27e263915fe5f7507090c3f34a10fd449707f4f2",
+      "pre_account_binding_sha256": "307f3894cd1a120b6ac0a5d2dfaa9fbdb8f74db7d6408456edfbed4c66e0bd37",
+      "reviewed_account_binding_change": "Passes the existing userId into the private client constructor; no other board change. Explicit security change; not claimed unchanged.",
+      "pre_account_binding_manifest_sha256": "d4c1cd5b0af9f5f87de1917072c9e9056767613c7e86780797305fd0a23851f1"
+    },
+    {
+      "path": "components/studio/private-business/forms.tsx",
+      "sha256": "ed0f9ef88bd54ab41f0c9b7a4ea73aa471d87bba090b866ad41d7c9f0e429fa2"
+    },
+    {
+      "path": "components/studio/private-business/index.ts",
+      "sha256": "d12047d143f1280d71badae31d028d8d9bc5470b85efb34478d8faa98b029390"
+    },
+    {
+      "path": "components/studio/private-business/private-business.module.css",
+      "sha256": "2b50615ebc274a9be632bf5cd57fa2f853ffad80ef9a28a154a1f38a8b642555"
+    },
+    {
+      "path": "app/api/studio/private-business/route.ts",
+      "sha256": "4cae3a50453ac7f10e396b16b3918c465bcf5600017092cf5170c3a805cdc3fa",
+      "pre_origin_helper_sha256": "dae4c38513243fcdbded59e5f67346628657202973c48cf65dce3d3f0877be87",
+      "reviewed_change": "91eb101 imports the shared origin helper; cross-site Fetch Metadata, body limits, validation and private response headers are unchanged.",
+      "pre_account_binding_sha256": "6b23a7f6d33862ef96599c2b128dd6e675293d9803bdee0304c6c814d40b31be",
+      "reviewed_account_binding_change": "Accepts expectedUserId in POST read bodies for server validation; shared origin policy, body limits and no-store response headers remain unchanged. Explicit security change; not claimed unchanged."
+    },
+    {
+      "path": "supabase/migrations/20261002234957_private_business_records.sql",
+      "sha256": "2cf6450d2d2f0b364cc14b9d017281028a4ea6929f563de894923ce9c257ce85"
+    }
+  ],
+  "source_guards": [
+    {
+      "source": "fairway-current-6dccf18",
+      "path": "lib/studio/contracts.ts",
+      "sha256": "da777115ff32258024b9f710f5e20381f5aba90b7b3676eb71f622e53e4f4153"
+    },
+    {
+      "source": "fairway-current-6dccf18",
+      "path": "lib/studio/server.ts",
+      "sha256": "1b9fa7ac6a8c7aa9be483a9c129aeff7b9658507b50856823911541683543033"
+    },
+    {
+      "source": "fairway-current-6dccf18",
+      "path": "lib/supabase/server.ts",
+      "sha256": "0257b73079b958868939f5738053f32ca08de8641dc9719d4331a9ede38eb32e"
+    },
+    {
+      "source": "fairway-current-6dccf18",
+      "path": "components/studio/app.tsx",
+      "sha256": "d594a87238fc074b58cced87291e2df80272778f7ceea4815ef9fe333b8a9ea5"
+    },
+    {
+      "source": "fairway-current-6dccf18",
+      "path": "public/sw.js",
+      "sha256": "5b8244e60bef5b88b8f403194a6f8df45521b0bf5001c155f1971e9c2652a542"
+    },
+    {
+      "source": "fairway-current-6dccf18",
+      "path": "package.json",
+      "sha256": "382f69359985b42c0fd9fe176f56822434b1edc771ef2d8c2835df44348d1bf9"
+    },
+    {
+      "source": "fairway-current-6dccf18",
+      "path": "pnpm-lock.yaml",
+      "sha256": "272a41ce2705ecd0c7d457411bcc25ab72c247df1b99e454e937c804d79ec9ab"
+    },
+    {
+      "source": "fairway-business-foundation",
+      "path": "supabase/migrations/20261002224730_business_foundation.sql",
+      "sha256": "d86fc569bdd91d5b2268c80285d79f4092e6eb2a0095fd79b0446f5f3f9fe456"
+    }
+  ],
+  "compilation_context_only_do_not_overlay": [
+    "lib/studio/contracts.ts",
+    "lib/studio/server.ts",
+    "lib/studio/imported-content.ts",
+    "lib/studio/mockup-content.json",
+    "lib/studio/mockup-asset-hashes.json",
+    "lib/supabase/server.ts",
+    "tsconfig.json",
+    "next-env.d.ts"
+  ]
+}

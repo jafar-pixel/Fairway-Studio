@@ -1,0 +1,1 @@
+PASS: tsc --noEmit --incremental false (no diagnostics)

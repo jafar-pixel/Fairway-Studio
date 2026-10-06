@@ -1,0 +1,14 @@
+FAIRWAY STUDIO - COMBINE THE TWO ZIP FILES (WINDOWS)
+
+Both downloads are ordinary ZIP files. You need BOTH parts.
+1. Download Part 1 and Part 2.
+2. Make one empty folder, for example Fairway-Upload, on your Desktop.
+3. Right-click Part 1, choose Extract All, and select Fairway-Upload as the destination.
+4. Right-click Part 2, choose Extract All, and select that SAME Fairway-Upload folder. Merge folders if Windows asks.
+5. Open Fairway-Upload. Inside, there should be ONE Fairway-Studio folder.
+6. Check that package.json is directly inside Fairway-Studio, alongside app, assets and public. The artwork should be inside public/mockup-assets.
+7. Open your existing sports-brand-collaboration-setup project in Vercel. Use its upload/drop control and drag the combined Fairway-Studio folder into it. This replaces the app at your existing production address.
+
+Do not upload either ZIP alone or an outer folder containing only ZIP files.
+Part 1 contains source code and the eight original artworks. Part 2 contains the matching generated artwork files. No source or image bytes have been changed.
+The build needs the existing project configuration. Never put secret credentials in these ZIPs or in chat.

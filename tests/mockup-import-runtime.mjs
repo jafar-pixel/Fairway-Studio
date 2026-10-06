@@ -1,0 +1,43 @@
+// Isolated Postgres only. Never connects to the user's Supabase project.
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const { PGlite } = await import(process.env.PGLITE_MODULE || '@electric-sql/pglite');
+const root=new URL('../',import.meta.url).pathname;
+const existing=fs.readFileSync(root+'tests/studio-sql-runtime.mjs','utf8');
+const baseline=existing.slice(existing.indexOf('const baseline=`')+16,existing.indexOf('\n`\nawait db.exec(baseline)'));
+const sql=fs.readFileSync(root+'supabase/mockup-content-import.sql','utf8');
+const manifest=JSON.parse(fs.readFileSync(root+'supabase/mockup-content-import.manifest.json','utf8'));
+const {buildLibraryFileSql}=await import('../scripts/prepare-starter-library-files.mjs');
+const db=new PGlite();
+try {
+ await db.exec(baseline);
+ await db.exec('create role service_role bypassrls; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);');
+ for(const file of ['pending-schema.sql','pending-ai-jobs.sql','pending-workflows.sql'])await db.exec(fs.readFileSync(root+'supabase/'+file,'utf8'));
+ const w=manifest.workspace,u=manifest.actor;
+ await db.exec(`insert into auth.users(id) values('${u}'); insert into profiles(id,display_name) values('${u}','Existing owner'); insert into workspaces(id,name,created_by) values('${w}','Preserve workspace','${u}'); insert into workspace_members(workspace_id,user_id,role) values('${w}','${u}','owner');`);
+ await db.exec(`insert into studio_tasks(workspace_id,created_by,title,details,status) select '${w}','${u}','Original task '||n,'Existing details','in_progress' from generate_series(1,4)n; insert into saved_references(workspace_id,author_id,title,url,note) select '${w}','${u}','Original reference '||n,'https://example.org/ref/'||n,'Existing reference' from generate_series(1,20)n;`);
+ const beforeTasks=(await db.query('select * from studio_tasks order by id')).rows;
+ const beforeRefs=(await db.query('select * from saved_references order by id')).rows;
+ await db.exec(sql);
+ const counts=async()=>Object.fromEntries(await Promise.all(['studio_projects','brand_ideas','studio_versions','studio_tasks','saved_references','workspace_files','studio_canvas_nodes','studio_threads','workspace_messages','studio_idea_assets','studio_idea_projects','studio_review_rounds','studio_reviews','studio_decisions','studio_kits','studio_activity','workspace_members'].map(async name=>[name,(await db.query(`select count(*)::int as n from ${name}`)).rows[0].n])));
+ const first=await counts();
+ assert.deepEqual(first,{studio_projects:4,brand_ideas:6,studio_versions:32,studio_tasks:16,saved_references:20,workspace_files:0,studio_canvas_nodes:21,studio_threads:5,workspace_messages:5,studio_idea_assets:6,studio_idea_projects:6,studio_review_rounds:0,studio_reviews:0,studio_decisions:0,studio_kits:0,studio_activity:1,workspace_members:1});
+ assert.deepEqual((await db.query("select * from studio_tasks where title like 'Original task %' order by id")).rows,beforeTasks);
+ assert.deepEqual((await db.query('select * from saved_references order by id')).rows,beforeRefs);
+ assert.equal((await db.query('select name from workspaces')).rows[0].name,'Preserve workspace');
+ assert.equal((await db.query('select is_founder from workspace_members')).rows[0].is_founder,false);
+ assert.equal((await db.query("select count(*)::int as n from studio_tasks where title not like 'Original task %' and (status<>'open' or assigned_to is not null)")).rows[0].n,0);
+ await db.exec(`update studio_tasks set title='User renamed starter task',details='Preserve edit' where id='${manifest.tasks[0].id}'; update studio_projects set title='User renamed project',brief='Preserve brief' where id='${manifest.projects[0].id}';`);
+ await db.exec(sql);
+ assert.deepEqual(await counts(),first);
+ assert.equal((await db.query(`select details from studio_tasks where id='${manifest.tasks[0].id}'`)).rows[0].details,'Preserve edit');
+ assert.equal((await db.query(`select brief from studio_projects where id='${manifest.projects[0].id}'`)).rows[0].brief,'Preserve brief');
+ const other='99999999-9999-4999-8999-999999999999';
+ await assert.rejects(db.exec(sql.replaceAll(u,other)),/existing workspace owner/);await db.exec('rollback');assert.deepEqual(await counts(),first);
+ const files=manifest.versions.filter(v=>v.provenance.library_kind && v.provenance.media_origin==='bundled_exploratory').map(v=>({key:v.key,title:v.title,url:'https://sports-brand-collaboration-setup.vercel.app'+v.asset,sha256:v.provenance.asset_sha256,source_tag:'Exploratory concept',note:'Local SQL test fixture'}));
+ const second=buildLibraryFileSql(manifest,files); await db.exec(second);
+ assert.equal((await counts()).workspace_files,6); assert.equal((await counts()).studio_canvas_nodes,27);
+ const afterSecond=await counts(); await db.exec(second); assert.deepEqual(await counts(),afterSecond);
+ console.log('PASS: stage2 canonical6file SQL compiles and is idempotent in isolated test only.');
+ console.log('PASS: all three migrations plus starter import compile; counts correct; 4 existing tasks/20 references/settings preserved; repeat import keeps edits; no fabricated users, assignments, reviews, approvals, or kits; wrong-owner rollback.');
+} finally { await db.close(); }

@@ -1,0 +1,1819 @@
+{
+  "batch": "fairway-mockups-v1",
+  "workspace": "754ccd24-80be-4298-9f64-737d031ed9fd",
+  "actor": "42eeac07-5d8e-430e-a365-f2f882f7d416",
+  "projects": [
+    {
+      "key": "identity",
+      "demo_id": "demo-identity",
+      "title": "Brand identity",
+      "category": "Branding",
+      "brief": "Visual identity and brand system. Explore Common Form and Common Thread, then review the name, mark, palette, and applications separately.",
+      "demo_lead": "demo-jafar",
+      "demo_phase": "in_review",
+      "next_step": "Review identity v3",
+      "id": "3962a0b6-0577-5d9e-bf44-f0b45849c841"
+    },
+    {
+      "key": "bag",
+      "demo_id": "demo-bag",
+      "title": "Signature golf bag",
+      "category": "Product",
+      "brief": "Product design and details. Compare a cream-and-burgundy silhouette with an integrated connected bag. Preserve clean lines and easy pocket access.",
+      "demo_lead": "demo-arlin",
+      "demo_phase": "exploring",
+      "next_step": "Compare two bag concepts",
+      "id": "56dc12de-c922-544c-a6a3-83ce12e6fb10"
+    },
+    {
+      "key": "apparel",
+      "demo_id": "demo-apparel",
+      "title": "First apparel collection",
+      "category": "Apparel",
+      "brief": "Apparel design and direction. Build the first capsule around versatile polos, cream knit textures, and burgundy and royal blue color stories.",
+      "demo_lead": "demo-kyle",
+      "demo_phase": "exploring",
+      "next_step": "Build the first capsule",
+      "id": "f5434fd4-1f8b-51ca-8c3b-656fefbd14a3"
+    },
+    {
+      "key": "campaign",
+      "demo_id": "demo-campaign",
+      "title": "Campaign: Generations of style",
+      "category": "Campaign",
+      "brief": "Different paths. A shared perspective. Shape a multi-generational golf lifestyle campaign across product and storytelling.",
+      "demo_lead": "demo-jafar",
+      "demo_phase": "exploring",
+      "next_step": "Shape campaign direction",
+      "id": "b9ecc597-9849-5215-b87f-3f8c1d7cbed8"
+    }
+  ],
+  "ideas": [
+    {
+      "key": "common-form",
+      "demo_id": "demo-idea-1",
+      "title": "Common Form",
+      "body": "A refined mark for a modern golf brand.",
+      "category": "Brand identity",
+      "demo_status": "exploring",
+      "project": "identity",
+      "version": "identity-monogram",
+      "asset": "common-form-mark",
+      "tags": [
+        "Brand identity"
+      ],
+      "id": "716af959-5e6e-5721-8c1a-ddada47a5f07"
+    },
+    {
+      "key": "common-thread",
+      "demo_id": "demo-idea-2",
+      "title": "Common Thread",
+      "body": "A wordmark that unites heritage and progress.",
+      "category": "Brand identity",
+      "demo_status": "shortlist",
+      "project": "identity",
+      "version": "common-thread",
+      "asset": "common-thread-wordmark",
+      "tags": [
+        "Brand identity"
+      ],
+      "project_suggestion": true,
+      "project_suggestion_order": 0,
+      "id": "b8063bbb-6389-510c-b7f8-d3b815778b78"
+    },
+    {
+      "key": "connected-bag",
+      "demo_id": "demo-idea-3",
+      "title": "Connected golf bag",
+      "body": "Heritage craftsmanship meets modern technology.",
+      "category": "Product concept",
+      "demo_status": "exploring",
+      "project": "bag",
+      "version": "bag-b",
+      "asset": "golf-bag-connected",
+      "tags": [
+        "Golf bags"
+      ],
+      "id": "92f622b3-e88b-5698-abfe-2b5c66cbb3e9"
+    },
+    {
+      "key": "course-to-city",
+      "demo_id": "demo-idea-4-course",
+      "title": "Course to city",
+      "body": "A versatile polo for wherever the day takes you.",
+      "category": "Apparel",
+      "demo_status": "shortlist",
+      "project": "apparel",
+      "version": "course-to-city",
+      "asset": "course-to-city",
+      "tags": [
+        "Apparel"
+      ],
+      "id": "d26c9b54-f800-5839-a2e9-c97065e85e3e"
+    },
+    {
+      "key": "generations",
+      "demo_id": "demo-idea-4",
+      "title": "Generations of style",
+      "body": "Different paths. A shared perspective.",
+      "category": "Campaign",
+      "demo_status": "shortlist",
+      "project": "campaign",
+      "version": "campaign-front",
+      "asset": "apparel-generations",
+      "tags": [
+        "Campaigns"
+      ],
+      "id": "76278f89-2465-5615-a5ae-1aeae3724667"
+    },
+    {
+      "key": "royal-capsule",
+      "demo_id": "demo-idea-6",
+      "title": "Royal blue capsule",
+      "body": "A fresh color story for the season ahead.",
+      "category": "Apparel",
+      "demo_status": "shortlist",
+      "project": "apparel",
+      "version": "royal-capsule",
+      "asset": "royal-blue-capsule",
+      "tags": [
+        "Apparel"
+      ],
+      "project_suggestion": true,
+      "project_suggestion_order": 1,
+      "id": "86570fa6-407e-5154-8cf0-73d69d4b4552"
+    }
+  ],
+  "tasks": [
+    {
+      "key": "concealed-tech",
+      "demo_id": "demo-task-1",
+      "title": "Compare concealed tech layouts",
+      "details": "Explore two ways to integrate the module while preserving the bag silhouette.",
+      "project": "bag",
+      "category": "Product",
+      "demo_status": "open",
+      "demo_assignee": "demo-jafar",
+      "checklist": [
+        {
+          "id": "concealed-rear-module",
+          "text": "Concealed rear module",
+          "done": false
+        },
+        {
+          "id": "integrated-side-panel",
+          "text": "Integrated side panel",
+          "done": false
+        }
+      ],
+      "id": "d4d26ece-5c56-5c35-a24c-25c61785b4b4"
+    },
+    {
+      "key": "pocket-access",
+      "demo_id": "demo-task-pocket",
+      "title": "Review bag pocket access",
+      "details": "Keep the silhouette clean and the pockets easy to reach. Compare pocket opening angles and proportions.",
+      "project": "bag",
+      "category": "Product",
+      "demo_status": "open",
+      "demo_assignee": "demo-arlin",
+      "id": "ff475bca-24ed-5b9f-b31f-a5271e635939"
+    },
+    {
+      "key": "embroidery-size",
+      "demo_id": "demo-task-embroidery",
+      "title": "Refine CF embroidery size",
+      "details": "Compare the exploratory CF mark at real product scale on apparel and accessories.",
+      "project": "identity",
+      "category": "Brand identity",
+      "demo_status": "open",
+      "demo_assignee": "demo-kyle",
+      "id": "8f97bd4e-aabb-51f6-b129-fdce6cea3b2e"
+    },
+    {
+      "key": "burgundy-study",
+      "demo_id": "demo-task-2",
+      "title": "Build burgundy color study",
+      "details": "Compare burgundy with cream across body, trim, materials, and hardware.",
+      "project": "apparel",
+      "category": "Apparel",
+      "demo_status": "in_progress",
+      "demo_assignee": "demo-kyle",
+      "id": "e5f83728-9400-550a-a4fa-5d950613285c"
+    },
+    {
+      "key": "review-criteria",
+      "demo_id": "demo-task-review",
+      "title": "Draft founder review criteria",
+      "details": "Define review prompts for brand fit, distinctiveness, product fit, wearability, and manufacturability. Ratings inform decisions and do not approve a design.",
+      "project": "identity",
+      "category": "Brand identity",
+      "demo_status": "in_progress",
+      "demo_assignee": "demo-jafar",
+      "id": "591339cf-9654-5d58-9b9a-25352027e1be"
+    },
+    {
+      "key": "textile-references",
+      "demo_id": "demo-task-3",
+      "title": "Gather cream textile references",
+      "details": "Collect cream knit, texture, weave, and finish references for the first apparel collection.",
+      "project": "apparel",
+      "category": "Materials",
+      "demo_status": "done",
+      "demo_assignee": "demo-kyle",
+      "id": "9bf1b7f2-9cf2-57da-9989-087c2626da4b"
+    },
+    {
+      "key": "pocket-placement",
+      "demo_id": "demo-task-next-pocket",
+      "title": "Review pocket placement",
+      "details": "Consider alternative angles and proportions.",
+      "project": "bag",
+      "category": "Product",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "home",
+      "id": "d1804179-fa4f-5600-99ff-9b110304f5c7"
+    },
+    {
+      "key": "blue-colorway",
+      "demo_id": "demo-task-next-blue",
+      "title": "Refine royal blue colorway",
+      "details": "Explore material options and samples.",
+      "project": "apparel",
+      "category": "Apparel",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "home",
+      "id": "fd19ced7-a8ac-5b0f-9b78-8a49a039f977"
+    },
+    {
+      "key": "next-identity",
+      "demo_id": "demo-task-next-identity",
+      "title": "Review identity v3",
+      "details": "Visual identity and brand system. Explore Common Form and Common Thread, then review the name, mark, palette, and applications separately.",
+      "project": "identity",
+      "category": "Branding",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "project",
+      "id": "e96bdc7b-1300-5e89-9ce4-e1a58e61b948"
+    },
+    {
+      "key": "next-bag",
+      "demo_id": "demo-task-next-bag",
+      "title": "Compare two bag concepts",
+      "details": "Product design and details. Compare a cream-and-burgundy silhouette with an integrated connected bag. Preserve clean lines and easy pocket access.",
+      "project": "bag",
+      "category": "Product",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "project",
+      "id": "4f799185-f02b-578c-81fc-76bb260a414c"
+    },
+    {
+      "key": "next-apparel",
+      "demo_id": "demo-task-next-apparel",
+      "title": "Build the first capsule",
+      "details": "Apparel design and direction. Build the first capsule around versatile polos, cream knit textures, and burgundy and royal blue color stories.",
+      "project": "apparel",
+      "category": "Apparel",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "project",
+      "id": "326795ff-cbce-595b-a5fc-a1c211df00e9"
+    },
+    {
+      "key": "next-campaign",
+      "demo_id": "demo-task-next-campaign",
+      "title": "Shape campaign direction",
+      "details": "Different paths. A shared perspective. Shape a multi-generational golf lifestyle campaign across product and storytelling.",
+      "project": "campaign",
+      "category": "Campaign",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "project",
+      "id": "f0239718-2b62-5e57-b851-bff3829a16e0"
+    }
+  ],
+  "versions": [
+    {
+      "key": "identity-name",
+      "id": "a6e9aa64-d941-5eed-b2a3-3bb6a15bf7fa",
+      "title": "Common Form identity",
+      "project": "identity",
+      "body": "Common Form: a refined mark for a modern golf brand.",
+      "asset": "/mockup-assets/common-form-wordmark.png",
+      "provenance": {
+        "source_mockups": [
+          "01-home",
+          "03-projects",
+          "10-founder-review"
+        ],
+        "display_version_number": 3,
+        "component_scope": "name",
+        "proposed_kit": "Common Form",
+        "project_cover": false,
+        "review_title": "Common Form – founder review",
+        "task_titles": [
+          "Review identity v3"
+        ],
+        "import_key": "identity-name",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [
+          "e96bdc7b-1300-5e89-9ce4-e1a58e61b948"
+        ],
+        "import_asset_path": "/mockup-assets/common-form-wordmark.png",
+        "asset_sha256": "7be44a3308b806027edd474a66fd7e497ff6b00ca5f47c280b119339b4ede555",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "identity-monogram",
+      "id": "cfc1ff76-40cd-5dc3-9b09-70011f80e7b9",
+      "title": "Common Form monogram",
+      "project": "identity",
+      "body": "Exploratory CF monogram. Name, logo, and colors require separate review.",
+      "asset": "/mockup-assets/common-form-mark.png",
+      "provenance": {
+        "source_mockups": [
+          "07-brand-kit"
+        ],
+        "component_scope": "monogram",
+        "proposed_kit": "Common Form",
+        "task_titles": [
+          "Refine CF embroidery size"
+        ],
+        "project_cover": true,
+        "idea_cover_key": "common-form",
+        "import_key": "identity-monogram",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [
+          "8f97bd4e-aabb-51f6-b129-fdce6cea3b2e"
+        ],
+        "import_asset_path": "/mockup-assets/common-form-mark.png",
+        "asset_sha256": "3c46d462ac687837a563d91c0d0b5fc624a59f634de12993a81f6be974bd2ca4",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "identity-wordmark",
+      "id": "6c590f7d-43c0-5db6-8541-b907f57f7a3d",
+      "title": "Common Form wordmark",
+      "project": "identity",
+      "body": "Common Form name and monogram lockup. Proposed identity; no approval recorded.",
+      "asset": "/mockup-assets/common-form-wordmark.png",
+      "provenance": {
+        "source_mockups": [
+          "07-brand-kit",
+          "10-founder-review"
+        ],
+        "component_scope": "wordmark",
+        "proposed_kit": "Common Form",
+        "import_key": "identity-wordmark",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/common-form-wordmark.png",
+        "asset_sha256": "7be44a3308b806027edd474a66fd7e497ff6b00ca5f47c280b119339b4ede555",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "identity-palette",
+      "id": "01ff2e82-0b99-5a18-a965-ee578bb51126",
+      "title": "Color palette",
+      "project": "identity",
+      "body": "Primary brand color proposal: burgundy, chocolate, black, royal blue, tan, and cream. Colors are exploratory.",
+      "asset": "/mockup-assets/color-palette.png",
+      "provenance": {
+        "source_mockups": [
+          "04-library",
+          "07-brand-kit"
+        ],
+        "component_scope": "palette",
+        "proposed_kit": "Common Form",
+        "palette": [
+          {
+            "name": "Burgundy",
+            "hex": "#760D24"
+          },
+          {
+            "name": "Chocolate",
+            "hex": "#4A3028"
+          },
+          {
+            "name": "Black",
+            "hex": "#181818"
+          },
+          {
+            "name": "Royal blue",
+            "hex": "#2448A6"
+          },
+          {
+            "name": "Tan",
+            "hex": "#C3A17A"
+          },
+          {
+            "name": "Cream",
+            "hex": "#F4EDE1"
+          }
+        ],
+        "library_kind": "upload",
+        "library_description": "Primary brand color proposal.",
+        "library_order": 5,
+        "import_key": "identity-palette",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/color-palette.png",
+        "asset_sha256": "9caf610f01153f3c24e89e793fcd41c65c8ee3a840decca3304ab4de2860964b",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "identity-typography",
+      "id": "b7daf246-e994-5106-85f0-f8127fe42f17",
+      "title": "Common Form typography direction",
+      "project": "identity",
+      "body": "Suggested starting guidance (not supplied source copy): Explore the letter-spaced Common Form wordmark with a clean supporting sans-serif. A font family has not been selected or approved.",
+      "asset": null,
+      "provenance": {
+        "source_mockups": [
+          "07-brand-kit"
+        ],
+        "component_scope": "typography",
+        "proposed_kit": "Common Form",
+        "copy_origin": "implementation_suggestion",
+        "import_key": "identity-typography",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": null,
+        "asset_sha256": null,
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": false,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "identity-guidelines",
+      "id": "4a7782b5-6fbf-5682-ba62-b1b26c4a4c02",
+      "title": "Common Form usage guidelines",
+      "project": "identity",
+      "body": "Suggested starting guidance (not supplied source copy): Proposed guidance: preserve the CF mark proportions; review embroidery at real product size; compare clear space and contrast on cream, burgundy, and royal blue applications. Confirm the name, mark, palette, and typography separately before publication.",
+      "asset": null,
+      "provenance": {
+        "source_mockups": [
+          "07-brand-kit"
+        ],
+        "component_scope": "guidelines",
+        "proposed_kit": "Common Form",
+        "copy_origin": "implementation_suggestion",
+        "import_key": "identity-guidelines",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": null,
+        "asset_sha256": null,
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": false,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "common-thread",
+      "id": "33f75916-8dff-5d84-9dae-a795818ebb56",
+      "title": "Common Thread",
+      "project": "identity",
+      "body": "A wordmark that unites heritage and progress.",
+      "asset": "/mockup-assets/common-thread-wordmark.png",
+      "provenance": {
+        "source_mockups": [
+          "02-ideas",
+          "03-projects"
+        ],
+        "idea_cover_key": "common-thread",
+        "import_key": "common-thread",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/common-thread-wordmark.png",
+        "asset_sha256": "7b73dffe946763c5d02a41217515303db71ea0c1e55ecc3c1ab716e46ee12840",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "bag-a",
+      "id": "d3513182-8399-5575-a7c1-ad56ab4d8f76",
+      "title": "Concept A",
+      "project": "bag",
+      "body": "Exploratory CF mark. Cream body with burgundy trim; clean silhouette and accessible pockets.",
+      "asset": "/mockup-assets/golf-bag-cream.png",
+      "provenance": {
+        "source_mockups": [
+          "01-home",
+          "03-projects",
+          "05-conversations",
+          "09-project-canvas",
+          "11-mobile-canvas"
+        ],
+        "display_version_number": 2,
+        "project_cover": true,
+        "mockup_source_kind": "AI concept sample",
+        "task_titles": [
+          "Compare concealed tech layouts",
+          "Review pocket placement",
+          "Review bag pocket access",
+          "Compare two bag concepts"
+        ],
+        "import_key": "bag-a",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "bag",
+        "task_ids": [
+          "d4d26ece-5c56-5c35-a24c-25c61785b4b4",
+          "ff475bca-24ed-5b9f-b31f-a5271e635939",
+          "d1804179-fa4f-5600-99ff-9b110304f5c7",
+          "4f799185-f02b-578c-81fc-76bb260a414c"
+        ],
+        "import_asset_path": "/mockup-assets/golf-bag-cream.png",
+        "asset_sha256": "a6f986ab06b9c252076fea596d37ebe63943356062d4a74d52710b6a530c30d7",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "bag-b",
+      "id": "d82e622e-8c4f-54f0-801b-634ec48082df",
+      "title": "Concept B",
+      "project": "bag",
+      "body": "Exploratory CF mark. Heritage craftsmanship with an integrated technology panel.",
+      "asset": "/mockup-assets/golf-bag-connected.png",
+      "provenance": {
+        "source_mockups": [
+          "02-ideas",
+          "09-project-canvas"
+        ],
+        "display_version_number": 1,
+        "mockup_source_kind": "AI concept sample",
+        "idea_cover_key": "connected-bag",
+        "task_titles": [
+          "Compare concealed tech layouts"
+        ],
+        "import_key": "bag-b",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "bag",
+        "task_ids": [
+          "d4d26ece-5c56-5c35-a24c-25c61785b4b4"
+        ],
+        "import_asset_path": "/mockup-assets/golf-bag-connected.png",
+        "asset_sha256": "0001215fc8f2b88b3c9b921b79246e4fdb71edf7f493034290d3ccc7552cd18e",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "course-to-city",
+      "id": "579e36ab-e249-5571-8b97-c4663540b98b",
+      "title": "Course to city",
+      "project": "apparel",
+      "body": "A versatile polo for wherever the day takes you.",
+      "asset": "/mockup-assets/course-to-city.png",
+      "provenance": {
+        "source_mockups": [
+          "02-ideas"
+        ],
+        "idea_cover_key": "course-to-city",
+        "import_key": "course-to-city",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "apparel",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/course-to-city.png",
+        "asset_sha256": "83163e4297afacb38ac9f00a0720c7685596021027a246b283dbbb35a89e9f1e",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "royal-capsule",
+      "id": "db931a11-8f53-5f2a-8c4b-8a88f52c1c2c",
+      "title": "Royal blue capsule",
+      "project": "apparel",
+      "body": "A fresh color story for the season ahead.",
+      "asset": "/mockup-assets/royal-blue-capsule.png",
+      "provenance": {
+        "source_mockups": [
+          "02-ideas",
+          "03-projects"
+        ],
+        "idea_cover_key": "royal-capsule",
+        "task_titles": [
+          "Refine royal blue colorway"
+        ],
+        "import_key": "royal-capsule",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "apparel",
+        "task_ids": [
+          "fd19ced7-a8ac-5b0f-9b78-8a49a039f977"
+        ],
+        "import_asset_path": "/mockup-assets/royal-blue-capsule.png",
+        "asset_sha256": "c63a9a1684688064180963e4b12d2858d2438db4dcfcec3b2982f0db247e01b5",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "apparel-cover",
+      "id": "bcf00194-1358-54d4-a885-059f4ab60ebf",
+      "title": "First apparel collection",
+      "project": "apparel",
+      "body": "Apparel design and direction for a shared golf lifestyle.",
+      "asset": "/mockup-assets/apparel-generations.png",
+      "provenance": {
+        "source_mockups": [
+          "01-home",
+          "03-projects"
+        ],
+        "project_cover": true,
+        "task_titles": [
+          "Build the first capsule"
+        ],
+        "import_key": "apparel-cover",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "apparel",
+        "task_ids": [
+          "326795ff-cbce-595b-a5fc-a1c211df00e9"
+        ],
+        "import_asset_path": "/mockup-assets/apparel-generations.png",
+        "asset_sha256": "cd57a73771daf83124dd94f0bdf9895346a7da92680fc5f2eee1be12322789be",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "campaign-front",
+      "id": "e753f8eb-71aa-5c98-aaea-47a81cbea17b",
+      "title": "Campaign concept",
+      "project": "campaign",
+      "body": "Multi-generational golf lifestyle.",
+      "asset": "/mockup-assets/apparel-generations.png",
+      "provenance": {
+        "source_mockups": [
+          "02-ideas",
+          "04-library"
+        ],
+        "library_kind": "campaign",
+        "library_description": "Multi-generational golf lifestyle.",
+        "idea_cover_key": "generations",
+        "library_order": 4,
+        "import_key": "campaign-front",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "campaign",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/apparel-generations.png",
+        "asset_sha256": "cd57a73771daf83124dd94f0bdf9895346a7da92680fc5f2eee1be12322789be",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "campaign-cover",
+      "id": "380fe99c-19dd-534e-aa93-fba3c10a5978",
+      "title": "Generations of style campaign direction",
+      "project": "campaign",
+      "body": "Different paths. A shared perspective.",
+      "asset": "/mockup-assets/campaign-generations-back.png",
+      "provenance": {
+        "source_mockups": [
+          "03-projects"
+        ],
+        "project_cover": true,
+        "task_titles": [
+          "Shape campaign direction"
+        ],
+        "import_key": "campaign-cover",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "campaign",
+        "task_ids": [
+          "f0239718-2b62-5e57-b851-bff3829a16e0"
+        ],
+        "import_asset_path": "/mockup-assets/campaign-generations-back.png",
+        "asset_sha256": "63b0d05a55d63937a3effa2ba3d7bc6f3cb313a61c28fa6293ed319fadb7d949",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "library-leather",
+      "id": "799da79a-db8f-58b1-82d9-6be94d685e9f",
+      "title": "Sample reference layout",
+      "project": "bag",
+      "body": "Leather pocket detail and finish. Study pocket shape and leather finish. Imported concept artwork; no Pinterest original is connected.",
+      "asset": "/mockup-assets/leather-detail.png",
+      "provenance": {
+        "source_mockups": [
+          "04-library"
+        ],
+        "library_kind": "reference",
+        "library_description": "Leather pocket detail and finish.",
+        "tags": [
+          "Golf bags",
+          "Leather",
+          "Tan"
+        ],
+        "task_titles": [
+          "Review bag pocket access",
+          "Review pocket placement"
+        ],
+        "library_order": 0,
+        "import_key": "library-leather",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "bag",
+        "task_ids": [
+          "ff475bca-24ed-5b9f-b31f-a5271e635939",
+          "d1804179-fa4f-5600-99ff-9b110304f5c7"
+        ],
+        "import_asset_path": "/mockup-assets/leather-detail.png",
+        "asset_sha256": "3fbe25abf749cff75aadb06b307e4d0e97b5e87ca929bf84cf935e9203d12774",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "library-embroidery",
+      "id": "9dfefe06-c0bd-5d90-94b6-e6d82cf473ef",
+      "title": "CF monogram concept",
+      "project": "identity",
+      "body": "Embroidered logo detail on textile.",
+      "asset": "/mockup-assets/cf-embroidery.png",
+      "provenance": {
+        "source_mockups": [
+          "04-library",
+          "06-tasks"
+        ],
+        "library_kind": "ai_concept",
+        "library_description": "Embroidered logo detail on textile.",
+        "mockup_source_kind": "AI concept sample",
+        "tags": [
+          "Burgundy",
+          "Texture",
+          "Embroidery"
+        ],
+        "task_titles": [
+          "Refine CF embroidery size"
+        ],
+        "library_order": 1,
+        "import_key": "library-embroidery",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [
+          "8f97bd4e-aabb-51f6-b129-fdce6cea3b2e"
+        ],
+        "import_asset_path": "/mockup-assets/cf-embroidery.png",
+        "asset_sha256": "600972d42b2d837289c279a501f6d8980143d578c9462ad7172d47caac83e754",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "library-knit",
+      "id": "eceab331-852f-51bf-a7fd-774c803a8176",
+      "title": "Cream knit fabric sample",
+      "project": "apparel",
+      "body": "Material texture for apparel collection.",
+      "asset": "/mockup-assets/cream-knit.png",
+      "provenance": {
+        "source_mockups": [
+          "04-library",
+          "06-tasks"
+        ],
+        "library_kind": "upload",
+        "library_description": "Material texture for apparel collection.",
+        "tags": [
+          "Cream",
+          "Texture",
+          "Apparel"
+        ],
+        "task_titles": [
+          "Gather cream textile references"
+        ],
+        "library_order": 2,
+        "import_key": "library-knit",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "apparel",
+        "task_ids": [
+          "9bf1b7f2-9cf2-57da-9989-087c2626da4b"
+        ],
+        "import_asset_path": "/mockup-assets/cream-knit.png",
+        "asset_sha256": "3b6494ffafce7c7c4261849369647ff76da1f577a316530e430ed0a88472581c",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "library-polo",
+      "id": "4f7eaaf2-28a4-5038-8f3d-d45cb0421cc9",
+      "title": "Royal blue polo concept",
+      "project": "apparel",
+      "body": "Performance polo with signature logo.",
+      "asset": "/mockup-assets/royal-blue-polo.png",
+      "provenance": {
+        "source_mockups": [
+          "04-library"
+        ],
+        "library_kind": "ai_concept",
+        "library_description": "Performance polo with signature logo.",
+        "mockup_source_kind": "AI concept sample",
+        "tags": [
+          "Royal blue",
+          "Apparel"
+        ],
+        "task_titles": [
+          "Refine royal blue colorway"
+        ],
+        "library_order": 3,
+        "import_key": "library-polo",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "apparel",
+        "task_ids": [
+          "fd19ced7-a8ac-5b0f-9b78-8a49a039f977"
+        ],
+        "import_asset_path": "/mockup-assets/royal-blue-polo.png",
+        "asset_sha256": "ab4cccf1adfb8024080462378b54f6c299fa6ef8cd7f12d04fbe654e30054ace",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "application-polo",
+      "id": "ca469646-99d8-5156-b9fb-491701b2132a",
+      "title": "Cream polo application",
+      "project": "identity",
+      "body": "Exploratory application of the proposed Common Form identity.",
+      "asset": "/mockup-assets/cream-polo.png",
+      "provenance": {
+        "source_mockups": [
+          "07-brand-kit",
+          "10-founder-review"
+        ],
+        "component_scope": "application",
+        "proposed_kit": "Common Form",
+        "application_preview": true,
+        "import_key": "application-polo",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/cream-polo.png",
+        "asset_sha256": "44334abd5868ab7c8fb5cb78714b75cfe5f65aba66d278326bdab933914e8a31",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "application-cap",
+      "id": "dca307dd-98b2-57b5-8aba-0108a50d520c",
+      "title": "Cream cap application",
+      "project": "identity",
+      "body": "Exploratory application of the proposed Common Form identity.",
+      "asset": "/mockup-assets/cream-cap.png",
+      "provenance": {
+        "source_mockups": [
+          "07-brand-kit",
+          "10-founder-review"
+        ],
+        "component_scope": "application",
+        "proposed_kit": "Common Form",
+        "application_preview": true,
+        "import_key": "application-cap",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/cream-cap.png",
+        "asset_sha256": "0662cebad365d6d834f31c196c2f0a0000d331df6ca52f9dc8faf43ae083278d",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "application-blue-cap",
+      "id": "16ccb2c3-a461-5e53-847a-e074b60cde4a",
+      "title": "Royal blue cap application",
+      "project": "identity",
+      "body": "Exploratory application of the proposed Common Form identity.",
+      "asset": "/mockup-assets/royal-blue-cap.png",
+      "provenance": {
+        "source_mockups": [
+          "07-brand-kit",
+          "10-founder-review"
+        ],
+        "component_scope": "application",
+        "proposed_kit": "Common Form",
+        "import_key": "application-blue-cap",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/royal-blue-cap.png",
+        "asset_sha256": "f43ae9d06987f6096252d354ef337e37585ea6af5b96a2ba0ad873f1c6c0b620",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "application-bag",
+      "id": "f1497ee6-5a40-5f89-bd99-78234bc50d56",
+      "title": "Signature bag application",
+      "project": "identity",
+      "body": "Exploratory application of the proposed Common Form identity.",
+      "asset": "/mockup-assets/golf-bag-cream.png",
+      "provenance": {
+        "source_mockups": [
+          "07-brand-kit",
+          "10-founder-review"
+        ],
+        "component_scope": "application",
+        "proposed_kit": "Common Form",
+        "application_preview": true,
+        "import_key": "application-bag",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [],
+        "import_asset_path": "/mockup-assets/golf-bag-cream.png",
+        "asset_sha256": "a6f986ab06b9c252076fea596d37ebe63943356062d4a74d52710b6a530c30d7",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "burgundy-study",
+      "id": "2fea1114-0155-5353-b7c5-2570958ec1e8",
+      "title": "Burgundy color study",
+      "project": "apparel",
+      "body": "Exploratory starter reference from the supplied task-board mockup.",
+      "asset": "/mockup-assets/burgundy-moodboard.png",
+      "provenance": {
+        "source_mockups": [
+          "06-tasks"
+        ],
+        "task_titles": [
+          "Build burgundy color study"
+        ],
+        "import_key": "burgundy-study",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "apparel",
+        "task_ids": [
+          "e5f83728-9400-550a-a4fa-5d950613285c"
+        ],
+        "import_asset_path": "/mockup-assets/burgundy-moodboard.png",
+        "asset_sha256": "4cfe9dd28a08572942dea4cdd0a12d899b1798888a6ca97cc6f1e1be3b8131b3",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "review-notes",
+      "id": "48feba9a-af71-50b5-9d5d-d0288814f59f",
+      "title": "Founder review criteria notes",
+      "project": "identity",
+      "body": "Exploratory starter reference from the supplied task-board mockup.",
+      "asset": "/mockup-assets/founder-review-notes.png",
+      "provenance": {
+        "source_mockups": [
+          "06-tasks"
+        ],
+        "task_titles": [
+          "Draft founder review criteria"
+        ],
+        "import_key": "review-notes",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "media_origin": "bundled_exploratory",
+        "project_key": "identity",
+        "task_ids": [
+          "591339cf-9654-5d58-9b9a-25352027e1be"
+        ],
+        "import_asset_path": "/mockup-assets/founder-review-notes.png",
+        "asset_sha256": "9f0b30fec2dd96023d39abc425b291fb0c626dfd16684edd848962f0c8426965",
+        "source": "Recreated from supplied Fairway Studio mockup",
+        "generated_for_import": true,
+        "approval_status": "unapproved",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "original-slim-silhouette-golf-bag",
+      "id": "9551b4ce-0c3e-52c3-a2e3-f1956d835a06",
+      "title": "Slim silhouette golf bag",
+      "project": "bag",
+      "body": "Slim cream/burgundy stand bag and fabric/zipper detail inset on cream background; SLIM SILHOUETTE and DESIGN EXPLORATION typography. Distinct from rounded CF-monogram bag embedded in mockups.",
+      "asset": "/original-assets/slim-silhouette-golf-bag.png",
+      "provenance": {
+        "media_origin": "bundled_original",
+        "source_kind": "user_upload",
+        "generated_for_import": false,
+        "original_creation_method": "unverified",
+        "is_generated_recreation": false,
+        "source_asset_key": "slim-silhouette-golf-bag.png",
+        "source_original_filename": "Slim silhouette cream and burgundy golf bag-5.png",
+        "preview_fit": "contain",
+        "library_kind": "upload",
+        "library_description": "Slim cream/burgundy stand bag and fabric/zipper detail inset on cream background; SLIM SILHOUETTE and DESIGN EXPLORATION typography. Distinct from rounded CF-monogram bag embedded in mockups.",
+        "tags": [
+          "Original source"
+        ],
+        "approval_status": "unapproved",
+        "related_project_keys": [
+          "bag"
+        ],
+        "original_source_order": 0,
+        "related_mockups": [
+          "09-project-canvas.png",
+          "11-mobile-canvas.png",
+          "04-library.png"
+        ],
+        "import_key": "original-slim-silhouette-golf-bag",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "project_key": "bag",
+        "task_ids": [],
+        "import_asset_path": "/original-assets/slim-silhouette-golf-bag.png",
+        "asset_sha256": "6e5eda142232c5547c04f41270bc38ed672af06852bafc91ad67c89a40a57593",
+        "source": "User-supplied original artwork",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "original-ageless-golf-style",
+      "id": "d1ef7d44-4ba5-566c-ba98-d90bd09ee77e",
+      "title": "Ageless golf style",
+      "project": "apparel",
+      "body": "Three generations wearing burgundy/cream rugby top, royal-blue polo, and brown jacket beside clubhouse and golf bag; STYLE HAS NO AGE headline. Different composition from two men in caps in mockups.",
+      "asset": "/original-assets/ageless-golf-style.png",
+      "provenance": {
+        "media_origin": "bundled_original",
+        "source_kind": "user_upload",
+        "generated_for_import": false,
+        "original_creation_method": "unverified",
+        "is_generated_recreation": false,
+        "source_asset_key": "ageless-golf-style.png",
+        "source_original_filename": "Ageless golf style, redefined-2.png",
+        "preview_fit": "contain",
+        "library_kind": "upload",
+        "library_description": "Three generations wearing burgundy/cream rugby top, royal-blue polo, and brown jacket beside clubhouse and golf bag; STYLE HAS NO AGE headline. Different composition from two men in caps in mockups.",
+        "tags": [
+          "Original source"
+        ],
+        "approval_status": "unapproved",
+        "related_project_keys": [
+          "apparel",
+          "campaign"
+        ],
+        "original_source_order": 1,
+        "related_mockups": [
+          "01-home.png",
+          "02-ideas.png",
+          "03-projects.png",
+          "04-library.png"
+        ],
+        "import_key": "original-ageless-golf-style",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "project_key": "apparel",
+        "task_ids": [],
+        "import_asset_path": "/original-assets/ageless-golf-style.png",
+        "asset_sha256": "24cc8f4ebe888c093a77d88fb816ef68b4e71fc0ec45101f94fde419801fbe2b",
+        "source": "User-supplied original artwork",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "original-generations-on-fairway",
+      "id": "66837adc-e857-5c72-9b37-d1f052e68508",
+      "title": "Generations on the fairway",
+      "project": "campaign",
+      "body": "Two golfers walking at sunset in blue and burgundy polos with a cream/burgundy bag; THE NEXT ROUND headline. Front-facing campaign poster, not rear-view wide banner shown in mockup.",
+      "asset": "/original-assets/generations-on-fairway.png",
+      "provenance": {
+        "media_origin": "bundled_original",
+        "source_kind": "user_upload",
+        "generated_for_import": false,
+        "original_creation_method": "unverified",
+        "is_generated_recreation": false,
+        "source_asset_key": "generations-on-fairway.png",
+        "source_original_filename": "Generations on the fairway-3.png",
+        "preview_fit": "contain",
+        "library_kind": "upload",
+        "library_description": "Two golfers walking at sunset in blue and burgundy polos with a cream/burgundy bag; THE NEXT ROUND headline. Front-facing campaign poster, not rear-view wide banner shown in mockup.",
+        "tags": [
+          "Original source"
+        ],
+        "approval_status": "unapproved",
+        "related_project_keys": [
+          "campaign"
+        ],
+        "original_source_order": 2,
+        "related_mockups": [
+          "02-ideas.png",
+          "03-projects.png",
+          "04-library.png"
+        ],
+        "import_key": "original-generations-on-fairway",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "project_key": "campaign",
+        "task_ids": [],
+        "import_asset_path": "/original-assets/generations-on-fairway.png",
+        "asset_sha256": "2f352522bfece89f0d6b1ba98f9e5170c01b336e2b21c69a3ec50702c8968ecb",
+        "source": "User-supplied original artwork",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "original-three-generations-collection",
+      "id": "110faea8-a7a4-5340-acd8-c969e44ffba8",
+      "title": "Three generations, one collection",
+      "project": "apparel",
+      "body": "Three vertical portraits in burgundy polos, cream and brown trousers; ONE COLLECTION. THREE GENERATIONS. headline. Related campaign concept, not exact embedded mockup image.",
+      "asset": "/original-assets/three-generations-collection.png",
+      "provenance": {
+        "media_origin": "bundled_original",
+        "source_kind": "user_upload",
+        "generated_for_import": false,
+        "original_creation_method": "unverified",
+        "is_generated_recreation": false,
+        "source_asset_key": "three-generations-collection.png",
+        "source_original_filename": "Three Generations, One Golf Collection-1.png",
+        "preview_fit": "contain",
+        "library_kind": "upload",
+        "library_description": "Three vertical portraits in burgundy polos, cream and brown trousers; ONE COLLECTION. THREE GENERATIONS. headline. Related campaign concept, not exact embedded mockup image.",
+        "tags": [
+          "Original source"
+        ],
+        "approval_status": "unapproved",
+        "related_project_keys": [
+          "apparel",
+          "campaign"
+        ],
+        "original_source_order": 3,
+        "related_mockups": [
+          "01-home.png",
+          "02-ideas.png",
+          "03-projects.png",
+          "04-library.png"
+        ],
+        "import_key": "original-three-generations-collection",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "project_key": "apparel",
+        "task_ids": [],
+        "import_asset_path": "/original-assets/three-generations-collection.png",
+        "asset_sha256": "adbb4210d5476d38b47ca56566afc8fef4afed80d30bbd176d86829bc2d1d971",
+        "source": "User-supplied original artwork",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "original-complete-the-look",
+      "id": "7c32c2ed-67c3-5d5f-8f33-b91a1ea74bf0",
+      "title": "Complete the look",
+      "project": "apparel",
+      "body": "Cream polo, burgundy jacket/cap, brown trousers, cream sneakers and cream/burgundy golf bag, textiles and golf landscape prints. Full styling moodboard; not isolated item images.",
+      "asset": "/original-assets/complete-the-look.png",
+      "provenance": {
+        "media_origin": "bundled_original",
+        "source_kind": "user_upload",
+        "generated_for_import": false,
+        "original_creation_method": "unverified",
+        "is_generated_recreation": false,
+        "source_asset_key": "complete-the-look.png",
+        "source_original_filename": "Complete the look_ golf streetwear-14.png",
+        "preview_fit": "contain",
+        "library_kind": "upload",
+        "library_description": "Cream polo, burgundy jacket/cap, brown trousers, cream sneakers and cream/burgundy golf bag, textiles and golf landscape prints. Full styling moodboard; not isolated item images.",
+        "tags": [
+          "Original source"
+        ],
+        "approval_status": "unapproved",
+        "related_project_keys": [
+          "apparel",
+          "bag"
+        ],
+        "original_source_order": 4,
+        "related_mockups": [
+          "02-ideas.png",
+          "04-library.png",
+          "06-tasks.png"
+        ],
+        "import_key": "original-complete-the-look",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "project_key": "apparel",
+        "task_ids": [],
+        "import_asset_path": "/original-assets/complete-the-look.png",
+        "asset_sha256": "536fbdb2e6bfbea01d6ac27c391f0f3bb75e6b8040a9108f9ecce593070f1551",
+        "source": "User-supplied original artwork",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "original-detail-challenge",
+      "id": "165ee248-5065-56f2-a7c2-d2083612f61b",
+      "title": "The detail challenge",
+      "project": "apparel",
+      "body": "Burgundy polo and collar/pocket sketches, cream bag detail, five fabric swatches, three styling photographs. No CF embroidery; do not map to CF mark tasks as exact asset.",
+      "asset": "/original-assets/detail-challenge.png",
+      "provenance": {
+        "media_origin": "bundled_original",
+        "source_kind": "user_upload",
+        "generated_for_import": false,
+        "original_creation_method": "unverified",
+        "is_generated_recreation": false,
+        "source_asset_key": "detail-challenge.png",
+        "source_original_filename": "Golf streetwear detail challenge-13.png",
+        "preview_fit": "contain",
+        "library_kind": "upload",
+        "library_description": "Burgundy polo and collar/pocket sketches, cream bag detail, five fabric swatches, three styling photographs. No CF embroidery; do not map to CF mark tasks as exact asset.",
+        "tags": [
+          "Original source"
+        ],
+        "approval_status": "unapproved",
+        "related_project_keys": [
+          "apparel",
+          "bag"
+        ],
+        "original_source_order": 5,
+        "related_mockups": [
+          "04-library.png",
+          "06-tasks.png"
+        ],
+        "import_key": "original-detail-challenge",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "project_key": "apparel",
+        "task_ids": [],
+        "import_asset_path": "/original-assets/detail-challenge.png",
+        "asset_sha256": "0f1a32857f3cdb777aae3915f460babef566502385082d9b438ae6337e18a31a",
+        "source": "User-supplied original artwork",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "original-founders-five",
+      "id": "6fdd1987-613b-5555-87ec-9f893aae6893",
+      "title": "Founders Five",
+      "project": "apparel",
+      "body": "Five pinned concept panels: burgundy polo, cream/brown golf bag, royal-blue unbranded cap, burgundy stitching and golfer; FOUNDERS FIVE heading. Full moodboard, not founder-review notes or brand logo artwork.",
+      "asset": "/original-assets/founders-five.png",
+      "provenance": {
+        "media_origin": "bundled_original",
+        "source_kind": "user_upload",
+        "generated_for_import": false,
+        "original_creation_method": "unverified",
+        "is_generated_recreation": false,
+        "source_asset_key": "founders-five.png",
+        "source_original_filename": "Founders Five golf streetwear moodboard-11.png",
+        "preview_fit": "contain",
+        "library_kind": "upload",
+        "library_description": "Five pinned concept panels: burgundy polo, cream/brown golf bag, royal-blue unbranded cap, burgundy stitching and golfer; FOUNDERS FIVE heading. Full moodboard, not founder-review notes or brand logo artwork.",
+        "tags": [
+          "Original source"
+        ],
+        "approval_status": "unapproved",
+        "related_project_keys": [
+          "apparel",
+          "bag"
+        ],
+        "original_source_order": 6,
+        "related_mockups": [
+          "04-library.png",
+          "06-tasks.png"
+        ],
+        "import_key": "original-founders-five",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "project_key": "apparel",
+        "task_ids": [],
+        "import_asset_path": "/original-assets/founders-five.png",
+        "asset_sha256": "13dfe8e18e4f34083a82418135569651238d5d0a6babb366154c98688ef149ef",
+        "source": "User-supplied original artwork",
+        "original_in_app_generation": false
+      }
+    },
+    {
+      "key": "original-keep-change-remove",
+      "id": "685d439c-7ac7-58e2-bf44-724c75854013",
+      "title": "Keep, change, remove",
+      "project": "bag",
+      "body": "Three columns of burgundy, blue and neutral bags, apparel, fabric samples and sketches headed KEEP / CHANGE / REMOVE. Labels are artwork text; not recorded user decisions.",
+      "asset": "/original-assets/keep-change-remove.png",
+      "provenance": {
+        "media_origin": "bundled_original",
+        "source_kind": "user_upload",
+        "generated_for_import": false,
+        "original_creation_method": "unverified",
+        "is_generated_recreation": false,
+        "source_asset_key": "keep-change-remove.png",
+        "source_original_filename": "Keep, change, remove_ Golf streetwear moodboard-12.png",
+        "preview_fit": "contain",
+        "library_kind": "upload",
+        "library_description": "Three columns of burgundy, blue and neutral bags, apparel, fabric samples and sketches headed KEEP / CHANGE / REMOVE. Labels are artwork text; not recorded user decisions.",
+        "tags": [
+          "Original source"
+        ],
+        "approval_status": "unapproved",
+        "related_project_keys": [
+          "bag",
+          "apparel"
+        ],
+        "original_source_order": 7,
+        "related_mockups": [
+          "04-library.png",
+          "06-tasks.png",
+          "09-project-canvas.png"
+        ],
+        "import_key": "original-keep-change-remove",
+        "import_batch": "fairway-mockups-v1",
+        "mockup_import": true,
+        "type": "mockup_import",
+        "starter_collection": true,
+        "project_key": "bag",
+        "task_ids": [],
+        "import_asset_path": "/original-assets/keep-change-remove.png",
+        "asset_sha256": "909d3bb5a3fb3df0e365b0c9f0c706d7ebbc34ef3c169d5313918c18a4ec4725",
+        "source": "User-supplied original artwork",
+        "original_in_app_generation": false
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "key": "bag-a",
+      "project": "bag",
+      "version": "bag-a",
+      "kind": "note",
+      "body": "Concept A v2 · Exploratory CF mark",
+      "x": 0,
+      "y": 0,
+      "width": 480,
+      "height": 600,
+      "id": "30c92d2e-4ef9-5e33-b955-bfc399b0b5a5"
+    },
+    {
+      "key": "bag-b",
+      "project": "bag",
+      "version": "bag-b",
+      "kind": "note",
+      "body": "Concept B v1 · Exploratory CF mark",
+      "x": 510,
+      "y": 0,
+      "width": 480,
+      "height": 600,
+      "id": "37c0359b-49f2-52dd-9548-d71f2ceafcd1"
+    },
+    {
+      "key": "bag-pocket",
+      "project": "bag",
+      "version": "bag-a",
+      "kind": "annotation",
+      "body": "Review pocket placement. Consider alternative angles and proportions. Imported design prompt from the mockup; no founder comment is recorded.",
+      "x": 0.26,
+      "y": 0.6,
+      "width": 280,
+      "height": 160,
+      "id": "3ce4c0c9-c8d2-50ad-a2d2-cec2522ffa44"
+    },
+    {
+      "key": "bag-question",
+      "project": "bag",
+      "kind": "note",
+      "body": "Where should the module sit? Compare a concealed rear module with an integrated side panel. Imported discussion prompt; no message has been sent.",
+      "x": 0,
+      "y": 640,
+      "width": 480,
+      "height": 180,
+      "id": "edeb0b9a-a5b7-547a-ae1f-32d608b2ffb2"
+    },
+    {
+      "key": "identity-review",
+      "project": "identity",
+      "version": "identity-name",
+      "kind": "note",
+      "body": "Review proposed Common Form identity. Assess brand fit, distinctiveness, product fit, and wearability. No approvals recorded.",
+      "x": 0,
+      "y": 0,
+      "width": 480,
+      "height": 480,
+      "id": "f9830b4c-7086-5a06-8d65-b165f90c9bbf"
+    },
+    {
+      "key": "apparel-capsule",
+      "project": "apparel",
+      "version": "royal-capsule",
+      "kind": "note",
+      "body": "Explore a bold new color story and build the first capsule.",
+      "x": 0,
+      "y": 0,
+      "width": 480,
+      "height": 420,
+      "id": "44d751a2-627b-5484-9bbd-451962977cfc"
+    },
+    {
+      "key": "campaign-direction",
+      "project": "campaign",
+      "version": "campaign-cover",
+      "kind": "note",
+      "body": "Different paths. A shared perspective. Shape campaign direction.",
+      "x": 0,
+      "y": 0,
+      "width": 600,
+      "height": 360,
+      "id": "0e9ad3d4-3bf4-5020-8e68-5b86643bd452"
+    },
+    {
+      "key": "library-identity-palette",
+      "project": "identity",
+      "version": "identity-palette",
+      "kind": "note",
+      "body": "Color palette · Primary brand color proposal.",
+      "x": 680,
+      "y": 1230,
+      "width": 320,
+      "height": 300,
+      "id": "22517565-e622-5727-a43e-a651c64f9bd2"
+    },
+    {
+      "key": "library-campaign-front",
+      "project": "campaign",
+      "version": "campaign-front",
+      "kind": "note",
+      "body": "Campaign concept · Multi-generational golf lifestyle.",
+      "x": 340,
+      "y": 1230,
+      "width": 320,
+      "height": 300,
+      "id": "bfc95618-1ac0-5af7-b2d2-653886f336e7"
+    },
+    {
+      "key": "library-library-leather",
+      "project": "bag",
+      "version": "library-leather",
+      "kind": "note",
+      "body": "Sample reference layout · Leather pocket detail and finish.",
+      "x": 0,
+      "y": 900,
+      "width": 320,
+      "height": 300,
+      "id": "a33734d1-099e-526a-86a9-948e18b08cb1"
+    },
+    {
+      "key": "library-library-embroidery",
+      "project": "identity",
+      "version": "library-embroidery",
+      "kind": "note",
+      "body": "CF monogram concept · Embroidered logo detail on textile.",
+      "x": 340,
+      "y": 900,
+      "width": 320,
+      "height": 300,
+      "id": "c7f96aa5-4270-5273-87de-904cf019872e"
+    },
+    {
+      "key": "library-library-knit",
+      "project": "apparel",
+      "version": "library-knit",
+      "kind": "note",
+      "body": "Cream knit fabric sample · Material texture for apparel collection.",
+      "x": 680,
+      "y": 900,
+      "width": 320,
+      "height": 300,
+      "id": "8815d3d1-fa4c-5f0c-8505-356386bb3b95"
+    },
+    {
+      "key": "library-library-polo",
+      "project": "apparel",
+      "version": "library-polo",
+      "kind": "note",
+      "body": "Royal blue polo concept · Performance polo with signature logo.",
+      "x": 0,
+      "y": 1230,
+      "width": 320,
+      "height": 300,
+      "id": "a9183084-cbe1-5aa1-9232-d03d761eaa8f"
+    },
+    {
+      "key": "original-slim-silhouette-golf-bag",
+      "project": "bag",
+      "version": "original-slim-silhouette-golf-bag",
+      "kind": "note",
+      "body": "Original source artwork: Slim silhouette golf bag. Preserve the full poster composition. Upload does not indicate approval.",
+      "x": 0,
+      "y": 1400,
+      "width": 320,
+      "height": 460,
+      "id": "2ffa7a43-afe3-5b19-bde5-7053cecbe171"
+    },
+    {
+      "key": "original-ageless-golf-style",
+      "project": "apparel",
+      "version": "original-ageless-golf-style",
+      "kind": "note",
+      "body": "Original source artwork: Ageless golf style. Preserve the full poster composition. Upload does not indicate approval.",
+      "x": 340,
+      "y": 1400,
+      "width": 320,
+      "height": 460,
+      "id": "17bbe427-d65d-5982-a286-ba8159576dd9"
+    },
+    {
+      "key": "original-generations-on-fairway",
+      "project": "campaign",
+      "version": "original-generations-on-fairway",
+      "kind": "note",
+      "body": "Original source artwork: Generations on the fairway. Preserve the full poster composition. Upload does not indicate approval.",
+      "x": 680,
+      "y": 1400,
+      "width": 320,
+      "height": 460,
+      "id": "2083ac8b-ccd3-50e9-b342-1ffb00bfcf52"
+    },
+    {
+      "key": "original-three-generations-collection",
+      "project": "apparel",
+      "version": "original-three-generations-collection",
+      "kind": "note",
+      "body": "Original source artwork: Three generations, one collection. Preserve the full poster composition. Upload does not indicate approval.",
+      "x": 0,
+      "y": 1890,
+      "width": 320,
+      "height": 460,
+      "id": "9cc21a4f-44a6-5b42-b388-4045a5e4c189"
+    },
+    {
+      "key": "original-complete-the-look",
+      "project": "apparel",
+      "version": "original-complete-the-look",
+      "kind": "note",
+      "body": "Original source artwork: Complete the look. Preserve the full poster composition. Upload does not indicate approval.",
+      "x": 340,
+      "y": 1890,
+      "width": 320,
+      "height": 460,
+      "id": "ed20b6ee-419a-5dc5-afca-14e578754960"
+    },
+    {
+      "key": "original-detail-challenge",
+      "project": "apparel",
+      "version": "original-detail-challenge",
+      "kind": "note",
+      "body": "Original source artwork: The detail challenge. Preserve the full poster composition. Upload does not indicate approval.",
+      "x": 680,
+      "y": 1890,
+      "width": 320,
+      "height": 460,
+      "id": "f82db755-ead1-5eea-9a02-722419e87cc2"
+    },
+    {
+      "key": "original-founders-five",
+      "project": "apparel",
+      "version": "original-founders-five",
+      "kind": "note",
+      "body": "Original source artwork: Founders Five. Preserve the full poster composition. Upload does not indicate approval.",
+      "x": 0,
+      "y": 2380,
+      "width": 320,
+      "height": 460,
+      "id": "989fbafe-30e2-5e2c-899b-ee571c389bfb"
+    },
+    {
+      "key": "original-keep-change-remove",
+      "project": "bag",
+      "version": "original-keep-change-remove",
+      "kind": "note",
+      "body": "Original source artwork: Keep, change, remove. Preserve the full poster composition. Upload does not indicate approval.",
+      "x": 340,
+      "y": 2380,
+      "width": 320,
+      "height": 460,
+      "id": "5bc8c631-d1d6-5294-a965-7a74281d55a1"
+    }
+  ],
+  "threads": [
+    {
+      "key": "identity",
+      "title": "Brand identity",
+      "project": "identity",
+      "description": "Visual direction",
+      "id": "0311fe45-e760-5f90-9293-8f028c1a9cf1"
+    },
+    {
+      "key": "bag",
+      "title": "Signature golf bag",
+      "project": "bag",
+      "description": "Design discussion",
+      "id": "9ccdd957-1eb9-56f9-bc35-7b45ed6b072e"
+    },
+    {
+      "key": "apparel",
+      "title": "First apparel collection",
+      "project": "apparel",
+      "description": "Fabric and fit concepts",
+      "id": "b2a32db0-b80b-5ba0-85fa-a122208e367c"
+    },
+    {
+      "key": "campaign",
+      "title": "Campaign: Generations of style",
+      "project": "campaign",
+      "description": "Campaign direction",
+      "id": "6801c201-4ddf-5c66-9fce-a507acbd037e"
+    },
+    {
+      "key": "how-to",
+      "title": "How to use Fairway Studio",
+      "project": null,
+      "description": "Illustrative walkthrough; example responses are not real founder messages.",
+      "id": "a980aaed-8ace-5a58-8181-e84f19273c83"
+    }
+  ],
+  "messages": [
+    {
+      "id": "cf108192-463f-5ab8-b13b-5123cd7daba7",
+      "body": "How-to example: this walkthrough shows how to connect an idea, project, reference, and task. The example responses below are supplied instructional content, not messages sent by the named founders. Your real project conversations are ready for new discussion."
+    },
+    {
+      "id": "a42a21f9-72e0-501b-acc3-3724a35a90d7",
+      "body": "Example response (not sent by Jafar): “Can we make the tech feel built into the bag?”"
+    },
+    {
+      "id": "edaf6387-90df-5f68-8327-0173193c1f38",
+      "body": "Example response (not sent by Arlin): “Keep the silhouette clean and the pockets easy to reach.”"
+    },
+    {
+      "id": "cb912c0b-b101-5624-be16-d8effe504882",
+      "body": "Example response (not sent by Kyle): “Let’s compare the seam and trim placement.”"
+    },
+    {
+      "id": "5531ddcb-e8de-5a6f-902d-7d020f595548",
+      "body": "Example suggested next step from the mockup: compare a concealed module with an integrated side panel. Open Signature golf bag to compare the saved exploratory concepts, or use the starter task “Compare concealed tech layouts”. This is instructional text, not a completed AI analysis."
+    }
+  ],
+  "activity_id": "f08529b9-eb49-5b4f-a489-6451c03cc246"
+}

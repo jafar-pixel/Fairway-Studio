@@ -1,0 +1,2 @@
+PASS: stage2 canonical6file SQL compiles and is idempotent in isolated test only.
+PASS: all three migrations plus starter import compile; counts correct; 4 existing tasks/20 references/settings preserved; repeat import keeps edits; no fabricated users, assignments, reviews, approvals, or kits; wrong-owner rollback.

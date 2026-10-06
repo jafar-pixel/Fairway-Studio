@@ -1,0 +1,12 @@
+import fs from 'node:fs';import path from 'node:path';import os from 'node:os';import assert from 'node:assert/strict';import {createRequire} from 'node:module';import {createHash} from 'node:crypto';
+const require=createRequire(import.meta.url),ts=require('typescript'),out='.portable-tests';
+fs.mkdirSync(out,{recursive:true});fs.writeFileSync(out+'/package.json','{"type":"commonjs"}');
+for(const name of ['media.ts','media/validation.ts','media/native.ts','media/portable-native.ts']){const dest=path.join(out,'lib/studio',name.replace('.ts','.js'));fs.mkdirSync(path.dirname(dest),{recursive:true});fs.writeFileSync(dest,ts.transpileModule(fs.readFileSync('lib/studio/'+name,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,esModuleInterop:true}}).outputText)}
+const m=require(path.resolve(out,'lib/studio/media/portable-native.js'));assert.equal(await m.nativeAvailable(),true);
+const fixtures=fs.existsSync('tests/fixtures/media')?'tests/fixtures/media':'../fairway-media-backend/tests/fixtures/media';
+for(const [name,type] of [['pattern.jpg','image/jpeg'],['pattern.png','image/png'],['pattern.webp','image/webp'],['pattern.gif','image/gif'],['pattern.avif','image/avif'],['tone.mp3','audio/mpeg'],['h264.mp4','video/mp4'],['hevc.mov','video/quicktime'],['vp9.mkv','video/x-matroska'],['silent.mp4','video/mp4'],['rotated.mov','video/quicktime'],['hdr.mov','video/quicktime'],...(process.env.MEDIA_HEIC_FIXTURE?[[process.env.MEDIA_HEIC_FIXTURE,'image/heic']]:[])]){
+ const cwd=fs.mkdtempSync(path.join(os.tmpdir(),'fairway-portable-')),input=path.resolve(path.isAbsolute(name)?name:path.join(fixtures,name)),sha=()=>createHash('sha256').update(fs.readFileSync(input)).digest('hex'),before=sha(),start=performance.now();
+ try{const result=await m.convertNative(input,type,cwd);assert.equal(sha(),before);if(result.output)await m.inspectOutput(result.output);if(name==='rotated.mov'){const p=await m.probeMedia(result.output,'video/mp4',cwd);assert.equal(p.streams.find(s=>s.codec_type==='video').width,96)}console.log(JSON.stringify({fixture:path.basename(name),milliseconds:Math.round(performance.now()-start),...result,output:result.output?'verified':null}))}finally{fs.rmSync(cwd,{recursive:true,force:true})}
+}
+if(!process.env.MEDIA_HEIC_FIXTURE)console.log('HEIC fixture not supplied; HEIC case skipped.');
+fs.rmSync(out,{recursive:true,force:true});

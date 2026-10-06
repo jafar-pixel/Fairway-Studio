@@ -1,0 +1,4 @@
+4dc83edd7f36699ad44c16631fcf4ab99937a35c208c24ba20d3c51765c41260  supabase/pending-schema.sql
+288365040833cbdc1fe6ca27c45ba254be8b3170402c25a259ee43dae94f1168  supabase/pending-ai-jobs.sql
+ad62a2e778b6fc4b9643266317a896d72eb6d72a69a4f2afe80a7dbf4a43aefc  supabase/pending-workflows.sql
+174c215213bbd29735ab4ec6df6bdf4c26d15321fb71331aa49a8638a73d369f  supabase/mockup-content-import.sql

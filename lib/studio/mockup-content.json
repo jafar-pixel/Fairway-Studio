@@ -1,0 +1,908 @@
+{
+  "import_batch": "fairway-mockups-v1",
+  "source": "fairway-studio-handoff/mockups",
+  "provenance_note": "Reusable starter content imported from the supplied Fairway Studio mockups. Artwork is a recreated exploratory concept, not an approved asset. How-to dialogue and source version labels are examples; no founder statement, review, approval, task completion, or prior in-app generation is asserted.",
+  "palette": [
+    {
+      "name": "Burgundy",
+      "hex": "#760D24"
+    },
+    {
+      "name": "Chocolate",
+      "hex": "#4A3028"
+    },
+    {
+      "name": "Black",
+      "hex": "#181818"
+    },
+    {
+      "name": "Royal blue",
+      "hex": "#2448A6"
+    },
+    {
+      "name": "Tan",
+      "hex": "#C3A17A"
+    },
+    {
+      "name": "Cream",
+      "hex": "#F4EDE1"
+    }
+  ],
+  "projects": [
+    {
+      "key": "identity",
+      "demo_id": "demo-identity",
+      "title": "Brand identity",
+      "category": "Branding",
+      "brief": "Visual identity and brand system. Explore Common Form and Common Thread, then review the name, mark, palette, and applications separately.",
+      "demo_lead": "demo-jafar",
+      "demo_phase": "in_review",
+      "next_step": "Review identity v3"
+    },
+    {
+      "key": "bag",
+      "demo_id": "demo-bag",
+      "title": "Signature golf bag",
+      "category": "Product",
+      "brief": "Product design and details. Compare a cream-and-burgundy silhouette with an integrated connected bag. Preserve clean lines and easy pocket access.",
+      "demo_lead": "demo-arlin",
+      "demo_phase": "exploring",
+      "next_step": "Compare two bag concepts"
+    },
+    {
+      "key": "apparel",
+      "demo_id": "demo-apparel",
+      "title": "First apparel collection",
+      "category": "Apparel",
+      "brief": "Apparel design and direction. Build the first capsule around versatile polos, cream knit textures, and burgundy and royal blue color stories.",
+      "demo_lead": "demo-kyle",
+      "demo_phase": "exploring",
+      "next_step": "Build the first capsule"
+    },
+    {
+      "key": "campaign",
+      "demo_id": "demo-campaign",
+      "title": "Campaign: Generations of style",
+      "category": "Campaign",
+      "brief": "Different paths. A shared perspective. Shape a multi-generational golf lifestyle campaign across product and storytelling.",
+      "demo_lead": "demo-jafar",
+      "demo_phase": "exploring",
+      "next_step": "Shape campaign direction"
+    }
+  ],
+  "ideas": [
+    {
+      "key": "common-form",
+      "demo_id": "demo-idea-1",
+      "title": "Common Form",
+      "body": "A refined mark for a modern golf brand.",
+      "category": "Brand identity",
+      "demo_status": "exploring",
+      "project": "identity",
+      "version": "identity-monogram",
+      "asset": "common-form-mark",
+      "tags": [
+        "Brand identity"
+      ]
+    },
+    {
+      "key": "common-thread",
+      "demo_id": "demo-idea-2",
+      "title": "Common Thread",
+      "body": "A wordmark that unites heritage and progress.",
+      "category": "Brand identity",
+      "demo_status": "shortlist",
+      "project": "identity",
+      "version": "common-thread",
+      "asset": "common-thread-wordmark",
+      "tags": [
+        "Brand identity"
+      ],
+      "project_suggestion": true,
+      "project_suggestion_order": 0
+    },
+    {
+      "key": "connected-bag",
+      "demo_id": "demo-idea-3",
+      "title": "Connected golf bag",
+      "body": "Heritage craftsmanship meets modern technology.",
+      "category": "Product concept",
+      "demo_status": "exploring",
+      "project": "bag",
+      "version": "bag-b",
+      "asset": "golf-bag-connected",
+      "tags": [
+        "Golf bags"
+      ]
+    },
+    {
+      "key": "course-to-city",
+      "demo_id": "demo-idea-4-course",
+      "title": "Course to city",
+      "body": "A versatile polo for wherever the day takes you.",
+      "category": "Apparel",
+      "demo_status": "shortlist",
+      "project": "apparel",
+      "version": "course-to-city",
+      "asset": "course-to-city",
+      "tags": [
+        "Apparel"
+      ]
+    },
+    {
+      "key": "generations",
+      "demo_id": "demo-idea-4",
+      "title": "Generations of style",
+      "body": "Different paths. A shared perspective.",
+      "category": "Campaign",
+      "demo_status": "shortlist",
+      "project": "campaign",
+      "version": "campaign-front",
+      "asset": "apparel-generations",
+      "tags": [
+        "Campaigns"
+      ]
+    },
+    {
+      "key": "royal-capsule",
+      "demo_id": "demo-idea-6",
+      "title": "Royal blue capsule",
+      "body": "A fresh color story for the season ahead.",
+      "category": "Apparel",
+      "demo_status": "shortlist",
+      "project": "apparel",
+      "version": "royal-capsule",
+      "asset": "royal-blue-capsule",
+      "tags": [
+        "Apparel"
+      ],
+      "project_suggestion": true,
+      "project_suggestion_order": 1
+    }
+  ],
+  "versions": [
+    {
+      "key": "identity-name",
+      "demo_id": "demo-v3",
+      "title": "Common Form identity",
+      "project": "identity",
+      "body": "Common Form: a refined mark for a modern golf brand.",
+      "asset": "/mockup-assets/common-form-wordmark.png",
+      "source_mockups": [
+        "01-home",
+        "03-projects",
+        "10-founder-review"
+      ],
+      "display_version_number": 3,
+      "component_scope": "name",
+      "proposed_kit": "Common Form",
+      "project_cover": false,
+      "review_title": "Common Form \u2013 founder review",
+      "task_titles": [
+        "Review identity v3"
+      ]
+    },
+    {
+      "key": "identity-monogram",
+      "demo_id": "demo-version-identity-monogram",
+      "title": "Common Form monogram",
+      "project": "identity",
+      "body": "Exploratory CF monogram. Name, logo, and colors require separate review.",
+      "asset": "/mockup-assets/common-form-mark.png",
+      "source_mockups": [
+        "07-brand-kit"
+      ],
+      "component_scope": "monogram",
+      "proposed_kit": "Common Form",
+      "task_titles": [
+        "Refine CF embroidery size"
+      ],
+      "project_cover": true,
+      "idea_cover_key": "common-form"
+    },
+    {
+      "key": "identity-wordmark",
+      "demo_id": "demo-version-identity-wordmark",
+      "title": "Common Form wordmark",
+      "project": "identity",
+      "body": "Common Form name and monogram lockup. Proposed identity; no approval recorded.",
+      "asset": "/mockup-assets/common-form-wordmark.png",
+      "source_mockups": [
+        "07-brand-kit",
+        "10-founder-review"
+      ],
+      "component_scope": "wordmark",
+      "proposed_kit": "Common Form"
+    },
+    {
+      "key": "identity-palette",
+      "demo_id": "demo-version-identity-palette",
+      "title": "Color palette",
+      "project": "identity",
+      "body": "Primary brand color proposal: burgundy, chocolate, black, royal blue, tan, and cream. Colors are exploratory.",
+      "asset": "/mockup-assets/color-palette.png",
+      "source_mockups": [
+        "04-library",
+        "07-brand-kit"
+      ],
+      "component_scope": "palette",
+      "proposed_kit": "Common Form",
+      "palette": [
+        {
+          "name": "Burgundy",
+          "hex": "#760D24"
+        },
+        {
+          "name": "Chocolate",
+          "hex": "#4A3028"
+        },
+        {
+          "name": "Black",
+          "hex": "#181818"
+        },
+        {
+          "name": "Royal blue",
+          "hex": "#2448A6"
+        },
+        {
+          "name": "Tan",
+          "hex": "#C3A17A"
+        },
+        {
+          "name": "Cream",
+          "hex": "#F4EDE1"
+        }
+      ],
+      "library_kind": "upload",
+      "library_description": "Primary brand color proposal.",
+      "library_order": 5
+    },
+    {
+      "key": "identity-typography",
+      "demo_id": "demo-version-identity-typography",
+      "title": "Common Form typography direction",
+      "project": "identity",
+      "body": "Suggested starting guidance (not supplied source copy): Explore the letter-spaced Common Form wordmark with a clean supporting sans-serif. A font family has not been selected or approved.",
+      "asset": null,
+      "source_mockups": [
+        "07-brand-kit"
+      ],
+      "component_scope": "typography",
+      "proposed_kit": "Common Form",
+      "copy_origin": "implementation_suggestion"
+    },
+    {
+      "key": "identity-guidelines",
+      "demo_id": "demo-version-identity-guidelines",
+      "title": "Common Form usage guidelines",
+      "project": "identity",
+      "body": "Suggested starting guidance (not supplied source copy): Proposed guidance: preserve the CF mark proportions; review embroidery at real product size; compare clear space and contrast on cream, burgundy, and royal blue applications. Confirm the name, mark, palette, and typography separately before publication.",
+      "asset": null,
+      "source_mockups": [
+        "07-brand-kit"
+      ],
+      "component_scope": "guidelines",
+      "proposed_kit": "Common Form",
+      "copy_origin": "implementation_suggestion"
+    },
+    {
+      "key": "common-thread",
+      "demo_id": "demo-version-common-thread",
+      "title": "Common Thread",
+      "project": "identity",
+      "body": "A wordmark that unites heritage and progress.",
+      "asset": "/mockup-assets/common-thread-wordmark.png",
+      "source_mockups": [
+        "02-ideas",
+        "03-projects"
+      ],
+      "idea_cover_key": "common-thread"
+    },
+    {
+      "key": "bag-a",
+      "demo_id": "demo-bag-v2",
+      "title": "Concept A",
+      "project": "bag",
+      "body": "Exploratory CF mark. Cream body with burgundy trim; clean silhouette and accessible pockets.",
+      "asset": "/mockup-assets/golf-bag-cream.png",
+      "source_mockups": [
+        "01-home",
+        "03-projects",
+        "05-conversations",
+        "09-project-canvas",
+        "11-mobile-canvas"
+      ],
+      "display_version_number": 2,
+      "project_cover": true,
+      "mockup_source_kind": "AI concept sample",
+      "task_titles": [
+        "Compare concealed tech layouts",
+        "Review pocket placement",
+        "Review bag pocket access",
+        "Compare two bag concepts"
+      ]
+    },
+    {
+      "key": "bag-b",
+      "demo_id": "demo-bag-v1",
+      "title": "Concept B",
+      "project": "bag",
+      "body": "Exploratory CF mark. Heritage craftsmanship with an integrated technology panel.",
+      "asset": "/mockup-assets/golf-bag-connected.png",
+      "source_mockups": [
+        "02-ideas",
+        "09-project-canvas"
+      ],
+      "display_version_number": 1,
+      "mockup_source_kind": "AI concept sample",
+      "idea_cover_key": "connected-bag",
+      "task_titles": [
+        "Compare concealed tech layouts"
+      ]
+    },
+    {
+      "key": "course-to-city",
+      "demo_id": "demo-version-course-to-city",
+      "title": "Course to city",
+      "project": "apparel",
+      "body": "A versatile polo for wherever the day takes you.",
+      "asset": "/mockup-assets/course-to-city.png",
+      "source_mockups": [
+        "02-ideas"
+      ],
+      "idea_cover_key": "course-to-city"
+    },
+    {
+      "key": "royal-capsule",
+      "demo_id": "demo-version-royal-capsule",
+      "title": "Royal blue capsule",
+      "project": "apparel",
+      "body": "A fresh color story for the season ahead.",
+      "asset": "/mockup-assets/royal-blue-capsule.png",
+      "source_mockups": [
+        "02-ideas",
+        "03-projects"
+      ],
+      "idea_cover_key": "royal-capsule",
+      "task_titles": [
+        "Refine royal blue colorway"
+      ]
+    },
+    {
+      "key": "apparel-cover",
+      "demo_id": "demo-version-apparel-cover",
+      "title": "First apparel collection",
+      "project": "apparel",
+      "body": "Apparel design and direction for a shared golf lifestyle.",
+      "asset": "/mockup-assets/apparel-generations.png",
+      "source_mockups": [
+        "01-home",
+        "03-projects"
+      ],
+      "project_cover": true,
+      "task_titles": [
+        "Build the first capsule"
+      ]
+    },
+    {
+      "key": "campaign-front",
+      "demo_id": "demo-version-campaign-front",
+      "title": "Campaign concept",
+      "project": "campaign",
+      "body": "Multi-generational golf lifestyle.",
+      "asset": "/mockup-assets/apparel-generations.png",
+      "source_mockups": [
+        "02-ideas",
+        "04-library"
+      ],
+      "library_kind": "campaign",
+      "library_description": "Multi-generational golf lifestyle.",
+      "idea_cover_key": "generations",
+      "library_order": 4
+    },
+    {
+      "key": "campaign-cover",
+      "demo_id": "demo-version-campaign-cover",
+      "title": "Generations of style campaign direction",
+      "project": "campaign",
+      "body": "Different paths. A shared perspective.",
+      "asset": "/mockup-assets/campaign-generations-back.png",
+      "source_mockups": [
+        "03-projects"
+      ],
+      "project_cover": true,
+      "task_titles": [
+        "Shape campaign direction"
+      ]
+    },
+    {
+      "key": "library-leather",
+      "demo_id": "demo-ref",
+      "title": "Sample reference layout",
+      "project": "bag",
+      "body": "Leather pocket detail and finish. Study pocket shape and leather finish. Imported concept artwork; no Pinterest original is connected.",
+      "asset": "/mockup-assets/leather-detail.png",
+      "source_mockups": [
+        "04-library"
+      ],
+      "library_kind": "reference",
+      "library_description": "Leather pocket detail and finish.",
+      "tags": [
+        "Golf bags",
+        "Leather",
+        "Tan"
+      ],
+      "task_titles": [
+        "Review bag pocket access",
+        "Review pocket placement"
+      ],
+      "library_order": 0
+    },
+    {
+      "key": "library-embroidery",
+      "demo_id": "demo-version-library-embroidery",
+      "title": "CF monogram concept",
+      "project": "identity",
+      "body": "Embroidered logo detail on textile.",
+      "asset": "/mockup-assets/cf-embroidery.png",
+      "source_mockups": [
+        "04-library",
+        "06-tasks"
+      ],
+      "library_kind": "ai_concept",
+      "library_description": "Embroidered logo detail on textile.",
+      "mockup_source_kind": "AI concept sample",
+      "tags": [
+        "Burgundy",
+        "Texture",
+        "Embroidery"
+      ],
+      "task_titles": [
+        "Refine CF embroidery size"
+      ],
+      "library_order": 1
+    },
+    {
+      "key": "library-knit",
+      "demo_id": "demo-version-library-knit",
+      "title": "Cream knit fabric sample",
+      "project": "apparel",
+      "body": "Material texture for apparel collection.",
+      "asset": "/mockup-assets/cream-knit.png",
+      "source_mockups": [
+        "04-library",
+        "06-tasks"
+      ],
+      "library_kind": "upload",
+      "library_description": "Material texture for apparel collection.",
+      "tags": [
+        "Cream",
+        "Texture",
+        "Apparel"
+      ],
+      "task_titles": [
+        "Gather cream textile references"
+      ],
+      "library_order": 2
+    },
+    {
+      "key": "library-polo",
+      "demo_id": "demo-version-library-polo",
+      "title": "Royal blue polo concept",
+      "project": "apparel",
+      "body": "Performance polo with signature logo.",
+      "asset": "/mockup-assets/royal-blue-polo.png",
+      "source_mockups": [
+        "04-library"
+      ],
+      "library_kind": "ai_concept",
+      "library_description": "Performance polo with signature logo.",
+      "mockup_source_kind": "AI concept sample",
+      "tags": [
+        "Royal blue",
+        "Apparel"
+      ],
+      "task_titles": [
+        "Refine royal blue colorway"
+      ],
+      "library_order": 3
+    },
+    {
+      "key": "application-polo",
+      "demo_id": "demo-version-application-polo",
+      "title": "Cream polo application",
+      "project": "identity",
+      "body": "Exploratory application of the proposed Common Form identity.",
+      "asset": "/mockup-assets/cream-polo.png",
+      "source_mockups": [
+        "07-brand-kit",
+        "10-founder-review"
+      ],
+      "component_scope": "application",
+      "proposed_kit": "Common Form",
+      "application_preview": true
+    },
+    {
+      "key": "application-cap",
+      "demo_id": "demo-version-application-cap",
+      "title": "Cream cap application",
+      "project": "identity",
+      "body": "Exploratory application of the proposed Common Form identity.",
+      "asset": "/mockup-assets/cream-cap.png",
+      "source_mockups": [
+        "07-brand-kit",
+        "10-founder-review"
+      ],
+      "component_scope": "application",
+      "proposed_kit": "Common Form",
+      "application_preview": true
+    },
+    {
+      "key": "application-blue-cap",
+      "demo_id": "demo-version-application-blue-cap",
+      "title": "Royal blue cap application",
+      "project": "identity",
+      "body": "Exploratory application of the proposed Common Form identity.",
+      "asset": "/mockup-assets/royal-blue-cap.png",
+      "source_mockups": [
+        "07-brand-kit",
+        "10-founder-review"
+      ],
+      "component_scope": "application",
+      "proposed_kit": "Common Form"
+    },
+    {
+      "key": "application-bag",
+      "demo_id": "demo-version-application-bag",
+      "title": "Signature bag application",
+      "project": "identity",
+      "body": "Exploratory application of the proposed Common Form identity.",
+      "asset": "/mockup-assets/golf-bag-cream.png",
+      "source_mockups": [
+        "07-brand-kit",
+        "10-founder-review"
+      ],
+      "component_scope": "application",
+      "proposed_kit": "Common Form",
+      "application_preview": true
+    },
+    {
+      "key": "burgundy-study",
+      "demo_id": "demo-version-burgundy-study",
+      "title": "Burgundy color study",
+      "project": "apparel",
+      "body": "Exploratory starter reference from the supplied task-board mockup.",
+      "asset": "/mockup-assets/burgundy-moodboard.png",
+      "source_mockups": [
+        "06-tasks"
+      ],
+      "task_titles": [
+        "Build burgundy color study"
+      ]
+    },
+    {
+      "key": "review-notes",
+      "demo_id": "demo-version-review-notes",
+      "title": "Founder review criteria notes",
+      "project": "identity",
+      "body": "Exploratory starter reference from the supplied task-board mockup.",
+      "asset": "/mockup-assets/founder-review-notes.png",
+      "source_mockups": [
+        "06-tasks"
+      ],
+      "task_titles": [
+        "Draft founder review criteria"
+      ]
+    }
+  ],
+  "tasks": [
+    {
+      "key": "concealed-tech",
+      "demo_id": "demo-task-1",
+      "title": "Compare concealed tech layouts",
+      "details": "Explore two ways to integrate the module while preserving the bag silhouette.",
+      "project": "bag",
+      "category": "Product",
+      "demo_status": "open",
+      "demo_assignee": "demo-jafar",
+      "checklist": [
+        {
+          "id": "concealed-rear-module",
+          "text": "Concealed rear module",
+          "done": false
+        },
+        {
+          "id": "integrated-side-panel",
+          "text": "Integrated side panel",
+          "done": false
+        }
+      ]
+    },
+    {
+      "key": "pocket-access",
+      "demo_id": "demo-task-pocket",
+      "title": "Review bag pocket access",
+      "details": "Keep the silhouette clean and the pockets easy to reach. Compare pocket opening angles and proportions.",
+      "project": "bag",
+      "category": "Product",
+      "demo_status": "open",
+      "demo_assignee": "demo-arlin"
+    },
+    {
+      "key": "embroidery-size",
+      "demo_id": "demo-task-embroidery",
+      "title": "Refine CF embroidery size",
+      "details": "Compare the exploratory CF mark at real product scale on apparel and accessories.",
+      "project": "identity",
+      "category": "Brand identity",
+      "demo_status": "open",
+      "demo_assignee": "demo-kyle"
+    },
+    {
+      "key": "burgundy-study",
+      "demo_id": "demo-task-2",
+      "title": "Build burgundy color study",
+      "details": "Compare burgundy with cream across body, trim, materials, and hardware.",
+      "project": "apparel",
+      "category": "Apparel",
+      "demo_status": "in_progress",
+      "demo_assignee": "demo-kyle"
+    },
+    {
+      "key": "review-criteria",
+      "demo_id": "demo-task-review",
+      "title": "Draft founder review criteria",
+      "details": "Define review prompts for brand fit, distinctiveness, product fit, wearability, and manufacturability. Ratings inform decisions and do not approve a design.",
+      "project": "identity",
+      "category": "Brand identity",
+      "demo_status": "in_progress",
+      "demo_assignee": "demo-jafar"
+    },
+    {
+      "key": "textile-references",
+      "demo_id": "demo-task-3",
+      "title": "Gather cream textile references",
+      "details": "Collect cream knit, texture, weave, and finish references for the first apparel collection.",
+      "project": "apparel",
+      "category": "Materials",
+      "demo_status": "done",
+      "demo_assignee": "demo-kyle"
+    },
+    {
+      "key": "pocket-placement",
+      "demo_id": "demo-task-next-pocket",
+      "title": "Review pocket placement",
+      "details": "Consider alternative angles and proportions.",
+      "project": "bag",
+      "category": "Product",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "home"
+    },
+    {
+      "key": "blue-colorway",
+      "demo_id": "demo-task-next-blue",
+      "title": "Refine royal blue colorway",
+      "details": "Explore material options and samples.",
+      "project": "apparel",
+      "category": "Apparel",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "home"
+    },
+    {
+      "key": "next-identity",
+      "demo_id": "demo-task-next-identity",
+      "title": "Review identity v3",
+      "details": "Visual identity and brand system. Explore Common Form and Common Thread, then review the name, mark, palette, and applications separately.",
+      "project": "identity",
+      "category": "Branding",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "project"
+    },
+    {
+      "key": "next-bag",
+      "demo_id": "demo-task-next-bag",
+      "title": "Compare two bag concepts",
+      "details": "Product design and details. Compare a cream-and-burgundy silhouette with an integrated connected bag. Preserve clean lines and easy pocket access.",
+      "project": "bag",
+      "category": "Product",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "project"
+    },
+    {
+      "key": "next-apparel",
+      "demo_id": "demo-task-next-apparel",
+      "title": "Build the first capsule",
+      "details": "Apparel design and direction. Build the first capsule around versatile polos, cream knit textures, and burgundy and royal blue color stories.",
+      "project": "apparel",
+      "category": "Apparel",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "project"
+    },
+    {
+      "key": "next-campaign",
+      "demo_id": "demo-task-next-campaign",
+      "title": "Shape campaign direction",
+      "details": "Different paths. A shared perspective. Shape a multi-generational golf lifestyle campaign across product and storytelling.",
+      "project": "campaign",
+      "category": "Campaign",
+      "demo_status": "open",
+      "demo_assignee": null,
+      "surface": "project"
+    }
+  ],
+  "threads": [
+    {
+      "key": "identity",
+      "title": "Brand identity",
+      "project": "identity",
+      "description": "Visual direction"
+    },
+    {
+      "key": "bag",
+      "title": "Signature golf bag",
+      "project": "bag",
+      "description": "Design discussion"
+    },
+    {
+      "key": "apparel",
+      "title": "First apparel collection",
+      "project": "apparel",
+      "description": "Fabric and fit concepts"
+    },
+    {
+      "key": "campaign",
+      "title": "Campaign: Generations of style",
+      "project": "campaign",
+      "description": "Campaign direction"
+    }
+  ],
+  "nodes": [
+    {
+      "key": "bag-a",
+      "project": "bag",
+      "version": "bag-a",
+      "kind": "note",
+      "body": "Concept A v2 \u00b7 Exploratory CF mark",
+      "x": 0,
+      "y": 0,
+      "width": 480,
+      "height": 600
+    },
+    {
+      "key": "bag-b",
+      "project": "bag",
+      "version": "bag-b",
+      "kind": "note",
+      "body": "Concept B v1 \u00b7 Exploratory CF mark",
+      "x": 510,
+      "y": 0,
+      "width": 480,
+      "height": 600
+    },
+    {
+      "key": "bag-pocket",
+      "project": "bag",
+      "version": "bag-a",
+      "kind": "annotation",
+      "body": "Review pocket placement. Consider alternative angles and proportions. Imported design prompt from the mockup; no founder comment is recorded.",
+      "x": 0.26,
+      "y": 0.6,
+      "width": 280,
+      "height": 160
+    },
+    {
+      "key": "bag-question",
+      "project": "bag",
+      "kind": "note",
+      "body": "Where should the module sit? Compare a concealed rear module with an integrated side panel. Imported discussion prompt; no message has been sent.",
+      "x": 0,
+      "y": 640,
+      "width": 480,
+      "height": 180
+    },
+    {
+      "key": "identity-review",
+      "project": "identity",
+      "version": "identity-name",
+      "kind": "note",
+      "body": "Review proposed Common Form identity. Assess brand fit, distinctiveness, product fit, and wearability. No approvals recorded.",
+      "x": 0,
+      "y": 0,
+      "width": 480,
+      "height": 480
+    },
+    {
+      "key": "apparel-capsule",
+      "project": "apparel",
+      "version": "royal-capsule",
+      "kind": "note",
+      "body": "Explore a bold new color story and build the first capsule.",
+      "x": 0,
+      "y": 0,
+      "width": 480,
+      "height": 420
+    },
+    {
+      "key": "campaign-direction",
+      "project": "campaign",
+      "version": "campaign-cover",
+      "kind": "note",
+      "body": "Different paths. A shared perspective. Shape campaign direction.",
+      "x": 0,
+      "y": 0,
+      "width": 600,
+      "height": 360
+    },
+    {
+      "key": "library-identity-palette",
+      "project": "identity",
+      "version": "identity-palette",
+      "kind": "note",
+      "body": "Color palette \u00b7 Primary brand color proposal.",
+      "x": 680,
+      "y": 1230,
+      "width": 320,
+      "height": 300
+    },
+    {
+      "key": "library-campaign-front",
+      "project": "campaign",
+      "version": "campaign-front",
+      "kind": "note",
+      "body": "Campaign concept \u00b7 Multi-generational golf lifestyle.",
+      "x": 340,
+      "y": 1230,
+      "width": 320,
+      "height": 300
+    },
+    {
+      "key": "library-library-leather",
+      "project": "bag",
+      "version": "library-leather",
+      "kind": "note",
+      "body": "Sample reference layout \u00b7 Leather pocket detail and finish.",
+      "x": 0,
+      "y": 900,
+      "width": 320,
+      "height": 300
+    },
+    {
+      "key": "library-library-embroidery",
+      "project": "identity",
+      "version": "library-embroidery",
+      "kind": "note",
+      "body": "CF monogram concept \u00b7 Embroidered logo detail on textile.",
+      "x": 340,
+      "y": 900,
+      "width": 320,
+      "height": 300
+    },
+    {
+      "key": "library-library-knit",
+      "project": "apparel",
+      "version": "library-knit",
+      "kind": "note",
+      "body": "Cream knit fabric sample \u00b7 Material texture for apparel collection.",
+      "x": 680,
+      "y": 900,
+      "width": 320,
+      "height": 300
+    },
+    {
+      "key": "library-library-polo",
+      "project": "apparel",
+      "version": "library-polo",
+      "kind": "note",
+      "body": "Royal blue polo concept \u00b7 Performance polo with signature logo.",
+      "x": 0,
+      "y": 1230,
+      "width": 320,
+      "height": 300
+    }
+  ]
+}

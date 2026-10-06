@@ -1,0 +1,66 @@
+{
+  "passed": 11,
+  "results": [
+    {
+      "screen": "01 Home",
+      "status": 200,
+      "bytes": 29303
+    },
+    {
+      "screen": "02 Ideas",
+      "status": 200,
+      "bytes": 46227
+    },
+    {
+      "screen": "03 Projects",
+      "status": 200,
+      "bytes": 42408
+    },
+    {
+      "screen": "04 Library",
+      "status": 200,
+      "bytes": 70849
+    },
+    {
+      "screen": "05 Conversations",
+      "status": 200,
+      "bytes": 27833
+    },
+    {
+      "screen": "06 Tasks",
+      "status": 200,
+      "bytes": 58348
+    },
+    {
+      "screen": "07 Brand Kit",
+      "status": 200,
+      "bytes": 29305
+    },
+    {
+      "screen": "08 Team & Settings",
+      "status": 200,
+      "bytes": 27794
+    },
+    {
+      "screen": "09 Canvas",
+      "status": 200,
+      "bytes": 53288
+    },
+    {
+      "screen": "10 Founder review",
+      "status": 200,
+      "bytes": 40790
+    },
+    {
+      "screen": "11 Mobile route",
+      "status": 200,
+      "bytes": 53288
+    }
+  ],
+  "security": [
+    "unauthenticated read 401",
+    "cross-origin write 403",
+    "invalid input 400"
+  ],
+  "pwa": "all assets served"
+}
