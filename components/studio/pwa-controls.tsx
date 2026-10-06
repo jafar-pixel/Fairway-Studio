@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Download, RefreshCw, WifiOff, X } from "lucide-react";
+import { Download, Monitor, RefreshCw, WifiOff, X } from "lucide-react";
 import {
   exportDraftsText,
   keepMineAsNewDraft,
@@ -13,6 +13,10 @@ import {
   type DraftSyncAdapter,
   type OfflineDraft,
 } from "@/lib/studio/offline";
+
+/** Always the newest Windows installer, published by .github/workflows/desktop.yml. */
+export const WINDOWS_INSTALLER_URL =
+  "https://github.com/jafar-pixel/Fairway-Studio/releases/latest/download/Fairway-Studio-Setup.exe";
 
 type InstallEvent = Event & {
   prompt(): Promise<void>;
@@ -44,6 +48,7 @@ function PwaControlsInner({
   const [install, setInstall] = useState<InstallEvent | null>(null);
   const [standalone, setStandalone] = useState(false);
   const [ios, setIos] = useState(false);
+  const [windows, setWindows] = useState(false);
   const [waiting, setWaiting] = useState<ServiceWorker | null>(null);
   const [open, setOpen] = useState(false);
   const [drafts, setDrafts] = useState<OfflineDraft[]>([]);
@@ -91,6 +96,11 @@ function PwaControlsInner({
     setIos(
       /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1),
+    );
+    // Offer the Windows app on Windows browsers, but not inside the desktop app itself.
+    setWindows(
+      /Windows/.test(navigator.userAgent) &&
+        !(window as Window & { fairwayDesktop?: unknown }).fairwayDesktop,
     );
     const connected = () => {
       setOnline(true);
@@ -288,13 +298,21 @@ function PwaControlsInner({
             Install Studio
           </button>
         )}
+        {manageInstallation && !standalone && windows && (
+          <a className={button} href={WINDOWS_INSTALLER_URL} rel="noopener">
+            <Monitor size={15} />
+            Download for Windows
+          </a>
+        )}
         {manageInstallation && !standalone && !install && (
           <details className="relative">
             <summary className={button}>Install help</summary>
             <p className="absolute bottom-full right-0 z-10 mb-2 w-72 rounded-xl border border-border bg-card p-3 text-xs leading-relaxed text-foreground shadow-md">
               {ios
                 ? "In Safari, open Share, then Add to Home Screen. If it is missing, open Studio directly in Safari."
-                : "Open your browser’s menu and look for Install app or Add to Home Screen. Availability depends on your browser and device."}
+                : windows
+                  ? "Download the Windows app (.exe) and run the installer, or use your browser’s menu: Apps → Install Fairway Studio."
+                  : "Open your browser’s menu and look for Install app or Add to Home Screen. Availability depends on your browser and device."}
             </p>
           </details>
         )}

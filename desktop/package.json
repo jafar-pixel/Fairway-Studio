@@ -1,0 +1,37 @@
+{
+  "name": "fairway-studio-desktop",
+  "productName": "Fairway Studio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fairway Studio for Windows",
+  "author": "JL Influence",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3"
+  },
+  "build": {
+    "appId": "com.jlinfluence.fairwaystudio",
+    "productName": "Fairway Studio",
+    "copyright": "© JL Influence",
+    "files": ["main.js", "preload.js", "offline.html", "build/icon.png"],
+    "directories": { "output": "dist", "buildResources": "build" },
+    "win": {
+      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "icon": "build/icon.png",
+      "artifactName": "Fairway-Studio-Setup.exe"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Fairway Studio"
+    }
+  }
+}
