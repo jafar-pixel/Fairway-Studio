@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent, type PointerEvent as ReactPointerEvent } from "react";
 import useSWR from "swr";
 import { ArrowLeft, Copy, ExternalLink, FileImage, Library, Lock, LogIn, LogOut, MessageSquare, Palette, Scissors, StickyNote, Trash2, Users } from "lucide-react";
+import { extractPalette, ideaImage, seedItems, storableImage, type SeedItem } from "@/lib/studio/whiteboard-seed";
 import {
   ITEM_LABELS, boardRulesSummary, itemPermissions,
   type Board, type BoardComment, type BoardItem, type BoardItemKind, type BoardScope, type BoardSnapshot,
@@ -27,16 +28,33 @@ async function readJson(response: Response) {
   return body;
 }
 
+function demoItem(seed: SeedItem, board: Board, index: number): BoardItem {
+  const now = new Date().toISOString();
+  return { id: `demo-seed-${index}`, board_id: board.id, kind: seed.kind, title: seed.title, body: seed.body || "", color: seed.color || null, url: null, image_url: seed.image_url || null, reference_id: null, file_id: null, x: seed.x, y: seed.y, width: seed.width, height: seed.height, created_by: board.owner_id, checked_out_by: null, checked_out_at: null, revision: 0, created_at: now, updated_at: now };
+}
+
 /** Demo boards live in memory only; nothing is saved. */
 function useDemoBoards(ideaId: string, userId: string, idea: Row | undefined) {
   const [snapshot, setSnapshot] = useState<BoardSnapshot>(() => {
     const now = new Date().toISOString();
     const team: Board = { id: `demo-team-${ideaId}`, workspace_id: "demo", idea_id: ideaId, scope: "team", owner_id: idea?.author_id || userId, created_at: now };
     const mine: Board = { id: `demo-private-${ideaId}`, workspace_id: "demo", idea_id: ideaId, scope: "private", owner_id: userId, created_at: now };
-    const note: BoardItem = { id: "demo-note", board_id: team.id, kind: "note", title: "Direction", body: idea?.body || "Start here: what should this collection feel like?", color: null, url: null, image_url: null, reference_id: null, file_id: null, x: 60, y: 60, width: 260, height: 170, created_by: team.owner_id, checked_out_by: null, checked_out_at: null, revision: 0, created_at: now, updated_at: now };
-    const swatch: BoardItem = { ...note, id: "demo-swatch", kind: "swatch", title: "Fairway burgundy", body: "", color: "#760D24", x: 360, y: 60, width: 180, height: 170 };
-    return { boards: [team, mine], items: [note, swatch], comments: [] };
+    return { boards: [team, mine], items: seedItems(idea, [], ideaImage(idea) || null).map((seed, i) => demoItem(seed, team, i)), comments: [] };
   });
+  // Pull the real colours out of the idea's photo, then add them and update the spec sheet.
+  useEffect(() => {
+    let live = true;
+    void extractPalette(ideaImage(idea)).then((palette) => {
+      if (!live || !palette.length) return;
+      setSnapshot((s) => {
+        const team = s.boards.find((b) => b.scope === "team")!;
+        const seeded = seedItems(idea, palette, ideaImage(idea) || null).map((seed, i) => demoItem(seed, team, i));
+        const untouched = s.items.filter((item) => !item.id.startsWith("demo-seed-"));
+        return { ...s, items: [...seeded, ...untouched] };
+      });
+    });
+    return () => { live = false; };
+  }, []);
   async function mutate(operation: string, input: Row): Promise<unknown> {
     const now = new Date().toISOString();
     setSnapshot((s) => {
@@ -62,10 +80,27 @@ function useRemoteBoards(workspaceId: string, ideaId: string, enabled: boolean) 
   // Poll so teammates' additions, comments and check-outs appear without a reload.
   const query = useSWR<BoardSnapshot>(key, (url: string) => fetch(url, { cache: "no-store", credentials: "same-origin" }).then(readJson), { refreshInterval: 4000, revalidateOnFocus: true });
   const ensured = useRef(false);
-  async function mutate(operation: string, input: Row) {
+  async function post(operation: string, input: Row) {
     const body = await readJson(await fetch("/api/studio/boards", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ workspaceId, operation, input }) }));
-    await query.mutate();
     return body.data;
+  }
+  async function mutate(operation: string, input: Row) {
+    const data = await post(operation, input);
+    await query.mutate();
+    return data;
+  }
+  /** Fill an empty Team board from its idea once, whoever opens it first. */
+  const seeding = useRef<string | null>(null);
+  async function seed(boardId: string, idea: Row | undefined) {
+    if (seeding.current === boardId) return;
+    seeding.current = boardId;
+    try {
+      const src = ideaImage(idea);
+      const palette = await extractPalette(src);
+      for (const item of seedItems(idea, palette, storableImage(src, window.location.origin)))
+        await post("addItem", { ...item, board_id: boardId });
+    } catch { /* The board still works empty; members can add items themselves. */ }
+    await query.mutate();
   }
   const boards = query.data?.boards;
   useEffect(() => {
@@ -74,7 +109,7 @@ function useRemoteBoards(workspaceId: string, ideaId: string, enabled: boolean) 
     ensured.current = true;
     void mutate("ensureBoards", { idea_id: ideaId }).catch(() => { ensured.current = false; });
   }, [enabled, boards, ideaId]);
-  return { snapshot: query.data, error: query.error, loading: query.isLoading, mutate };
+  return { snapshot: query.data, error: query.error, loading: query.isLoading, mutate, seed };
 }
 
 export function IdeaWhiteboard({ data, workspaceId, ideaId, userId, demo, onNavigate }: Props) {
@@ -91,6 +126,9 @@ export function IdeaWhiteboard({ data, workspaceId, ideaId, userId, demo, onNavi
   const items = useMemo(() => (snapshot?.items || []).filter((i) => i.board_id === board?.id), [snapshot, board?.id]);
   const comments = useMemo(() => (snapshot?.comments || []).filter((c) => c.board_id === board?.id), [snapshot, board?.id]);
   const selected = items.find((i) => i.id === selectedId) || null;
+  const teamBoard = snapshot?.boards.find((b) => b.scope === "team");
+  const teamEmpty = !!teamBoard && !(snapshot?.items || []).some((i) => i.board_id === teamBoard.id);
+  useEffect(() => { if (!demo && teamBoard && teamEmpty && idea) void remote.seed(teamBoard.id, idea); }, [demo, teamBoard?.id, teamEmpty, !!idea]);
   const viewport = useRef<HTMLDivElement>(null);
   const nameData = { ...data, userId };
 
@@ -196,10 +234,10 @@ function BoardCard({ item, board, userId, data, selected, commentCount, onSelect
     >
       {item.kind === "swatch" && <div className="min-h-12 flex-1" style={{ background: item.color || "#e7e5e4" }} />}
       {(item.kind === "image" || item.kind === "fabric" || item.kind === "library") && item.image_url && <img src={item.image_url} alt="" draggable={false} referrerPolicy="no-referrer" className="min-h-0 w-full flex-1 object-cover" />}
-      <div className="space-y-1 p-2.5 text-xs">
+      <div className={`space-y-1 p-2.5 text-xs ${item.kind === "note" ? "min-h-0 flex-1 overflow-auto" : ""}`}>
         <p className="flex items-center gap-1 font-medium text-stone-500"><Icon size={12} />{ITEM_LABELS[item.kind]}{item.kind === "swatch" && item.color ? ` · ${item.color.toUpperCase()}` : ""}</p>
         {item.title && <p className="line-clamp-2 text-sm font-semibold text-stone-900">{item.title}</p>}
-        {item.body && (item.kind === "note" || !item.image_url) && <p className="line-clamp-4 whitespace-pre-wrap text-stone-600">{item.body}</p>}
+        {item.body && (item.kind === "note" || !item.image_url) && <p className={`whitespace-pre-wrap text-stone-600 ${item.kind === "note" ? "" : "line-clamp-3"}`}>{item.body}</p>}
         <p className="flex flex-wrap gap-2 text-stone-500">
           {item.checked_out_by && <span className="rounded bg-amber-100 px-1.5 text-amber-900">Checked out · {memberName(data, item.checked_out_by)}</span>}
           {commentCount > 0 && <span className="inline-flex items-center gap-1"><MessageSquare size={11} />{commentCount}</span>}

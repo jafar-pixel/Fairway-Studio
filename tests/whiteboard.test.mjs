@@ -33,3 +33,25 @@ test('only the board owner moves; teammates add, comment, check out and copy', (
   assert.match(wb.boardRulesSummary({ ...team, scope: 'private', owner_id: mate }, mate), /Only you/);
   assert.match(wb.boardRulesSummary(team, mate), /Only the idea's owner moves/);
 });
+
+const seed = loadModule('lib/studio/whiteboard-seed.ts');
+test('starter board comes from the idea: photo, brief with tags, spec sheet of what is missing, photo colours', () => {
+  const idea = { title: 'Connected golf bag', body: 'Heritage craftsmanship meets modern technology.\nMaterials: full-grain leather', category: 'Product concept', status: 'exploring', tags: ['Golf bags', 'mockup-idea:x'] };
+  const items = seed.seedItems(idea, ['#2A140B', '#B79A45'], 'https://example.com/bag.jpg');
+  assert.deepEqual(Array.from(items, i => i.kind), ['image', 'note', 'note', 'swatch', 'swatch']);
+  assert.match(items[1].body, /Tags: Golf bags$/m); assert.doesNotMatch(items[1].body, /mockup-idea/);
+  assert.match(items[2].body, /✓ Materials \/ fabric: full-grain leather/);
+  assert.match(items[2].body, /☐ Stitch pattern: missing/); assert.match(items[2].body, /Technology \/ electronics: missing/);
+  assert.match(items[2].body, /Pockets & compartments/); assert.match(items[2].title, /missing/);
+  assert.equal(items[3].title, 'Espresso'); assert.equal(items[4].title, 'Gold');
+  assert.equal(seed.seedItems(idea, [], null).some(i => i.kind === 'image'), false);
+});
+test('only https or same-origin photos are stored; colours come from the most common distinct pixels', () => {
+  assert.equal(seed.storableImage('/demo/bag.png', 'https://fairway.app'), 'https://fairway.app/demo/bag.png');
+  assert.equal(seed.storableImage('/demo/bag.png', 'http://localhost:3000'), null);
+  assert.equal(seed.storableImage('supabase-storage://x', 'https://fairway.app'), null);
+  assert.equal(seed.storableImage('//evil.example/x.png', 'https://fairway.app'), null);
+  const px = []; for (let i = 0; i < 90; i++) px.push(42, 20, 11, 255); for (let i = 0; i < 10; i++) px.push(183, 154, 69, 255); px.push(0, 0, 0, 0);
+  assert.deepEqual(Array.from(seed.dominantColours(px)), ['#2A140B', '#B79A45']);
+  assert.equal(seed.colourName('#E9D7CA'), 'Cream'); assert.equal(seed.colourName('#974718'), 'Cognac'); assert.equal(seed.colourName('#1F4D3A'), 'Deep Green');
+});
