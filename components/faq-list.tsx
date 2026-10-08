@@ -60,7 +60,7 @@ const sections: Section[] = [
       {
         question: "How do I install Fairway Studio on my phone or desktop?",
         answer:
-          "Use Install Studio in the footer when your browser offers it. On iPhone or iPad, open the site in Safari, tap Share, then Add to Home Screen. Other browsers list Install app or Add to Home Screen in their menu.",
+          "On iPhone or iPad, open the site in Safari, tap Share, then Add to Home Screen. On Windows, choose Download for Windows in the footer and run the installer, or use Install Studio when your browser offers it. Other browsers list Install app or Add to Home Screen in their menu.",
       },
       {
         question: "I see an \u201cUpdate ready\u201d button. What does it do?",
