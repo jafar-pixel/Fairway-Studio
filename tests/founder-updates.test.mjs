@@ -29,6 +29,35 @@ test('Founder Updates validation accepts bounded operations and rejects forged i
   assert.throws(() => contracts.validateFounderUpdateMutation({ workspaceId, requestId, operation: 'setPinned', input: { post_id: postId, is_pinned: 'yes' } }), error => error.code === 'VALIDATION');
 });
 
+test('edits require an original snapshot and comment/pin targets cannot be omitted', () => {
+  const edit = {workspaceId, requestId, operation: 'editPost', input: {post_id: postId, title: 'Revised', body: 'Updated', expected_title: 'Original', expected_body: 'News'}};
+  assert.equal(contracts.validateFounderUpdateMutation(edit).operation, 'editPost');
+  assert.throws(() => contracts.validateFounderUpdateMutation({...edit, input: {...edit.input, expected_body: undefined}}));
+  assert.throws(() => contracts.validateFounderUpdateMutation({workspaceId, requestId, operation: 'addComment', input: {body: 'Reply'}}));
+});
+
+test('pinning and commenting preserve unrelated drafts and text typed while saving', () => {
+  const helpers = load('lib/studio/founder-updates/drafts.ts');
+  const drafts = {[postId]: 'Sent reply', other: 'Keep this'};
+  assert.equal(helpers.clearSubmittedComment(drafts, {operation: 'setPinned', input: {post_id: postId}}), drafts);
+  assert.deepEqual(JSON.parse(JSON.stringify(helpers.clearSubmittedComment(drafts, {operation: 'addComment', input: {post_id: postId, body: 'Sent reply'}}))), {other: 'Keep this'});
+  assert.equal(helpers.clearSubmittedComment(drafts, {operation: 'addComment', input: {post_id: postId, body: 'Earlier text'}}), drafts);
+});
+
+test('feed retrieves comments past the first 500 rows', async () => {
+  const rows = Array.from({length: 501}, (_, i) => ({id: String(i), post_id: postId, author_id: requestId, body: String(i), created_at: '2026-10-11'}));
+  const ranges = [];
+  const client = {from(table) {
+    const query = {select() {return this;}, eq() {return this;}, in() {return this;}, order() {return this;}, limit() {return this;}, single: async () => ({data: {role: 'owner', is_founder: false}}), range: async (from, to) => {ranges.push([from,to]); return {data: rows.slice(from,to+1)};}, then(resolve) {return Promise.resolve({data: table === 'studio_founder_updates' ? [{id: postId, author_id: requestId, title: 'News', body: 'Update'}] : [{id: requestId, display_name: 'Jafar'}]}).then(resolve);}};
+    return query;
+  }};
+  const server = load('lib/studio/founder-updates/server.ts', {'../server': {authorize: async () => ({client, user: {id: requestId}}), databaseError: error => error}, '../contracts': shared, './contracts': contracts});
+  const feed = await server.readFounderUpdates(workspaceId);
+  assert.equal(feed.posts[0].comments.length, 501);
+  assert.equal(feed.posts[0].comments[500].body, '500');
+  assert.deepEqual(ranges, [[0,499],[500,999]]);
+});
+
 function route() {
   let writes = 0;
   return { writes: () => writes, ...load('app/api/studio/founder-updates/route.ts', {

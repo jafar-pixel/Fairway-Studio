@@ -1,7 +1,7 @@
 import { StudioError, uuidPattern } from "../contracts";
 
 export const FOUNDER_UPDATES_SCHEMA_VERSION = 1;
-export const founderUpdateOperations = ["createPost", "setPinned", "addComment"] as const;
+export const founderUpdateOperations = ["createPost", "editPost", "setPinned", "addComment"] as const;
 export type FounderUpdateOperation = (typeof founderUpdateOperations)[number];
 
 export type FounderUpdateComment = {
@@ -49,7 +49,9 @@ export function validateFounderUpdateMutation(value: unknown): FounderUpdateMuta
   if (!mutation.input || typeof mutation.input !== "object" || Array.isArray(mutation.input)) throw new StudioError("Input must be an object.", "VALIDATION");
   for (const key of ["workspace_id", "author_id", "created_at"]) if (key in mutation.input) throw new StudioError("Identity and workspace are assigned by the server.", "VALIDATION");
   if (mutation.input.post_id != null && !uuidPattern.test(String(mutation.input.post_id))) throw new StudioError("Invalid post_id.", "VALIDATION");
-  if (mutation.operation === "createPost") {
+  if (mutation.operation !== "createPost" && !uuidPattern.test(String(mutation.input.post_id ?? ""))) throw new StudioError("A valid post_id is required.", "VALIDATION");
+  if (mutation.operation === "editPost" && (typeof mutation.input.expected_title !== "string" || typeof mutation.input.expected_body !== "string")) throw new StudioError("The original update is required to check for changes.", "VALIDATION");
+  if (mutation.operation === "createPost" || mutation.operation === "editPost") {
     if (typeof mutation.input.title !== "string" || !mutation.input.title.trim() || mutation.input.title.length > 180) throw new StudioError("A title of 1–180 characters is required.", "VALIDATION");
     if (typeof mutation.input.body !== "string" || !mutation.input.body.trim() || mutation.input.body.length > 12000) throw new StudioError("An update of 1–12,000 characters is required.", "VALIDATION");
   }

@@ -19,10 +19,15 @@ export async function readFounderUpdates(workspaceId: string, preview = false): 
   const { data: posts, error } = await query;
   if (error) throw databaseError(error);
   const postIds = (posts ?? []).map((post: Row) => post.id);
-  const { data: comments, error: commentError } = postIds.length && !preview
-    ? await auth.client.from("studio_founder_update_comments").select("id,post_id,body,author_id,created_at").eq("workspace_id", workspaceId).in("post_id", postIds).order("created_at", { ascending: true }).limit(500)
-    : { data: [], error: null };
-  if (commentError) throw databaseError(commentError);
+  const comments: Row[] = [];
+  if (postIds.length && !preview) {
+    for (let offset = 0; ; offset += 500) {
+      const { data: page, error } = await auth.client.from("studio_founder_update_comments").select("id,post_id,body,author_id,created_at").eq("workspace_id", workspaceId).in("post_id", postIds).order("created_at", { ascending: true }).order("id", { ascending: true }).range(offset, offset + 499);
+      if (error) throw databaseError(error);
+      comments.push(...(page ?? []));
+      if ((page ?? []).length < 500) break;
+    }
+  }
   const authorIds = [...new Set([...(posts ?? []).map((row: Row) => row.author_id), ...(comments ?? []).map((row: Row) => row.author_id)])];
   const { data: profiles, error: profileError } = authorIds.length ? await auth.client.from("profiles").select("id,display_name").in("id", authorIds) : { data: [], error: null };
   if (profileError) throw databaseError(profileError);
@@ -53,6 +58,17 @@ export async function mutateFounderUpdates(mutation: FounderUpdateMutation): Pro
     const row = { id: mutation.requestId, workspace_id: mutation.workspaceId, title: String(input.title).trim(), body: String(input.body).trim() };
     const { error } = await auth.client.from("studio_founder_updates").insert(row);
     if (error && error.code !== "23505") throw databaseError(error);
+  } else if (mutation.operation === "editPost") {
+    if (!auth.canPost) throw new StudioError("Only founders and administrators can edit their announcements.", "FORBIDDEN", 403);
+    const title = String(input.title).trim(), body = String(input.body).trim();
+    const { data, error } = await auth.client.from("studio_founder_updates").update({ title, body }).eq("workspace_id", mutation.workspaceId).eq("id", input.post_id).eq("author_id", auth.user.id).eq("title", input.expected_title).eq("body", input.expected_body).select("id").maybeSingle();
+    if (error) throw databaseError(error);
+    if (!data) {
+      const { data: saved, error: readError } = await auth.client.from("studio_founder_updates").select("title,body,author_id").eq("workspace_id", mutation.workspaceId).eq("id", input.post_id).maybeSingle();
+      if (readError) throw databaseError(readError);
+      if (!saved || saved.author_id !== auth.user.id) throw new StudioError("You can edit only your own announcements.", "FORBIDDEN", 403);
+      if (saved.title !== title || saved.body !== body) throw new StudioError("This update changed. Refresh before editing again.", "CONFLICT", 409);
+    }
   } else if (mutation.operation === "setPinned") {
     if (!auth.canPin) throw new StudioError("Only founders and workspace administrators can pin updates.", "FORBIDDEN", 403);
     const { data, error } = await auth.client.from("studio_founder_updates").update({ is_pinned: input.is_pinned }).eq("workspace_id", mutation.workspaceId).eq("id", input.post_id).select("id").maybeSingle();
