@@ -2473,6 +2473,24 @@ function AssetInspector({
         (file: Row) =>
           file.id === (item.file_id || item.canonical_file_id || item.id),
       ) || null;
+  const editableVersion = (props.data.versions || []).find((v: Row) =>
+    v.file_id && v.project_id && (v.id === item.id || v.file_id === fileRecord?.id));
+  const newEditProject = useRef<Row | null>(null), newEditVersion = useRef<Row | null>(null);
+  const canEditDesign = Boolean(editableVersion || (fileRecord?.permission_scope === "workspace" && (/^image\//.test(fileRecord.mime_type || "") || /\.(png|jpe?g|webp)(?:$|[?#])/i.test(fileRecord.url || ""))));
+  async function editDesign(manual: boolean) {
+    setBusy(true); setError("");
+    try {
+      let version = editableVersion || newEditVersion.current;
+      if (!version && fileRecord && canEditDesign) {
+        const project = newEditProject.current || await props.onMutate("createProject", {title:`${item.title || "Image"} edits`.slice(0,160),category:"general",lead_id:props.userId}) as Row;
+        newEditProject.current = project;
+        version = await props.onMutate("createVersion", {project_id:project.id,file_id:fileRecord.id,title:item.title || "Original design",body:"Source image selected from Library."}) as Row;
+        newEditVersion.current = version;
+      }
+      if (!version?.id) throw Error("This image could not be opened for editing.");
+      window.dispatchEvent(new CustomEvent("fairway-generation", {detail:{projectId:version.project_id,sourceVersionId:version.id,manual}}));
+    } catch(e) { setError(errorText(e)); } finally { setBusy(false); }
+  }
   const recordId = isReference ? item.id : fileRecord?.id || "";
   const recordRevision = isReference
     ? item.revision
@@ -2928,6 +2946,10 @@ function AssetInspector({
             </div>
           )}
         </div>
+        {canEditDesign && !props.demo && <div className="fc-image-actions">
+          <button type="button" disabled={busy} onClick={() => void editDesign(false)}>Edit with AI</button>
+          <button type="button" disabled={busy} onClick={() => void editDesign(true)}>Edit manually</button>
+        </div>}
         <div className="fc-asset-usages">
           <h3>Used in</h3>
         {usedProjects.length ? (

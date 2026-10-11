@@ -331,7 +331,7 @@ export function ProjectsView({
   useEffect(() => {
     setSelected([]);
     setFocusId("");
-    setCanvasMode("board");
+    setCanvasMode(new URLSearchParams(window.location.search).get("canvas") === "versions" ? "versions" : "board");
     setRoundId(requestedRoundId);
     setError("");
     setNotice("");
@@ -1527,8 +1527,9 @@ export function ProjectsView({
                               onClick={() => requestVariation(v)}
                             >
                               <Sparkles size={21} />
-                              Ask Studio AI
+                              Edit with AI
                             </button>
+                            {v.file_id && <button className={button} onClick={() => window.dispatchEvent(new CustomEvent("fairway-generation", {detail:{projectId:project.id,sourceVersionId:v.id,manual:true}}))}>Edit manually</button>}
                           </div>
                         </>
                       )}

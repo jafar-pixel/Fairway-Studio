@@ -243,6 +243,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
     [create, setCreate] = useState(""),
     [createInitial, setCreateInitial] = useState<Record<string, unknown>>({}),
     [aiInitialQuestion, setAiInitialQuestion] = useState(""),
+    [aiDesign, setAiDesign] = useState<any>(null),
     [actionError, setActionError] = useState(""),
     [generation, setGeneration] = useState<any>(null);
   const [onboardingState, setOnboardingState] = useState<OnboardingState>(createInitialOnboardingState),
@@ -546,10 +547,10 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
     const open = (e: Event) => {
       const detail = (e as CustomEvent).detail || {};
       if (operationalRoute) { setNotice("Open a creative project to generate visual versions. Business and publication approvals are separate."); return; }
-      setGeneration({
-        ...detail,
-        projectId: currentProjectId || detail.projectId,
-      });
+      setGeneration(null);
+      setAiDesign({ ...detail, projectId: detail.projectId || currentProjectId });
+      setAiInitialQuestion([detail.prompt,detail.target ? `Change: ${detail.target}` : "",detail.palette?.length ? `Palette: ${detail.palette.join(", ")}` : ""].filter(Boolean).join("\n"));
+      setAi(true);
     };
     window.addEventListener("fairway-generation", open);
     return () => window.removeEventListener("fairway-generation", open);
@@ -1042,7 +1043,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
             className="fs-icon"
             title="Open Creative Assistant"
             aria-label="Open Creative Assistant"
-            onClick={() => setAi(!ai)}
+            onClick={() => {setAiDesign(null);setAiInitialQuestion("");setAi(!ai);}}
           >
             <Sparkles size={20} />
           </button>}
@@ -1247,14 +1248,16 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
       )}
       {ai && !operationalRoute && (
         <CreativeChat
-          key={`${workspaceId}:${userId}`}
-          currentProjectId={currentProjectId}
+          key={`${workspaceId}:${userId}:${aiDesign?.sourceVersionId || "new"}:${aiDesign?.manual || false}`}
+          currentProjectId={aiDesign?.projectId || currentProjectId}
+          initialSourceVersionId={aiDesign?.sourceVersionId}
+          initialManual={aiDesign?.manual}
           onSaved={refreshCanonicalLists}
           data={creativeData}
           demo={demo}
           workspaceId={workspaceId}
           initialQuestion={aiInitialQuestion}
-          onClose={() => setAi(false)}
+          onClose={() => {setAi(false);setAiDesign(null);setAiInitialQuestion("");}}
         />
       )}
       {create === "Idea" ? (
