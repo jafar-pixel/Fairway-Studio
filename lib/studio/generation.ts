@@ -40,6 +40,92 @@ export type GenerationJob = {
   retained_version_ids: string[];
   [key: string]: unknown;
 };
+// Return only controlled messages: provider responses can contain prompts or credentials.
+export function generationFailure(error: unknown): {
+  message: string;
+  retryable: boolean;
+} {
+  if (error instanceof StudioError)
+    return { message: error.message, retryable: false };
+  let current: unknown = error;
+  let status: number | undefined;
+  let verification = false;
+  for (
+    let depth = 0;
+    depth < 5 && current && typeof current === "object";
+    depth++
+  ) {
+    const e = current as Record<string, unknown>;
+    const candidate = e.statusCode ?? e.status;
+    if (typeof candidate === "number" && status === undefined)
+      status = candidate;
+    let payload: unknown = e.data;
+    if (typeof e.responseBody === "string" && e.responseBody.length < 32000) {
+      try {
+        payload = JSON.parse(e.responseBody);
+      } catch {
+        /* Never surface raw response text. */
+      }
+    }
+    if (payload && typeof payload === "object") {
+      const p = payload as Record<string, unknown>;
+      const detail =
+        p.error && typeof p.error === "object"
+          ? (p.error as Record<string, unknown>)
+          : p;
+      verification ||= detail.code === "customer_verification_required";
+    }
+    verification ||= e.code === "customer_verification_required";
+    current = e.cause;
+  }
+  if (verification)
+    return {
+      message:
+        "Image provider requires account verification. The project owner must complete verification in Vercel AI Gateway before retrying. [IMAGE_VERIFICATION]",
+      retryable: false,
+    };
+  if (status === 401)
+    return {
+      message:
+        "Image provider authentication failed. The project owner must check the deployment's AI Gateway credentials. [IMAGE_AUTH]",
+      retryable: false,
+    };
+  if (status === 402)
+    return {
+      message:
+        "Image provider billing or spending limits blocked this request. The project owner must check AI Gateway credits and budgets. [IMAGE_BILLING]",
+      retryable: false,
+    };
+  if (status === 403)
+    return {
+      message:
+        "Image provider denied access. The project owner must check model permissions and account verification. [IMAGE_ACCESS]",
+      retryable: false,
+    };
+  if (status === 404)
+    return {
+      message:
+        "The configured image model or endpoint was not found. The project owner must check the image model configuration. [IMAGE_MODEL]",
+      retryable: false,
+    };
+  if (status === 429)
+    return {
+      message:
+        "The image provider is rate limited. Wait a moment, then retry image creation. [IMAGE_RATE_LIMIT]",
+      retryable: true,
+    };
+  if (status && status >= 400 && status < 500 && ![408, 409].includes(status))
+    return {
+      message:
+        "The image provider rejected this request. Try revising your instructions or reference image. [IMAGE_REQUEST]",
+      retryable: false,
+    };
+  return {
+    message:
+      "Image creation or storage was temporarily unavailable. Retry this request; your instructions are saved. [IMAGE_TEMPORARY]",
+    retryable: true,
+  };
+}
 export function generationSetup() {
   const available = Boolean(
     process.env.SUPABASE_SERVICE_ROLE_KEY &&
@@ -420,38 +506,25 @@ export async function runGeneration(id?: string) {
     if (!completed) await service.storage.from(OUTPUT_BUCKET).remove(uploaded); // cancellation or newer lease won
   } catch (error) {
     if (!completionAttempted) {
-    if (uploaded.length)
-      await service.storage.from(OUTPUT_BUCKET).remove(uploaded);
-    const e = error as { statusCode?: number; status?: number };
-    const permanent =
-      error instanceof StudioError ||
-      Boolean(
-        e.statusCode &&
-          e.statusCode >= 400 &&
-          e.statusCode < 500 &&
-          ![408, 429].includes(e.statusCode),
-      );
-    const retry = !permanent && job.attempts < 3;
-    await service
-      .from(JOB_TABLE)
-      .update({
-        status: retry ? "queued" : "failed",
-        error:
-          error instanceof StudioError
-            ? error.message
-            : retry
-              ? "Provider or storage temporarily unavailable; retry queued."
-              : "Image generation failed. Review the configuration or start a new request.",
-        lease_id: null,
-        lease_until: null,
-        next_attempt_at: new Date(
-          Date.now() + retryDelay(job.attempts) * 1000,
-        ).toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", job.id)
-      .eq("status", "running")
-      .eq("lease_id", job.lease_id);
+      if (uploaded.length)
+        await service.storage.from(OUTPUT_BUCKET).remove(uploaded);
+      const failure = generationFailure(error);
+      const retry = failure.retryable && job.attempts < 3;
+      await service
+        .from(JOB_TABLE)
+        .update({
+          status: retry ? "queued" : "failed",
+          error: failure.message,
+          lease_id: null,
+          lease_until: null,
+          next_attempt_at: new Date(
+            Date.now() + retryDelay(job.attempts) * 1000,
+          ).toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", job.id)
+        .eq("status", "running")
+        .eq("lease_id", job.lease_id);
     }
   }
   const { data: latest, error: readError } = await service

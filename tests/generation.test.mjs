@@ -21,3 +21,44 @@ test('image-edit capability allows the exact audited Gateway model only when cap
 test('explicit SDK image-edit support overrides the audited fallback',()=>{assert.equal(f.supportsImageEditRequest('unlisted/model',true,true),true);assert.equal(f.supportsImageEditRequest('openai/gpt-image-2',false,true),false)})
 test('text-only requests bypass image-edit capability requirements at both gates',()=>{assert.equal(f.supportsImageEditRequest('unlisted/model',false,false),true);const compact=source.replace(/\s/g,'');assert.match(compact,/input\.sourceVersionId\?awaitgateway\.imageModel\(model\)\.supportsFileInputs:undefined/);assert.match(compact,/bytes\?awaitmodel\.supportsFileInputs:undefined/)})
 test('installed Gateway image model shape has no supportsFileInputs property',()=>{const model=gateway.imageModel('openai/gpt-image-2');assert.equal('supportsFileInputs'in model,false);assert.equal(model.supportsFileInputs,undefined);assert.equal(f.supportsImageEditRequest(model.modelId,model.supportsFileInputs,true),true)})
+
+test("generation failures distinguish billing, auth, model access and transient errors without exposing provider data", () => {
+  for (const [status, code, retryable] of [
+    [401, "IMAGE_AUTH", false],
+    [402, "IMAGE_BILLING", false],
+    [403, "IMAGE_ACCESS", false],
+    [404, "IMAGE_MODEL", false],
+    [400, "IMAGE_REQUEST", false],
+    [422, "IMAGE_REQUEST", false],
+    [429, "IMAGE_RATE_LIMIT", true],
+    [500, "IMAGE_TEMPORARY", true],
+  ]) {
+    const result = f.generationFailure({
+      cause: {
+        statusCode: status,
+        message: "secret-key-and-private-prompt",
+        responseBody: "secret",
+      },
+    });
+    assert.match(result.message, new RegExp(code));
+    assert.equal(result.retryable, retryable);
+    assert.doesNotMatch(result.message, /secret|private-prompt/);
+  }
+  assert.match(
+    f.generationFailure({
+      statusCode: 403,
+      responseBody: JSON.stringify({
+        error: { code: "customer_verification_required", message: "secret" },
+      }),
+    }).message,
+    /IMAGE_VERIFICATION/,
+  );
+  const circular = {};
+  circular.cause = circular;
+  assert.equal(f.generationFailure(circular).retryable, true);
+  assert.equal(
+    f.generationFailure(new StudioError("Source unavailable", "SOURCE", 422))
+      .retryable,
+    false,
+  );
+});

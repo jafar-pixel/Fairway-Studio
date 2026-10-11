@@ -66,13 +66,11 @@ export function CreativeChat({
     end = useRef<HTMLDivElement>(null);
   const [chatId, setChatId] = useState(""),
     [prompt, setPrompt] = useState(initialQuestion),
-    [mode, setMode] = useState<CreativeMode>("chat");
+    [mode, setMode] = useState<CreativeMode>("image");
   const [visibility, setVisibility] = useState<"private" | "workspace">(
       "private",
     ),
-    [projectId, setProjectId] = useState(
-      currentProjectId || data.projects[0]?.id || "",
-    );
+    [projectId, setProjectId] = useState(currentProjectId || "");
   const [source, setSource] = useState(""),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
@@ -80,6 +78,77 @@ export function CreativeChat({
   const [localSources, setLocalSources] = useState<
     { id: string; project_id: string; title: string }[]
   >([]);
+  const [localProjects, setLocalProjects] = useState<
+    { id: string; title: string }[]
+  >([]);
+  const [creatingProject, setCreatingProject] = useState(false);
+  const [projectTitle, setProjectTitle] = useState("");
+  const [notice, setNotice] = useState("");
+  const saveRequest = useRef<{ key: string; id: string } | null>(null);
+  const projects = [...data.projects, ...localProjects].filter(
+    (p, i, all) => all.findIndex((other) => other.id === p.id) === i,
+  );
+  async function saveOwnWork(kind: "project" | "idea") {
+    setError("");
+    setNotice("");
+    if (demo) {
+      setError("Sign in to save your own ideas and projects.");
+      return;
+    }
+    const title =
+      kind === "project" ? projectTitle.trim() : prompt.trim().slice(0, 120);
+    if (!title || (kind === "idea" && !prompt.trim())) {
+      setError("Add a name or describe your idea first.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const input =
+        kind === "project"
+          ? {
+              title,
+              category: "general",
+              brief: prompt.trim(),
+              lead_id: data.userId,
+            }
+          : {
+              title,
+              body: prompt.trim(),
+              category: "General",
+              status: "exploring",
+            };
+      const key = JSON.stringify({ kind, input });
+      if (saveRequest.current?.key !== key)
+        saveRequest.current = { key, id: crypto.randomUUID() };
+      const saved = await json("/api/studio/workspace", {
+        workspaceId,
+        operation: kind === "project" ? "createProject" : "createIdea",
+        requestId: saveRequest.current.id,
+        input,
+      });
+      if (kind === "project") {
+        setLocalProjects((previous) =>
+          previous.some((p) => p.id === saved.data.id)
+            ? previous
+            : [...previous, saved.data],
+        );
+        setProjectId(saved.data.id);
+        setSource("");
+        setCreatingProject(false);
+        setProjectTitle("");
+      }
+      setNotice(
+        kind === "project"
+          ? "Your project is ready. Describe a design and click Create image."
+          : "Saved to Ideas. Your text is still here to develop with AI.",
+      );
+      onSaved();
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
   const uploads = useMediaUploads({ workspaceId, userId: data.userId, demo });
   const base = `/api/studio/creative-chat?workspaceId=${workspaceId}`;
   // Include the signed-in identity in keys so private data cannot survive an account switch.
@@ -120,6 +189,12 @@ export function CreativeChat({
       if (["run", "retry"].includes(action) && !consent)
         throw Error("Acknowledge AI usage before running an image request.");
       await json("/api/studio/generation", { workspaceId, action, jobId });
+      if (action === "retry")
+        await json("/api/studio/generation", {
+          workspaceId,
+          action: "run",
+          jobId,
+        });
       await detail.mutate();
       if (action === "retain") onSaved();
     } catch (e) {
@@ -320,29 +395,12 @@ export function CreativeChat({
             {!chatId && (
               <div className="fc-empty">
                 <Sparkles size={32} />
-                <h3>From a thought to the next design.</h3>
+                <h3>What would you like to create?</h3>
                 <p>
-                  Explore an idea, create a visual, or bring a design back for a
-                  new colorway. Invite the team into the conversation by
-                  choosing Shared workspace.
+                  Start with your own idea. Describe a design, logo, product, or
+                  collection below. No template or existing artwork is required.
+                  Choose Shared workspace to create together.
                 </p>
-                <div className="fc-suggestions">
-                  {[
-                    "Explore Hunter & Heckard logo directions",
-                    "Create a burgundy and cream luxury golf bag",
-                    "Suggest golf streetwear for younger and older Black men",
-                  ].map((s, i) => (
-                    <button
-                      key={s}
-                      onClick={() => {
-                        setPrompt(s);
-                        setMode(i === 1 ? "image" : "chat");
-                      }}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
               </div>
             )}
             {detail.isLoading && <p role="status">Loading conversation…</p>}
@@ -373,7 +431,24 @@ export function CreativeChat({
                         <Sparkles size={15} />
                         Fairway creative partner
                       </strong>
-                      {turn.answer && <p>{turn.answer}</p>}
+                      {turn.answer && turn.mode !== "image" && (
+                        <p>{turn.answer}</p>
+                      )}
+                      {turn.mode === "image" && job?.status === "succeeded" && (
+                        <p>
+                          Your image is ready. Keep it in your project to edit
+                          or review it together.
+                        </p>
+                      )}
+                      {turn.mode === "image" && job?.status === "queued" && (
+                        <p>
+                          Your request is saved and waiting to run. No image has
+                          been created yet.
+                        </p>
+                      )}
+                      {turn.mode === "image" && job?.status === "running" && (
+                        <p role="status">Creating your image…</p>
+                      )}
                       {turn.status === "pending" && (
                         <p role="status">
                           Working on this request… If it was interrupted, send
@@ -466,7 +541,7 @@ export function CreativeChat({
                               disabled={busy || !consent}
                               onClick={() => void jobAction("retry", job.id)}
                             >
-                              Queue image retry
+                              Retry image creation
                             </button>
                           )}
                           {own &&
@@ -508,7 +583,7 @@ export function CreativeChat({
                 </select>
               </label>
               <label>
-                Project context
+                Save designs in
                 <select
                   value={projectId}
                   disabled={busy || uploads.hasUnfinished}
@@ -517,8 +592,8 @@ export function CreativeChat({
                     setSource("");
                   }}
                 >
-                  <option value="">No project selected</option>
-                  {data.projects.map((p) => (
+                  <option value="">Choose your project</option>
+                  {projects.map((p) => (
                     <option key={p.id} value={p.id}>
                       {String(p.title)}
                     </option>
@@ -526,6 +601,52 @@ export function CreativeChat({
                 </select>
               </label>
             </div>
+            <div className="fc-own-actions">
+              <button
+                type="button"
+                disabled={busy || uploads.hasUnfinished}
+                onClick={() => setCreatingProject(!creatingProject)}
+              >
+                <Plus size={16} />
+                New project / collection
+              </button>
+              <button
+                type="button"
+                disabled={busy || !prompt.trim() || demo}
+                onClick={() => void saveOwnWork("idea")}
+              >
+                Save text as idea
+              </button>
+            </div>
+            {creatingProject && (
+              <div className="fc-project-create">
+                <label>
+                  Project or collection name
+                  <input
+                    value={projectTitle}
+                    maxLength={160}
+                    onChange={(e) => setProjectTitle(e.target.value)}
+                    placeholder="Give your idea a home"
+                    disabled={busy}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="fc-primary"
+                  disabled={busy || !projectTitle.trim() || demo}
+                  onClick={() => void saveOwnWork("project")}
+                >
+                  Create project
+                </button>
+              </div>
+            )}
+            {!projectId && mode === "image" && (
+              <small>
+                Create your own project above, or select one, to keep your
+                generated designs together.
+              </small>
+            )}
+            {notice && <p role="status">{notice}</p>}
             {mode !== "comment" && (
               <>
                 <label>
@@ -620,7 +741,7 @@ export function CreativeChat({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={
                 mode === "image"
-                  ? "Describe the image or changes: “Make the bag burgundy with cream trim.”"
+                  ? "Describe your own design, logo, product, or collection. Include the colors, style, materials, and details you want."
                   : "Tell us what you’re thinking…"
               }
               rows={3}
@@ -663,7 +784,7 @@ export function CreativeChat({
               >
                 <Send size={16} />
                 {mode === "image"
-                  ? "Generate"
+                  ? "Create image"
                   : mode === "comment"
                     ? "Post comment"
                     : "Send"}
