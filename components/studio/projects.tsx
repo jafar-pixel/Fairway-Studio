@@ -230,13 +230,14 @@ export function ProjectsView({
   const nodes = rows(data, "nodes").filter((n) => n.project_id === projectId);
   const canvasVersions = versions.filter(
     (v) =>
-      (!v.provenance?.origin_job_id && !v.provenance?.mockup_import) ||
+      !v.provenance?.mockup_import ||
       nodes.some((n) => n.version_id === v.id && n.kind !== "annotation"),
   );
   const projectFiles = rows(data, "files").filter(
     (f) =>
       f.project_id === projectId ||
       f.project_ids?.includes(projectId) ||
+      versions.some((v) => v.file_id === f.id) ||
       nodes.some((n) => n.file_id === f.id),
   );
   const requestedRoundId =
@@ -250,6 +251,9 @@ export function ProjectsView({
     [lead, setLead] = useState("all"),
     [view, setView] = useState("grid");
   const [canvasMode, setCanvasMode] = useState<"board" | "versions">("board");
+  useEffect(() => {
+    setCanvasMode(new URLSearchParams(window.location.search).get("canvas") === "versions" ? "versions" : "board");
+  }, [projectId, tab]);
   const [filtersReady, setFiltersReady] = useState(false);
   useEffect(() => {
     if (projectId) return;
@@ -1417,7 +1421,7 @@ export function ProjectsView({
                               / sample$/,
                               "",
                             ) ||
-                              (v.source_kind === "ai"
+                              (v.source_kind === "ai" || v.provenance?.origin_job_id
                                 ? "AI concept"
                                 : "Saved concept")}
                           </span>

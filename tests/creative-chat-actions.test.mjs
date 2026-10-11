@@ -7,12 +7,12 @@ import { randomUUID } from 'node:crypto';
 
 // Exercise the real component handlers with isolated hooks and network responses.
 // These checks do not claim a live provider or production database connection.
-function harness() {
+function harness({ staged = false, uploadFails = false } = {}) {
   const slots=[],calls=[];let cursor=0,saves=0;
   const jsx=(type,props)=>({type,props});
   const react={useEffect(){},useState(initial){const i=cursor++;if(!(i in slots))slots[i]=initial;return [slots[i],v=>{slots[i]=typeof v==='function'?v(slots[i]):v;}];},useRef(initial){const i=cursor++;if(!(i in slots))slots[i]={current:initial};return slots[i];}};
   const swr=()=>({data:undefined,mutate:async()=>{}});
-  const deps={'react':react,'react/jsx-runtime':{jsx,jsxs:jsx},swr:{default:swr},'lucide-react':{},'./media-upload':{useMediaUploads:()=>({items:[],hasUnfinished:false})},'./creative-chat.css':{}};
+  const deps={'react':react,'react/jsx-runtime':{jsx,jsxs:jsx},swr:{default:swr},'lucide-react':{},'./media-upload':{useMediaUploads:()=>({items:[],hasUnfinished:staged,uploadAll:async({onRegistered})=>{ if(uploadFails) return {complete:false,failures:[{message:'Upload blocked'}]}; calls.push({action:'upload'}); await onRegistered({id:'source-file'},{id:'upload-request',file:{name:'reference.png'}}); return {complete:true}; }})},'./creative-chat.css':{}};
   const context={exports:{},crypto:{randomUUID},Date,fetch:async(url,options)=>{const body=JSON.parse(options.body);calls.push({url,...body});return {ok:true,json:async()=>body.operation?{data:{id:'custom-project',title:body.input.title}}:body.action==='create'?{chat:{id:'chat'}}:body.action==='send'?{turn:{job_id:'job'}}:{}};},require:n=>deps[n]};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(new URL('../components/studio/creative-chat.tsx',import.meta.url),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX}}).outputText,context);
   const render=()=>{cursor=0;return context.exports.CreativeChat({data:{userId:'founder',projects:[],versions:[],members:[]},demo:false,workspaceId:'workspace',onClose(){},onSaved(){saves++;}});};
@@ -40,4 +40,31 @@ test('new project is saved and selected before Create image submits and runs the
   await h.find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
   assert.equal(h.calls[2].action,'send');assert.equal(h.calls[2].projectId,'custom-project');assert.equal(h.calls[2].prompt,'Make a silver sculpture');assert.equal(h.calls[2].mode,'image');
   assert.equal(h.calls[3].action,'run');assert.equal(h.calls[3].jobId,'job');
+});
+
+test('staged upload is registered as a version and sent as the source before generation runs',async()=>{
+  const h=harness({staged:true});
+  h.button('New project / collection').props.onClick();
+  h.find(n=>n.type==='input'&&n.props.placeholder==='Give your idea a home').props.onChange({target:{value:'Upload flow'}});
+  h.button('Create project').props.onClick();await h.flush();
+  h.find(n=>n.type==='textarea').props.onChange({target:{value:'Use this image and change its color'}});
+  h.find(n=>n.type==='input'&&n.props.type==='checkbox').props.onChange({target:{checked:true}});
+  assert.equal(h.button('Upload & create image').props.disabled,false);
+  await h.find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
+  const link=h.calls.findIndex(c=>c.operation==='createVersion');
+  const send=h.calls.findIndex(c=>c.action==='send');
+  assert.ok(link<send);
+  assert.equal(h.calls[link].input.file_id,'source-file');
+  assert.equal(h.calls[send].sourceVersionId,'custom-project');
+  assert.equal(h.calls.at(-1).action,'run');
+});
+test('upload failure preserves the prompt and prevents an unrelated image request',async()=>{
+  const h=harness({staged:true,uploadFails:true});
+  h.button('New project / collection').props.onClick();
+  h.find(n=>n.type==='input'&&n.props.placeholder==='Give your idea a home').props.onChange({target:{value:'Failure flow'}});
+  h.button('Create project').props.onClick();await h.flush();
+  h.find(n=>n.type==='textarea').props.onChange({target:{value:'Keep my reference'}});
+  await h.find(n=>n.type==='form').props.onSubmit({preventDefault(){}});
+  assert.equal(h.calls.some(c=>c.action==='send'),false);
+  assert.equal(h.find(n=>n.type==='textarea').props.value,'Keep my reference');
 });
