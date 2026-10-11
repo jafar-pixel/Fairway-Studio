@@ -2775,7 +2775,7 @@ function StudioAI({ data, demo, workspaceId, onClose, onboardingGuide, initialQu
         <p>Draft briefs, names, creative directions, comparisons, feedback summaries, and task ideas from the context you choose.</p>
         <div className="fs-ai-model-note">
           <strong>Creative Assistant</strong>
-          <small>Gemini · Google</small>
+          <small>GPT · OpenAI</small>
           <span>Suggestions stay drafts. Review and edit before using them; the assistant never casts votes or publishes decisions.</span>
         </div>
         <div className="fs-context-chips">
