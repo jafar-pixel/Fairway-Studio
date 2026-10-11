@@ -9,7 +9,7 @@ function harness(extra={}){
  const upload={items,hasUnfinished:false,addFiles(files){const ids=[];for(const file of files){const id=`file-${items.length}`;items.push({id,file,metadata:{title:file.name,contextNote:''}});ids.push(id);}return ids;},updateMetadata(id,meta){Object.assign(items.find(i=>i.id===id).metadata,meta);},async uploadAll({onRegistered}){for(const item of items.filter(i=>!i.attached)){uploads.push(item);await onRegistered({id:item.id},item);item.attached=true;}return{complete:true};}};
  const jsx=(type,props)=>({type,props});
  const f=loadModule('components/studio/fashion-art-studio.tsx',{react,'react/jsx-runtime':{jsx,jsxs:jsx},swr:{default:()=>({data:{states:[]},mutate:async()=>{}})},'./canvas-board':{CanvasBoard:'CanvasBoard'},'./manual-image-editor':{ManualImageEditor:'ManualImageEditor'},'./creative-chat':{CreativeChat:'CreativeChat'},'./media-upload':{useMediaUploads:()=>upload},'@/lib/studio/fashion-samples':samples,'./fashion-art-studio.css':{}},{Image:class{async decode(){}},File:class{constructor(parts,name,opts){this.name=name;this.type=opts.type;}},document:{createElement:()=>({getContext:()=>({drawImage(){}}),toBlob:f=>f({type:'image/png'})})}});
- const props={data:{...data,...extra},workspaceId:'workspace',userId:'owner',projectId:'project',versions:extra.versions||[],nodes:[],onMutate:async(op,input)=>{calls.push({op,input});return{id:`saved-${calls.length}`,title:input.title};},onNavigate:url=>calls.push({url})};
+ const props={initialSourceVersionId:extra.initialSourceVersionId,initialManual:extra.initialManual,data:{...data,...extra},workspaceId:'workspace',userId:'owner',projectId:'project',versions:extra.versions||[],nodes:[],onMutate:async(op,input)=>{calls.push({op,input});return{id:`saved-${calls.length}`,title:input.title};},onNavigate:url=>calls.push({url})};
  const render=(name='FashionArtStudio')=>{cursor=0;return f[name](props);};
  function nodes(t){if(!t||typeof t!=='object')return[];if(Array.isArray(t))return t.flatMap(nodes);return[t,...nodes(t.props?.children)];}
  function text(t){if(t==null)return'';if(typeof t!=='object')return String(t);if(Array.isArray(t))return t.map(text).join('');return text(t.props?.children);}
@@ -44,4 +44,9 @@ test('canvas selection feeds the embedded AI and manual editor retains the selec
 test('AI variations and moodboard curation operate on the artboard sources',()=>{
  const h=harness({versions:[{id:'v1',file_id:'f1',title:'Jacket'}]});h.button('Variations').props.onClick();let ai=h.find(n=>n.type==='CreativeChat');assert.equal(ai.props.outputCount,2);assert.equal(ai.props.initialSourceVersionId,'v1');
  h.button('Curate moodboard').props.onClick();ai=h.find(n=>n.type==='CreativeChat');assert.equal(ai.props.initialSourceVersionId,'');assert.match(ai.props.initialQuestion,/cohesive fashion moodboard/);
+});
+
+test('Library edit deep links select the requested design rather than another project version',()=>{
+ const h=harness({initialSourceVersionId:'v2',initialManual:true,versions:[{id:'v1',file_id:'f1',title:'First'},{id:'v2',file_id:'f2',title:'Second'}]});
+ const editor=h.find(n=>n.type==='ManualImageEditor');assert.equal(editor.props.versionId,'v2');assert.equal(editor.props.embedded,true);
 });

@@ -545,13 +545,19 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
       const detail = (e as CustomEvent).detail || {};
       if (operationalRoute) { setNotice("Open a creative project to generate visual versions. Business and publication approvals are separate."); return; }
       setGeneration(null);
-      setAiDesign({ ...detail, projectId: detail.projectId || currentProjectId });
+      setAi(false);
+      const projectId = detail.projectId || currentProjectId;
+      setAiDesign({...detail,projectId});
       setAiInitialQuestion([detail.prompt,detail.target ? `Change: ${detail.target}` : "",detail.palette?.length ? `Palette: ${detail.palette.join(", ")}` : ""].filter(Boolean).join("\n"));
-      setAi(true);
+      if (!projectId) {navigate(`${base}/studio`);return;}
+      const query = new URLSearchParams();
+      if(detail.sourceVersionId)query.set("design",detail.sourceVersionId);
+      query.set("tool",detail.manual ? "manual" : "ai");
+      navigate(`${base}/projects/${projectId}/canvas?${query}`);
     };
     window.addEventListener("fairway-generation", open);
     return () => window.removeEventListener("fairway-generation", open);
-  }, [currentProjectId, operationalRoute]);
+  }, [currentProjectId, operationalRoute, base]);
   function navigate(to: string) {
     if (!window.dispatchEvent(new Event(CREATOR_NAVIGATION_EVENT, { cancelable: true }))) return false;
     const destination = purposeAwareDestination(to,base,data.projects || [],window.location.origin);
@@ -988,7 +994,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
               aria-expanded={quick}
               onClick={() =>
                   view === "projects" && !route[1]
-                  ? openCreate("Project")
+                  ? navigate(`${base}/studio`)
                   : view === "tasks"
                     ? openCreate("Task")
                     : view === "conversations"
@@ -1011,23 +1017,15 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
             {quick && (
               <div className="fs-dropdown">
                 {[
-                  "Idea",
-                  "Project",
-                  "Pin link",
-                  "Upload",
-                  "Note",
-                  "Task",
-                  "Conversation",
+                  "Start a design",
+                  "New project / collection",
+                  "Upload reference",
                 ].map((kind) => (
                   <button
                     key={kind}
                     onClick={() => {
                       setQuick(false);
-                      if (kind === "Idea") { navigate(`${base}/studio`); } else if (kind === "Upload" || kind === "Pin link") {
-                        navigate(
-                          `${base}/library?action=${kind === "Upload" ? "upload" : "pin"}`,
-                        );
-                      } else openCreate(kind);
+                      navigate(kind === "Upload reference" ? `${base}/library?action=upload` : `${base}/studio`);
                     }}
                   >
                     {kind}
@@ -1173,6 +1171,9 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
                     {...creativeCommon}
                     projectId={route[1]}
                     tab={route[2] || "overview"}
+                    initialSourceVersionId={searchParams.get("design") || ""}
+                    initialManual={searchParams.get("tool") === "manual"}
+                    initialQuestion={aiDesign?.projectId === route[1] ? aiInitialQuestion : ""}
                   />
                 )}
                 {view === "library" && (!linkedTarget || demo || keepCachedRead(linkedRecord.data,linkedRecord.error)) && <FashionLibrary {...creativeCommon}><LibraryView {...creativeCommon} /></FashionLibrary>}

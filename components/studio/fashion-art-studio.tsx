@@ -253,8 +253,11 @@ export function FashionArtStudio({
   projectId,
   versions,
   nodes,
+  initialSourceVersionId = "",
+  initialManual = false,
+  initialQuestion = "",
   ...props
-}: Props & { projectId: string; versions: Row[]; nodes: Row[] }) {
+}: Props & { projectId: string; versions: Row[]; nodes: Row[]; initialSourceVersionId?: string; initialManual?: boolean; initialQuestion?: string }) {
   const {
     data,
     workspaceId,
@@ -263,12 +266,12 @@ export function FashionArtStudio({
     onMutate,
     onNavigate,
   } = props;
-  const [manual, setManual] = useState(false),
-    [source, setSource] = useState(versions.find((v) => v.file_id)?.id || ""),
-    [panel, setPanel] = useState("samples"),
+  const [manual, setManual] = useState(initialManual),
+    [source, setSource] = useState<string>(versions.find((v) => v.id === initialSourceVersionId && v.file_id)?.id || versions.find((v) => v.file_id)?.id || ""),
+    [panel, setPanel] = useState(initialSourceVersionId ? "ai" : "samples"),
     [category, setCategory] = useState<string>("All"),
     [search, setSearch] = useState(""),
-    [prompt, setPrompt] = useState(""),
+    [prompt, setPrompt] = useState(initialQuestion),
     [count, setCount] = useState<1 | 2>(1),
     [references, setReferences] = useState<string[]>([]),
     [notice, setNotice] = useState(""),
@@ -278,6 +281,10 @@ export function FashionArtStudio({
       data.members.map((m: Row) => m.user_id),
     ),
     [rationale, setRationale] = useState("");
+  useEffect(() => {
+    if (initialSourceVersionId && versions.some(v=>v.id===initialSourceVersionId && v.file_id)) {setSource(initialSourceVersionId);setManual(initialManual);setPanel("ai");}
+    if (initialQuestion) setPrompt(initialQuestion);
+  }, [initialSourceVersionId, initialManual, initialQuestion]);
   const uploads = useMediaUploads({ workspaceId, userId, demo });
   const states = useSWR(
     demo
