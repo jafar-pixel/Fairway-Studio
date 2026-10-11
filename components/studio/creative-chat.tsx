@@ -9,7 +9,7 @@ import { useMediaUploads } from "./media-upload";
 import "./creative-chat.css";
 import { ManualImageEditor } from "./manual-image-editor";
 
-type Chat = { id: string; title: string; visibility: "private" | "workspace" };
+type Chat = { project_id?: string; id: string; title: string; visibility: "private" | "workspace" };
 type Turn = {
   id: string;
   author_id: string;
@@ -56,6 +56,10 @@ export function CreativeChat({
   initialSourceVersionId = "",
   initialManual = false,
   onSaved,
+  embedded = false,
+  referenceVersionIds = [],
+  outputCount = 1,
+  onSourceChange,
 }: {
   data: StudioWorkspace;
   demo: boolean;
@@ -66,6 +70,10 @@ export function CreativeChat({
   initialSourceVersionId?: string;
   initialManual?: boolean;
   onSaved: () => void;
+  embedded?: boolean;
+  referenceVersionIds?: string[];
+  outputCount?: 1 | 2;
+  onSourceChange?: (id: string) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
     end = useRef<HTMLDivElement>(null);
@@ -73,7 +81,7 @@ export function CreativeChat({
     [prompt, setPrompt] = useState(initialQuestion),
     [mode, setMode] = useState<CreativeMode>("image");
   const [visibility, setVisibility] = useState<"private" | "workspace">(
-      "private",
+      embedded ? "workspace" : "private",
     ),
     [projectId, setProjectId] = useState(currentProjectId || "");
   const [source, setSource] = useState(initialSourceVersionId),
@@ -157,7 +165,7 @@ export function CreativeChat({
     }
   }
   const uploads = useMediaUploads({ workspaceId, userId: data.userId, demo });
-  const base = `/api/studio/creative-chat?workspaceId=${workspaceId}`;
+  const base = `/api/studio/creative-chat?workspaceId=${workspaceId}${embedded && currentProjectId ? `&projectId=${currentProjectId}` : ""}`;
   // Include the signed-in identity in keys so private data cannot survive an account switch.
   const chats = useSWR<{ chats: Chat[] }>(
     demo ? null : [base, data.userId],
@@ -171,9 +179,12 @@ export function CreativeChat({
   );
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
-    dialog.current?.showModal();
+    if (!embedded) dialog.current?.showModal();
     return () => previous?.focus();
-  }, []);
+  }, [embedded]);
+  useEffect(() => { if (embedded) setSource(initialSourceVersionId); }, [embedded, initialSourceVersionId]);
+  useEffect(() => { if (embedded && initialQuestion) {setPrompt(initialQuestion);setMode("image");} }, [embedded, initialQuestion]);
+  useEffect(() => { onSourceChange?.(source); }, [source, onSourceChange]);
   useEffect(() => {
     if (chatId) end.current?.scrollIntoView({ block: "nearest" });
   }, [chatId, detail.data?.turns.length, busy]);
@@ -193,6 +204,7 @@ export function CreativeChat({
       requestId: crypto.randomUUID(),
       title: prompt.trim().slice(0, 80) || "New creative conversation",
       visibility,
+      ...(embedded ? {projectId} : {}),
     });
     setChatId(result.chat.id);
     await chats.mutate();
@@ -261,6 +273,9 @@ export function CreativeChat({
         projectId: destination || null,
         sourceVersionId: mode !== "comment" ? attachedSource || null : null,
         consent,
+        referenceVersionIds,
+        count: outputCount,
+        kitVersionId: data.workspace?.active_kit_id || null,
       });
       setPrompt("");
       await detail.mutate();
@@ -344,10 +359,11 @@ export function CreativeChat({
   );
   const selectedChat =
     detail.data?.chat || chats.data?.chats.find((c) => c.id === chatId);
+  const Root = embedded ? "section" : "dialog";
   return (
-    <dialog
-      ref={dialog}
-      className="fc-dialog"
+    <Root
+      ref={dialog as any}
+      className={`fc-dialog ${embedded ? "fc-embedded" : ""}`}
       aria-labelledby="fc-title"
       onCancel={(e) => {
         e.preventDefault();
@@ -359,7 +375,7 @@ export function CreativeChat({
           <span className="fc-eyebrow">FAIRWAY STUDIO / CREATE TOGETHER</span>
           <h2 id="fc-title">
             <Sparkles size={22} />
-            Creative Assistant
+            {embedded ? "AI Design Studio" : "Creative Assistant"}
           </h2>
         </div>
         <button
@@ -615,7 +631,7 @@ export function CreativeChat({
                 Save designs in
                 <select
                   value={projectId}
-                  disabled={busy || uploads.hasUnfinished}
+                  disabled={embedded || busy || uploads.hasUnfinished}
                   onChange={(e) => {
                     setProjectId(e.target.value);
                     setSource("");
@@ -836,6 +852,6 @@ export function CreativeChat({
         setSource(id); setLocalSources(v => [...v,{id,project_id:manualEdit.projectId,title:"Manual design edit"}]);
         setManualEdit(null); setNotice("Manual edit saved. You can continue editing this version with AI."); onSaved();
       }} />}
-    </dialog>
+    </Root>
   );
 }

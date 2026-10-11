@@ -48,7 +48,7 @@ test('route context reaches Image Studio and a route switch resets the source se
   const compactApp = app.replace(/\s/g, '')
   const compactPanel = panel.replace(/\s/g, '')
   assert.match(compactApp, /constcurrentProjectId=view==="projects"\?route\[1\]:undefined/)
-  assert.match(compactApp, /projectId:currentProjectId\|\|detail\.projectId/)
+  assert.match(compactApp, /constprojectId=detail\.projectId\|\|currentProjectId/)
   assert.match(compactApp, /currentProjectId=\{currentProjectId\}/)
   assert.match(compactPanel, /filterGenerationSourceVersions\(data\.versions,projectId\)\.map/)
   assert.match(compactPanel, /setProjectId\(resolveGenerationProjectId\(currentProjectId,undefined,data\.projects\),?\)/)

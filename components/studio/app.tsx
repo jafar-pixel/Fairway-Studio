@@ -85,21 +85,18 @@ import { hydrateImportedContent } from "@/lib/studio/imported-content";
 
 import { ProfileAvatar, ProfilePhotoProvider } from "./profile-avatar";
 import { ProfilePhotoEditor } from "./profile-photo-editor";
+import { FashionHome, FashionStart, FoundersStudioHome, FashionLibrary } from "./fashion-art-studio";
 import { IdeaWhiteboard } from "./idea-whiteboard";
 import { activityLabel } from "@/lib/studio/profile-photo";
 
 const EXPECTED = "xljhxmyigtxhjtxxzuwk";
 const nav = [
   ["", "Home", House],
-  ["ideas", "Ideas", Lightbulb],
   ["projects", "Projects", FolderKanban],
+  ["studio", "Art Studio", Sparkles],
   ["library", "Library", Images],
-  ["conversations", "Conversations", MessageCircle],
-  ["tasks", "Tasks", CheckSquare],
-  ["brand-kit", "Brand Kit", Box],
-  ["business", "Business", BriefcaseBusiness],
-  ["content", "Content", Send],
-  ["settings", "Team & Settings", Users],
+  ["business", "Founders Studio", BriefcaseBusiness],
+  ["settings", "Settings", Settings],
 ] as const;
 const empty = {
   ideas: [],
@@ -328,7 +325,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
   const canonicalBusinessProject = view === "projects" && isBusinessProject(data.projects?.find((project: any) => project.id === route[1]));
   const businessRoute = view === "business" || canonicalBusinessProject;
   const currentProjectId = view === "projects" ? route[1] : undefined;
-  const activeView = businessRoute ? "business" : view;
+  const activeView = businessRoute ? "business" : view === "projects" && route[2] === "canvas" ? "studio" : view;
   const workflowRoute = parseWorkflowRoute(route, canonicalBusinessProject);
   const contentRoute = view === "content";
   const operationalRoute = businessRoute || contentRoute;
@@ -548,13 +545,19 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
       const detail = (e as CustomEvent).detail || {};
       if (operationalRoute) { setNotice("Open a creative project to generate visual versions. Business and publication approvals are separate."); return; }
       setGeneration(null);
-      setAiDesign({ ...detail, projectId: detail.projectId || currentProjectId });
+      setAi(false);
+      const projectId = detail.projectId || currentProjectId;
+      setAiDesign({...detail,projectId});
       setAiInitialQuestion([detail.prompt,detail.target ? `Change: ${detail.target}` : "",detail.palette?.length ? `Palette: ${detail.palette.join(", ")}` : ""].filter(Boolean).join("\n"));
-      setAi(true);
+      if (!projectId) {navigate(`${base}/studio`);return;}
+      const query = new URLSearchParams();
+      if(detail.sourceVersionId)query.set("design",detail.sourceVersionId);
+      query.set("tool",detail.manual ? "manual" : "ai");
+      navigate(`${base}/projects/${projectId}/canvas?${query}`);
     };
     window.addEventListener("fairway-generation", open);
     return () => window.removeEventListener("fairway-generation", open);
-  }, [currentProjectId, operationalRoute]);
+  }, [currentProjectId, operationalRoute, base]);
   function navigate(to: string) {
     if (!window.dispatchEvent(new Event(CREATOR_NAVIGATION_EVENT, { cancelable: true }))) return false;
     const destination = purposeAwareDestination(to,base,data.projects || [],window.location.origin);
@@ -917,7 +920,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
             <Menu size={22} />
           </button>
           <div className="fs-breadcrumb">
-            <span>{nav.find(([key]) => key === activeView)?.[1] || "Home"}</span>
+            <span>{nav.find(([key]) => key === activeView)?.[1] || (view === "tasks" ? "Founders Studio / Tasks" : view === "brand-kit" ? "Business profile" : "Home")}</span>
             {route[1] && (
               <>
                 <ChevronRight size={14} />
@@ -991,7 +994,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
               aria-expanded={quick}
               onClick={() =>
                   view === "projects" && !route[1]
-                  ? openCreate("Project")
+                  ? navigate(`${base}/studio`)
                   : view === "tasks"
                     ? openCreate("Task")
                     : view === "conversations"
@@ -1014,23 +1017,15 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
             {quick && (
               <div className="fs-dropdown">
                 {[
-                  "Idea",
-                  "Project",
-                  "Pin link",
-                  "Upload",
-                  "Note",
-                  "Task",
-                  "Conversation",
+                  "Start a design",
+                  "New project / collection",
+                  "Upload reference",
                 ].map((kind) => (
                   <button
                     key={kind}
                     onClick={() => {
                       setQuick(false);
-                      if (kind === "Upload" || kind === "Pin link") {
-                        navigate(
-                          `${base}/library?action=${kind === "Upload" ? "upload" : "pin"}`,
-                        );
-                      } else openCreate(kind);
+                      navigate(kind === "Upload reference" ? `${base}/library?action=upload` : `${base}/studio`);
                     }}
                   >
                     {kind}
@@ -1041,9 +1036,9 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
           </div>}
           {!operationalRoute && <button
             className="fs-icon"
-            title="Open Creative Assistant"
-            aria-label="Open Creative Assistant"
-            onClick={() => {setAiDesign(null);setAiInitialQuestion("");setAi(!ai);}}
+            title="Open Art Studio"
+            aria-label="Open Art Studio"
+            onClick={() => navigate(currentProjectId ? `${base}/projects/${currentProjectId}/canvas` : `${base}/studio`)}
           >
             <Sparkles size={20} />
           </button>}
@@ -1142,7 +1137,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
                 </div>
               )}
               <div key={`${userId}:${workspaceId}`} data-guide-page={onboardingPageId}>
-                {onboardingScopeReady && !operationalRoute && !create && !ai && !generation && (
+                {onboardingScopeReady && !operationalRoute && view !== "" && view !== "studio" && !(view === "projects" && route[2] === "canvas") && !create && !ai && !generation && (
                   <OnboardingGuide
                     pageId={onboardingPageId}
                     route={route}
@@ -1157,29 +1152,31 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
                   />
                 )}
                 {!view && (
-                  <Home
-                    {...creativeCommon}
-                    onCreate={() => openCreate("Idea")}
-                    onAi={() => setAi(true)}
-                  />
+                  <FashionHome {...creativeCommon} />
                 )}
+                {view === "studio" && <FashionStart {...creativeCommon} />}
+                {view === "business" && route[1] === "profile" && <section><Heading title="Shared business profile" detail={`${data.workspace?.name || "Your business"} · proprietary brand identity and approved assets`} /><BrandKitView {...creativeCommon} /></section>}
+                {view === "business" && !route[1] && <FoundersStudioHome {...common} />}
                 {view === "ideas" && (route[1] && route[2] === "board"
                   ? <IdeaWhiteboard key={`${userId}:${workspaceId}:${route[1]}`} data={data} workspaceId={workspaceId || "demo"} ideaId={route[1]} userId={userId} demo={demo} onNavigate={navigate} />
                   : <IdeasView {...creativeCommon} />)}
                 {businessRoute && <BusinessSubnav base={base} route={workflowRoute} onNavigate={navigate} />}
                 {operationalRoute && <WorkflowHelp route={workflowRoute} />}
-                {businessRoute && workflowRoute.kind === "plans" && <BusinessWorkspaceBoundary key={`${userId}:${workspaceId}:${businessPlanId || "index"}`} workspaceId={workspaceId || ""} planId={businessPlanId} base={base} demo={demo} onNavigate={navigate} onChanged={refreshCanonicalLists} onBlocked={setNotice} onNavigationStateChange={setBusinessNavigation} />}
+                {businessRoute && workflowRoute.kind === "plans" && route[1] !== "profile" && (route[1] !== undefined || canonicalBusinessProject) && <BusinessWorkspaceBoundary key={`${userId}:${workspaceId}:${businessPlanId || "index"}`} workspaceId={workspaceId || ""} planId={businessPlanId} base={base} demo={demo} onNavigate={navigate} onChanged={refreshCanonicalLists} onBlocked={setNotice} onNavigationStateChange={setBusinessNavigation} />}
                 {businessRoute && workflowRoute.kind === "founderUpdates" && <FounderUpdatesBoard key={`${userId}:${workspaceId}:founder-updates`} workspaceId={workspaceId || ""} demo={demo} onNavigationStateChange={setBusinessNavigation} />}
-                {operationalRoute && workflowRoute.kind !== "plans" && workflowRoute.kind !== "founderUpdates" && <ConnectedWorkflowBoundary key={`${userId}:${workspaceId}:${route.join("/")}`} workspaceId={workspaceId || ""} userId={userId} route={workflowRoute} base={base} demo={demo} onNavigate={navigate} onChanged={refreshCanonicalLists} onBlocked={setNotice} onNavigationStateChange={setBusinessNavigation} />}
+                {operationalRoute && workflowRoute.kind !== "plans" && workflowRoute.kind !== "founderUpdates" && route[1] !== "profile" && <ConnectedWorkflowBoundary key={`${userId}:${workspaceId}:${route.join("/")}`} workspaceId={workspaceId || ""} userId={userId} route={workflowRoute} base={base} demo={demo} onNavigate={navigate} onChanged={refreshCanonicalLists} onBlocked={setNotice} onNavigationStateChange={setBusinessNavigation} />}
                 {!businessRoute && linkedTarget && !demo && (linkedRecord.isLoading || linkedRecord.error) && <div role={linkedRecord.error ? "alert" : "status"} className="fs-alert">{linkedRecord.error?.message || "Opening the linked record…"}{linkedRecord.error && <button onClick={() => void linkedRecord.mutate()}>Retry record</button>}</div>}
                 {view === "projects" && !businessRoute && (!linkedTarget || demo || keepCachedRead(linkedRecord.data,linkedRecord.error)) && (
                   <ProjectsView
                     {...creativeCommon}
                     projectId={route[1]}
                     tab={route[2] || "overview"}
+                    initialSourceVersionId={searchParams.get("design") || ""}
+                    initialManual={searchParams.get("tool") === "manual"}
+                    initialQuestion={aiDesign?.projectId === route[1] ? aiInitialQuestion : ""}
                   />
                 )}
-                {view === "library" && (!linkedTarget || demo || keepCachedRead(linkedRecord.data,linkedRecord.error)) && <LibraryView {...creativeCommon} />}
+                {view === "library" && (!linkedTarget || demo || keepCachedRead(linkedRecord.data,linkedRecord.error)) && <FashionLibrary {...creativeCommon}><LibraryView {...creativeCommon} /></FashionLibrary>}
                 {view === "tasks" && (!linkedTarget || demo || keepCachedRead(linkedRecord.data,linkedRecord.error)) && <TasksView {...common} />}
                 {view === "conversations" && (
                   <Conversations
@@ -1196,7 +1193,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
                     onCreateInvite={() => openCreate("Invite")}
                   />
                 )}
-                {!nav.some(([k]) => k === view) && (
+                {!(["", "projects", "studio", "library", "business", "settings", "ideas", "conversations", "tasks", "brand-kit", "content"] as string[]).includes(view) && (
                   <Empty
                     title="Page not found"
                     detail="Choose a destination from the navigation."
@@ -1207,7 +1204,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
           )}
         </main>
         <nav className="fs-mobile-nav" aria-label="Mobile navigation">
-          {nav.filter(([key]) => ["", "tasks", "business", "content"].includes(key)).map(([key, label, Icon]) => (
+          {nav.filter(([key]) => ["", "studio", "library", "business"].includes(key)).map(([key, label, Icon]) => (
             <a
               key={key}
               href={`${base}/${key}`}

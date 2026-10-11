@@ -12,7 +12,7 @@ export function parseWorkflowRoute(route: string[], canonicalBusinessProject = f
  const [root, section, id, record, ...extra] = route;
  if (canonicalBusinessProject) return section && uuid.test(section) ? {kind:'plans',planId:section} : {kind:'invalid'};
  if (root === 'business') {
-  if (!section) return {kind:'plans'};
+  if (!section || section === "plans") return {kind:'plans'};
   if (section === 'founder-updates') return !id ? {kind:'founderUpdates'} : {kind:'invalid'};
   if (section === 'documents' || section === 'finance') {
    if (extra.length || (id && !uuid.test(id)) || (record && !uuid.test(record))) return {kind:'invalid'};

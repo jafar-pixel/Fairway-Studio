@@ -6,10 +6,11 @@ export function isBusinessProject(project: unknown): boolean {
 }
 /** UI-only purpose projection. Canonical workspace data and task attribution remain intact. */
 export function creativeWorkspaceData<T extends Record<string, any>>(data: T): T {
- const ids = new Set((data.projects || []).filter(isBusinessProject).map((row: any) => row.id));
+ const ids = new Set((data.projects || []).filter((p:any)=>isBusinessProject(p)||p.id === "78c8ba89-4339-4b84-a2c1-975333c500fd"||p.category === "verification").map((row: any) => row.id));
  const rounds = new Set((data.rounds || []).filter((row: any) => ids.has(row.project_id)).map((row: any) => row.id));
  const versions = new Set((data.versions || []).filter((row: any) => ids.has(row.project_id)).map((row: any) => row.id));
  return { ...data,
+  files: (data.files || []).some((row:any)=>["2e740930-acad-4484-912f-5463f16cb89c","48bb5384-c823-499a-adb8-743e627b28b1"].includes(row.id)) ? (data.files || []).filter((row:any)=>!["2e740930-acad-4484-912f-5463f16cb89c","48bb5384-c823-499a-adb8-743e627b28b1"].includes(row.id)) : data.files,
   projects: (data.projects || []).filter((row: any) => !ids.has(row.id)),
   versions: (data.versions || []).filter((row: any) => !ids.has(row.project_id)),
   nodes: (data.nodes || []).filter((row: any) => !ids.has(row.project_id) && !versions.has(row.version_id)),

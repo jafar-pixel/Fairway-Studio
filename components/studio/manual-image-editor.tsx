@@ -4,9 +4,9 @@ import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { useMediaUploads } from "./media-upload";
 
 type Mark = {kind:"logo"; image:HTMLImageElement; x:number; y:number; width:number} | { kind: "line"; points: number[][]; color: string; width: number } | { kind: "text"; x: number; y: number; text: string; color: string; size: number };
-export function ManualImageEditor({ workspaceId, userId, projectId, versionId, onClose, onSaved }: {
+export function ManualImageEditor({ workspaceId, userId, projectId, versionId, onClose, onSaved, embedded = false }: {
   workspaceId: string; userId: string; projectId: string; versionId: string;
-  onClose: () => void; onSaved: (id: string) => void;
+  embedded?: boolean; onClose: () => void; onSaved: (id: string) => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null), canvas = useRef<HTMLCanvasElement>(null);
   const original = useRef<HTMLImageElement | null>(null);
@@ -18,13 +18,13 @@ export function ManualImageEditor({ workspaceId, userId, projectId, versionId, o
   const drawing = useRef(false), saveId = useRef(crypto.randomUUID());
   const uploads = useMediaUploads({ workspaceId, userId });
   useEffect(() => {
-    dialog.current?.showModal();
+    if (!embedded) dialog.current?.showModal();
     const image = new Image();
     image.onload = () => { original.current = image; setReady(true); };
     image.onerror = () => setError("This image could not be opened. Close and retry.");
     image.src = `/api/studio/media?workspaceId=${workspaceId}&versionId=${versionId}`;
     return () => { image.onload = null; image.onerror = null; };
-  }, [workspaceId, versionId]);
+  }, [workspaceId, versionId, embedded]);
   useEffect(() => {
     const el = canvas.current, image = original.current;
     if (!el || !image || !ready) return;
@@ -64,7 +64,8 @@ export function ManualImageEditor({ workspaceId, userId, projectId, versionId, o
       onSaved(savedId);
     } catch(e) { setError((e as Error).message); } finally { setBusy(false); }
   }
-  return <dialog ref={dialog} className="fc-manual" aria-label="Edit image manually" onCancel={e=>{e.preventDefault();if(!busy)onClose();}}>
+  const Root = embedded ? "section" : "dialog";
+  return <Root ref={dialog as any} className={`fc-manual ${embedded ? "fc-manual-embedded" : ""}`} aria-label="Edit image manually" onCancel={e=>{e.preventDefault();if(!busy)onClose();}}>
     <header><h2>Edit image manually</h2><button type="button" disabled={busy} onClick={onClose}>Close editor</button></header>
     <p>Draw or add text on the image. Save creates a new version and preserves the original.</p>
     <div className="fc-manual-tools">
@@ -94,5 +95,5 @@ export function ManualImageEditor({ workspaceId, userId, projectId, versionId, o
     {!ready&&!error&&<p role="status">Opening image…</p>}
     {error&&<p role="alert">{error}</p>}
     <footer><span>{tool==="text"?"Click the image to place text.":tool==="logo"?"Click to place another logo. Size controls its width.":"Drag on the image to draw."}</span><button type="button" disabled={!ready||busy} onClick={()=>void save()}>{busy?"Saving edited version…":"Save edited version"}</button></footer>
-  </dialog>;
+  </Root>;
 }

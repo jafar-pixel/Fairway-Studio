@@ -18,6 +18,7 @@ export type GenerationInput = {
   palette: string;
   preserve: string;
   count: number;
+  referenceVersionIds?: string[];
 };
 export type GenerationOutput = {
   path: string;
@@ -195,7 +196,11 @@ export function parseGenerationInput(
   const count = body.count ?? 1;
   if (count !== 1 && count !== 2)
     throw new StudioError("Choose one or two images.", "VALIDATION");
+  const references = body.referenceVersionIds || [];
+  if (!Array.isArray(references) || references.length > 3) throw new StudioError("Choose up to three reference images.","VALIDATION");
+  references.forEach(requiredId);
   return {
+    ...(references.length ? {referenceVersionIds: [...new Set(references)]} : {}),
     projectId: requiredId(body.projectId),
     sourceVersionId: body.sourceVersionId
       ? requiredId(body.sourceVersionId)
@@ -326,10 +331,21 @@ export async function validateContext(
     if (file.permission_scope !== "workspace" && file.added_by !== userId)
       throw new StudioError("Source image access denied.", "FORBIDDEN", 403);
     sourcePath = sourceStoragePath(version.source_url, workspaceId);
+    const {data: reservation,error: reservationError} = await client.from("studio_design_states").select("checked_out_by,checked_out_until").eq("workspace_id",workspaceId).eq("version_id",input.sourceVersionId).maybeSingle();
+    if(reservationError)throw databaseError(reservationError);
+    if(reservation?.checked_out_by && reservation.checked_out_by !== userId && new Date(reservation.checked_out_until).getTime() > Date.now()) throw new StudioError("This design is checked out by a teammate. Choose another version or wait for check-in.","CONFLICT",409);
   }
   if (input.kitVersionId)
     kit = await one(client, "studio_kits", input.kitVersionId, workspaceId);
-  return { sourcePath, kit };
+  const referencePaths: string[] = [];
+  for (const versionId of input.referenceVersionIds || []) {
+    const version = await one(client,"studio_versions",versionId,workspaceId);
+    if(!version.file_id || !version.source_url) throw new StudioError("Reference must be a saved uploaded image.","SOURCE_UNAVAILABLE",422);
+    const file = await one(client,"workspace_files",version.file_id,workspaceId);
+    if(file.permission_scope !== "workspace" && file.added_by !== userId) throw new StudioError("Reference access denied.","FORBIDDEN",403);
+    referencePaths.push(sourceStoragePath(version.source_url,workspaceId));
+  }
+  return { sourcePath, kit, ...(referencePaths.length ? {referencePaths} : {}) };
 }
 export async function createGeneration(
   client: SupabaseClient,
@@ -414,6 +430,14 @@ export async function runGeneration(id?: string) {
           422,
         );
     }
+    const referenceImages: Uint8Array[] = [];
+    for (const path of context.referencePaths || []) {
+      const {data,error} = await service.storage.from("workspace-media").download(path);
+      if(error || !data || data.size > MAX_BYTES) throw new StudioError("A reference image could not be loaded.","SOURCE_UNAVAILABLE",422);
+      const image = new Uint8Array(await data.arrayBuffer());
+      if(!detectImageType(image))throw new StudioError("Reference format is invalid.","SOURCE_UNAVAILABLE",422);
+      referenceImages.push(image);
+    }
     if (job.model !== OPENAI_IMAGE_MODEL)
       throw new StudioError("This draft used the previous AI provider. Create a new image request to use OpenAI.", "MODEL_CHANGED", 422);
     const model = studioOpenAI().image(job.model);
@@ -431,6 +455,7 @@ export async function runGeneration(id?: string) {
       );
     const prompt = [
       job.request.prompt,
+      referenceImages.length ? `Attached images: ${bytes ? "first image is the design to edit; remaining images are references" : "images are visual references for the new design"}. Use reference materials and styling only as requested.` : "",
       `Target: ${job.request.target || "whole concept"}`,
       `Palette: ${job.request.palette || "as instructed"}`,
       `Preserve: ${job.request.preserve || "source identity and unrelated details"}`,
@@ -444,7 +469,7 @@ export async function runGeneration(id?: string) {
     // disabled: every retry is durable, quota-bounded and visible as an attempt.
     const result = await generateImage({
       model,
-      prompt: bytes ? { text: prompt, images: [bytes] } : prompt,
+      prompt: bytes || referenceImages.length ? { text: prompt, images: [...(bytes ? [bytes] : []), ...referenceImages] } : prompt,
       n: job.request.count,
       size: "1024x1024",
       providerOptions: { openai: { quality: "medium", outputFormat: "png" } },

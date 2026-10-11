@@ -1,0 +1,1 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800"><defs><pattern id="weave" width="32" height="32" patternUnits="userSpaceOnUse"><rect width="32" height="32" fill="#b6bfaf"/><g fill="none" stroke="#ffffff" stroke-opacity=".22" stroke-width="2"><path d="M0 0Q16 32 32 0M0 16Q16 48 32 16"/></g></pattern></defs><rect width="800" height="800" fill="url(#weave)"/></svg>

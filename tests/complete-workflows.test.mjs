@@ -45,13 +45,13 @@ test('contextual guidance is opt-in read-only content with truthful capability b
 });
 test('Business navigation supplies mobile-reachable real links and per-section active state',()=>{
  const html=renderToStaticMarkup(React.createElement(help.BusinessSubnav,{base,route:{kind:'private',tab:'finance'},onNavigate(){}}));
- for(const path of ['/business','/business/documents','/business/finance'])assert.ok(html.includes(`href="${base}${path}"`));
+ for(const path of ['/business/plans','/business/documents','/business/finance'])assert.ok(html.includes(`href="${base}${path}"`));
  assert.match(html,new RegExp(`href="${base}/business/finance" aria-current="page"`));
  assert.match(src('components/studio/workflows/workflows.module.css'),/@media\(max-width:600px\)/);
 });
 test('shell preserves auth/workspace route keys and excludes operational routes from creative guide and AI',()=>{
  const app=src('components/studio/app.tsx');
- assert.match(app,/\["content", "Content", Send\]/);assert.match(app,/\["", "tasks", "business", "content"\]\.includes\(key\)/);
+ assert.match(app,/\["studio", "Art Studio", Sparkles\]/);assert.match(app,/\["", "studio", "library", "business"\]\.includes\(key\)/);
  assert.match(app,/parseWorkflowRoute\(route, canonicalBusinessProject\)/);assert.match(app,/workflowRoute\.kind === "plans" \? workflowRoute\.planId : undefined/);
  assert.match(app,/key=\{`\$\{userId\}:\$\{workspaceId\}:\$\{route\.join\("\/"\)\}`\}/);
  assert.match(app,/onboardingScopeReady && !operationalRoute/);assert.match(app,/generation && !operationalRoute/);assert.match(app,/ai && !operationalRoute/);

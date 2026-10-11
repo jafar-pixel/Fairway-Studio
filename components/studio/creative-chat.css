@@ -446,3 +446,25 @@
 .fc-manual-preview { display:flex; justify-content:center; background:#eee8df; padding:12px; margin-bottom:15px; }
 .fc-manual canvas { max-width:100%; max-height:55dvh; width:auto; height:auto; touch-action:none; cursor:crosshair; }
 .fc-manual footer { position:sticky; bottom:-22px; padding:12px 0; background:#faf8f4; }
+
+/* The artboard owns the viewport; AI is an adjacent tool, not a modal. */
+.fc-dialog.fc-embedded {width:100%;height:auto;max-height:none;margin:0;box-shadow:none;border-radius:12px;overflow:visible;}
+.fc-embedded .fc-header {padding:14px;}
+.fc-embedded .fc-header h2 {font-size:18px;}
+.fc-embedded .fc-header > button {display:none;}
+.fc-embedded .fc-layout {display:block;height:auto;}
+.fc-embedded .fc-sidebar {max-height:140px;border-right:0;border-bottom:1px solid #ded7cd;}
+.fc-embedded .fc-sidebar > p {display:none;}
+.fc-embedded .fc-chat-link {padding:6px;margin-top:4px;}
+.fc-embedded .fc-main {display:block;}
+.fc-embedded .fc-context {padding:12px;}
+.fc-embedded .fc-messages {min-height:120px;max-height:300px;overflow:auto;padding:12px;}
+.fc-embedded .fc-empty {padding:12px;}
+.fc-embedded .fc-empty h3 {font-size:18px;}
+.fc-embedded .fc-composer {overflow:visible;max-height:none;padding:12px;}
+.fc-embedded .fc-own-actions {display:none;}
+.fc-embedded .fc-controls {grid-template-columns:1fr;}
+.fc-embedded .fc-send {position:static;flex-wrap:wrap;}
+.fc-embedded .fc-send small {flex-basis:100%;}
+
+.fc-manual.fc-manual-embedded {width:100%;max-height:none;margin:0;}

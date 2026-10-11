@@ -57,12 +57,9 @@ export async function GET(request: Request) {
       workspaceId = id(q.get("workspaceId"));
     if (!q.get("chatId")) {
       const { client } = await authorize(workspaceId);
-      const { data, error } = await client
-        .from(CHATS)
-        .select("*")
-        .eq("workspace_id", workspaceId)
-        .order("created_at", { ascending: false })
-        .limit(100);
+      let query = client.from(CHATS).select("*").eq("workspace_id", workspaceId);
+      if (q.get("projectId")) query = query.eq("project_id", id(q.get("projectId")));
+      const { data, error } = await query.order("created_at", {ascending:false}).limit(100);
       if (error) throw databaseError(error);
       return Response.json({ chats: data }, { headers });
     }
@@ -150,7 +147,12 @@ export async function POST(request: Request) {
     const workspaceId = id(b.workspaceId),
       requestId = id(b.requestId);
     if (b.action === "create") {
-      const { user } = await authorize(workspaceId);
+      const { user, client } = await authorize(workspaceId);
+      const projectId = b.projectId ? id(b.projectId) : null;
+      if (projectId) {
+        const {data,error} = await client.from("studio_projects").select("id").eq("workspace_id",workspaceId).eq("id",projectId).maybeSingle();
+        if(error)throw databaseError(error);if(!data)throw new StudioError("Project unavailable.","NOT_FOUND",404);
+      }
       const title = String(b.title || "New creative conversation")
         .trim()
         .slice(0, 120);
@@ -165,6 +167,7 @@ export async function POST(request: Request) {
           created_by: user.id,
           title,
           visibility: b.visibility,
+          project_id: projectId,
         })
         .select()
         .single();
@@ -204,6 +207,11 @@ export async function POST(request: Request) {
       );
     const sourceVersionId = b.sourceVersionId ? id(b.sourceVersionId) : null;
     const projectId = b.projectId ? id(b.projectId) : null;
+    if (chat.project_id && chat.project_id !== projectId) throw new StudioError("This conversation belongs to a different artboard.","VALIDATION");
+    const referenceVersionIds = b.referenceVersionIds || [];
+    if (!Array.isArray(referenceVersionIds) || referenceVersionIds.length > 3) throw new StudioError("Choose up to three references.","VALIDATION");
+    referenceVersionIds.forEach(id);
+    if (b.count != null && b.count !== 1 && b.count !== 2) throw new StudioError("Choose one or two variations.","VALIDATION");
     if (b.mode === "image" && !projectId)
       throw new StudioError(
         "Select a project for your image versions.",
@@ -239,7 +247,7 @@ export async function POST(request: Request) {
     }
     const hash = createHash("sha256")
       .update(
-        JSON.stringify({ prompt, mode: b.mode, projectId, sourceVersionId }),
+        JSON.stringify({ prompt, mode: b.mode, projectId, sourceVersionId, ...(referenceVersionIds.length ? {referenceVersionIds} : {}), ...(b.count === 2 ? {count:2} : {}), ...(b.kitVersionId ? {kitVersionId:id(b.kitVersionId)} : {}) }),
       )
       .digest("hex");
     const service = generationService();
@@ -298,18 +306,19 @@ export async function POST(request: Request) {
         idempotencyKey: requestId,
         projectId,
         sourceVersionId,
-        kitVersionId: null,
+        kitVersionId: b.kitVersionId ? id(b.kitVersionId) : null,
+        referenceVersionIds,
         prompt,
         target: "design",
         palette: "",
         preserve: sourceVersionId
           ? "Preserve the source design except for the changes requested."
           : "",
-        count: 1,
+        count: b.count || 1,
       });
       jobId = job.id;
       answer =
-        "Image request saved. Keep a result as a project version before editing it or sending it to founder review.";
+        "Image request saved. Successful results are saved to the artboard for editing and team review.";
     } else if (b.mode === "chat") {
       const { data: history, error } = await client
         .from(TURNS)
