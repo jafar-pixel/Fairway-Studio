@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { generateImage } from "ai";
-import { GOOGLE_IMAGE_MODEL, googleConfigured, studioGoogle } from "./google-ai";
+import { OPENAI_IMAGE_MODEL, openaiConfigured, studioOpenAI } from "./openai-ai";
 import { StudioError, uuidPattern } from "./contracts";
 import { databaseError } from "./server";
 
@@ -51,6 +51,7 @@ export function generationFailure(error: unknown): {
   let current: unknown = error;
   let status: number | undefined;
   let verification = false;
+  let billing = false;
   for (
     let depth = 0;
     depth < 5 && current && typeof current === "object";
@@ -75,6 +76,7 @@ export function generationFailure(error: unknown): {
           ? (p.error as Record<string, unknown>)
           : p;
       verification ||= detail.code === "customer_verification_required";
+      billing ||= ["insufficient_quota", "billing_hard_limit_reached"].includes(String(detail.code)) || detail.type === "insufficient_quota";
     }
     verification ||= e.code === "customer_verification_required";
     current = e.cause;
@@ -82,19 +84,19 @@ export function generationFailure(error: unknown): {
   if (verification)
     return {
       message:
-        "Image provider requires account verification. The project owner must complete verification in Google AI Studio before retrying. [IMAGE_VERIFICATION]",
+        "Image provider requires account verification. The project owner must complete verification in OpenAI Platform before retrying. [IMAGE_VERIFICATION]",
       retryable: false,
     };
   if (status === 401)
     return {
       message:
-        "Image provider authentication failed. The project owner must check the deployment's Google API key. [IMAGE_AUTH]",
+        "Image provider authentication failed. The project owner must check the deployment's OpenAI API key. [IMAGE_AUTH]",
       retryable: false,
     };
-  if (status === 402)
+  if (billing || status === 402)
     return {
       message:
-        "Image provider billing or spending limits blocked this request. The project owner must check Google API billing and quotas. [IMAGE_BILLING]",
+        "Image provider billing or spending limits blocked this request. The project owner must check OpenAI API billing and quotas. [IMAGE_BILLING]",
       retryable: false,
     };
   if (status === 403)
@@ -130,7 +132,7 @@ export function generationFailure(error: unknown): {
 export function generationSetup() {
   const available = Boolean(
     process.env.SUPABASE_SERVICE_ROLE_KEY &&
-      googleConfigured(),
+      openaiConfigured(),
   );
   return {
     available,
@@ -140,7 +142,7 @@ export function generationSetup() {
     recoveryMode: "manual-or-external-scheduler",
     setupMessage: available
       ? null
-      : "Image Studio needs the Google API key and reviewed server-side job access. No generation was started.",
+      : "Image Studio needs the OpenAI API key and reviewed server-side job access. No generation was started.",
   };
 }
 export function requireGenerationSetup() {
@@ -261,7 +263,7 @@ export function supportsImageEditRequest(
   if (!hasSourceImage) return true;
   if (sdkCapability === true) return true;
   if (sdkCapability === false) return false;
-  return modelId === GOOGLE_IMAGE_MODEL;
+  return modelId === OPENAI_IMAGE_MODEL;
 }
 async function one(
   client: SupabaseClient,
@@ -343,12 +345,12 @@ export async function createGeneration(
   )
     throw new StudioError("A unique request key is required.", "VALIDATION");
   await validateContext(client, workspaceId, userId, input);
-  const model = GOOGLE_IMAGE_MODEL;
+  const model = OPENAI_IMAGE_MODEL;
   if (
     !supportsImageEditRequest(
       model,
       input.sourceVersionId
-        ? await studioGoogle().image(model).supportsFileInputs
+        ? await studioOpenAI().image(model).supportsFileInputs
         : undefined,
       Boolean(input.sourceVersionId),
     )
@@ -412,9 +414,9 @@ export async function runGeneration(id?: string) {
           422,
         );
     }
-    if (job.model !== GOOGLE_IMAGE_MODEL)
-      throw new StudioError("This draft used the previous AI provider. Create a new image request to use Google.", "MODEL_CHANGED", 422);
-    const model = studioGoogle().image(job.model);
+    if (job.model !== OPENAI_IMAGE_MODEL)
+      throw new StudioError("This draft used the previous AI provider. Create a new image request to use OpenAI.", "MODEL_CHANGED", 422);
+    const model = studioOpenAI().image(job.model);
     if (
       !supportsImageEditRequest(
         job.model,
@@ -444,6 +446,8 @@ export async function runGeneration(id?: string) {
       model,
       prompt: bytes ? { text: prompt, images: [bytes] } : prompt,
       n: job.request.count,
+      size: "1024x1024",
+      providerOptions: { openai: { quality: "medium", outputFormat: "png" } },
       maxRetries: 0,
       abortSignal: AbortSignal.timeout(150000),
     });

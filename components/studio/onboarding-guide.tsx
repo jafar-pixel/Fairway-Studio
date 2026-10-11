@@ -496,8 +496,8 @@ function AIWorkflowNote() {
   return (
     <section className="fs-onboarding-ai-note" aria-label="AI tools and review workflow">
       <h3>Choose the right creative tool</h3>
-      <p><strong>Creative Assistant</strong> helps with briefs, names, creative directions, comparisons, feedback summaries, and task drafts. <small>Gemini · Google</small></p>
-      <p><strong>Image Studio</strong> creates logo concepts, product mockups, and edits to a selected source image. <small>Nano Banana · Google</small></p>
+      <p><strong>Creative Assistant</strong> helps with briefs, names, creative directions, comparisons, feedback summaries, and task drafts. <small>GPT · OpenAI</small></p>
+      <p><strong>Image Studio</strong> creates logo concepts, product mockups, and edits to a selected source image. <small>GPT Image · OpenAI</small></p>
       <p className="fs-onboarding-ai-workflow">Write a brief → create a draft image → refine it → review and save deliberately.</p>
       <p className="fs-onboarding-ai-caution">Requests may incur provider usage charges; no price is estimated here. AI output is exploratory, not native vector artwork, trademark clearance, or a production-ready final asset. A person reviews and approves every direction.</p>
     </section>
