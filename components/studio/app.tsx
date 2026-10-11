@@ -62,6 +62,7 @@ import { ConnectedWorkflowBoundary } from "@/components/studio/workflows/connect
 import { BusinessSubnav, WorkflowHelp } from "@/components/studio/workflows/context-help";
 import { parseWorkflowRoute, workflowRouteLabel } from "@/lib/studio/workflows/routes";
 import { BusinessWorkspaceBoundary } from "@/components/studio/business/workspace-boundary";
+import { FounderUpdatesBoard, FounderUpdatesPreview } from "@/components/studio/founder-updates";
 import { canonicalRouteTarget, keepCachedRead, cleanBusinessNavigation, creativeWorkspaceData, isBusinessProject, purposeAwareDestination, type NavigationState } from "@/lib/studio/business/shell";
 import { mergeCanonicalTarget } from "@/lib/studio/business/canonical-hydration";
 import {
@@ -1167,7 +1168,8 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
                 {businessRoute && <BusinessSubnav base={base} route={workflowRoute} onNavigate={navigate} />}
                 {operationalRoute && <WorkflowHelp route={workflowRoute} />}
                 {businessRoute && workflowRoute.kind === "plans" && <BusinessWorkspaceBoundary key={`${userId}:${workspaceId}:${businessPlanId || "index"}`} workspaceId={workspaceId || ""} planId={businessPlanId} base={base} demo={demo} onNavigate={navigate} onChanged={refreshCanonicalLists} onBlocked={setNotice} onNavigationStateChange={setBusinessNavigation} />}
-                {operationalRoute && workflowRoute.kind !== "plans" && <ConnectedWorkflowBoundary key={`${userId}:${workspaceId}:${route.join("/")}`} workspaceId={workspaceId || ""} userId={userId} route={workflowRoute} base={base} demo={demo} onNavigate={navigate} onChanged={refreshCanonicalLists} onBlocked={setNotice} onNavigationStateChange={setBusinessNavigation} />}
+                {businessRoute && workflowRoute.kind === "founderUpdates" && <FounderUpdatesBoard key={`${userId}:${workspaceId}:founder-updates`} workspaceId={workspaceId || ""} demo={demo} onNavigationStateChange={setBusinessNavigation} />}
+                {operationalRoute && workflowRoute.kind !== "plans" && workflowRoute.kind !== "founderUpdates" && <ConnectedWorkflowBoundary key={`${userId}:${workspaceId}:${route.join("/")}`} workspaceId={workspaceId || ""} userId={userId} route={workflowRoute} base={base} demo={demo} onNavigate={navigate} onChanged={refreshCanonicalLists} onBlocked={setNotice} onNavigationStateChange={setBusinessNavigation} />}
                 {!businessRoute && linkedTarget && !demo && (linkedRecord.isLoading || linkedRecord.error) && <div role={linkedRecord.error ? "alert" : "status"} className="fs-alert">{linkedRecord.error?.message || "Opening the linked record…"}{linkedRecord.error && <button onClick={() => void linkedRecord.mutate()}>Retry record</button>}</div>}
                 {view === "projects" && !businessRoute && (!linkedTarget || demo || keepCachedRead(linkedRecord.data,linkedRecord.error)) && (
                   <ProjectsView
@@ -1582,6 +1584,7 @@ function Home({
           )}
         </div>
         <div className="fs-right-column">
+          <FounderUpdatesPreview workspaceId={workspaceId} demo={demo} onNavigate={() => onNavigate(`${base}/business/founder-updates`)} />
           <Card>
             <h2 className="fs-icon-title">
               <Sparkles />
