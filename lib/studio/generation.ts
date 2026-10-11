@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { generateImage, gateway } from "ai";
+import { generateImage } from "ai";
+import { GOOGLE_IMAGE_MODEL, googleConfigured, studioGoogle } from "./google-ai";
 import { StudioError, uuidPattern } from "./contracts";
 import { databaseError } from "./server";
 
@@ -81,19 +82,19 @@ export function generationFailure(error: unknown): {
   if (verification)
     return {
       message:
-        "Image provider requires account verification. The project owner must complete verification in Vercel AI Gateway before retrying. [IMAGE_VERIFICATION]",
+        "Image provider requires account verification. The project owner must complete verification in Google AI Studio before retrying. [IMAGE_VERIFICATION]",
       retryable: false,
     };
   if (status === 401)
     return {
       message:
-        "Image provider authentication failed. The project owner must check the deployment's AI Gateway credentials. [IMAGE_AUTH]",
+        "Image provider authentication failed. The project owner must check the deployment's Google API key. [IMAGE_AUTH]",
       retryable: false,
     };
   if (status === 402)
     return {
       message:
-        "Image provider billing or spending limits blocked this request. The project owner must check AI Gateway credits and budgets. [IMAGE_BILLING]",
+        "Image provider billing or spending limits blocked this request. The project owner must check Google API billing and quotas. [IMAGE_BILLING]",
       retryable: false,
     };
   if (status === 403)
@@ -129,7 +130,7 @@ export function generationFailure(error: unknown): {
 export function generationSetup() {
   const available = Boolean(
     process.env.SUPABASE_SERVICE_ROLE_KEY &&
-      process.env.STUDIO_IMAGE_MODEL === "openai/gpt-image-2",
+      googleConfigured(),
   );
   return {
     available,
@@ -139,7 +140,7 @@ export function generationSetup() {
     recoveryMode: "manual-or-external-scheduler",
     setupMessage: available
       ? null
-      : "Image Studio needs the configured OpenAI image model and reviewed server-side job access. No generation was started.",
+      : "Image Studio needs the Google API key and reviewed server-side job access. No generation was started.",
   };
 }
 export function requireGenerationSetup() {
@@ -260,7 +261,7 @@ export function supportsImageEditRequest(
   if (!hasSourceImage) return true;
   if (sdkCapability === true) return true;
   if (sdkCapability === false) return false;
-  return modelId === "openai/gpt-image-2";
+  return modelId === GOOGLE_IMAGE_MODEL;
 }
 async function one(
   client: SupabaseClient,
@@ -342,18 +343,12 @@ export async function createGeneration(
   )
     throw new StudioError("A unique request key is required.", "VALIDATION");
   await validateContext(client, workspaceId, userId, input);
-  const model = process.env.STUDIO_IMAGE_MODEL;
-  if (model !== "openai/gpt-image-2")
-    throw new StudioError(
-      "Image Studio requires the configured OpenAI model openai/gpt-image-2. No request was sent.",
-      "GENERATION_SETUP_REQUIRED",
-      503,
-    );
+  const model = GOOGLE_IMAGE_MODEL;
   if (
     !supportsImageEditRequest(
       model,
       input.sourceVersionId
-        ? await gateway.imageModel(model).supportsFileInputs
+        ? await studioGoogle().image(model).supportsFileInputs
         : undefined,
       Boolean(input.sourceVersionId),
     )
@@ -417,7 +412,9 @@ export async function runGeneration(id?: string) {
           422,
         );
     }
-    const model = gateway.imageModel(job.model);
+    if (job.model !== GOOGLE_IMAGE_MODEL)
+      throw new StudioError("This draft used the previous AI provider. Create a new image request to use Google.", "MODEL_CHANGED", 422);
+    const model = studioGoogle().image(job.model);
     if (
       !supportsImageEditRequest(
         job.model,

@@ -28,7 +28,7 @@ Open Creative Assistant from the studio header. Each founder can create a privat
 
 Apply `supabase/migrations/20261011055223_creative_conversations.sql` once. It was applied and its RLS/grants verified on the existing approved Supabase project on October 11, 2026. It is additive and contains no user-content updates.
 
-The existing deployment needs its server-only `SUPABASE_SERVICE_ROLE_KEY`, `AI_GATEWAY_API_KEY` (or the existing supported gateway authentication), `STUDIO_TEXT_MODEL=openai/gpt-5.4-mini`, and `STUDIO_IMAGE_MODEL=openai/gpt-image-2`. Never expose server keys with a NEXT_PUBLIC prefix. The public Supabase URL/key continue to use the existing session setup. No secrets were created, copied into this repository, or requested in chat.
+The existing deployment needs its server-only `SUPABASE_SERVICE_ROLE_KEY`, `GEMINI_API_KEY` from Google AI Studio. Both chat and images call Google directly, with no AI Gateway account or key. Models are pinned server-side to `gemini-3.8-flash` and `gemini-nano-banana-2.1`; legacy `STUDIO_TEXT_MODEL`, `STUDIO_IMAGE_MODEL`, and Gateway credentials are unused. Never expose server keys with a NEXT_PUBLIC prefix. The public Supabase URL/key continue to use the existing session setup. No secrets were created, copied into this repository, or requested in chat.
 
 Provider requests require an explicit usage acknowledgement. This branch has not been verified against live paid provider calls or a signed-in founder session. Existing image worker configuration remains required for automatic recovery without a user reopening and continuing a queued request.
 
@@ -41,3 +41,5 @@ Provider requests require an explicit usage acknowledgement. This branch has not
 - Full existing test suite compared with unchanged `main`: six existing failures in guide playback, frozen source hashes and a session lifecycle test double also occur on the baseline. The new component import is added to the existing shell test double; baseline assertions have not been weakened or rewritten.
 
 The build environment may need `TAR_OPTIONS=--no-same-owner pnpm build` when its filesystem cannot preserve ownership in the existing verified FFmpeg archive. This is an environment setting, not a change to the archive verification.
+
+After adding the Google key to Production, redeploy and verify a chat reply, image creation, a reference-image edit, retaining the image, and reopening it. Existing failed jobs from the old provider require a new image request; their prompts remain saved. A missing key disables generation before a job is queued. Google billing/quota or model-access errors must be resolved in that key’s Google project.

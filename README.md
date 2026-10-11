@@ -32,7 +32,7 @@ The reviewed starter import is applied to the existing Fairway workspace. See `S
 
 Pinterest links use official widgets with a source-preserving fallback. An embed is not permission to send its imagery to an image provider. External Proton/HTTPS file links remain supported. Sessions open configured existing meeting links; an in-app video provider is not invented.
 
-Studio AI text uses the existing Vercel AI SDK/Gateway architecture, honors visible context selections, and requests real record-ID citations. It cannot mutate votes, membership, or kit approvals.
+Studio AI text uses the Google Gemini API directly through the AI SDK, honors visible context selections, and requests real record-ID citations. It cannot mutate votes, membership, or kit approvals.
 
 ## Mobile and offline
 
