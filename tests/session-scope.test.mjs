@@ -89,6 +89,7 @@ function renderShell({ path = `/w/${workspace}/ideas`, list, listError, data = r
     '@/lib/studio/onboarding': { createInitialOnboardingState: () => ({}), guideStorageScope: () => 'scope', resolveGuidePageId: () => 'ideas' },
     '@/components/studio/notifications': { NotificationInbox: noop },
     '@/components/studio/generation-panel': { GenerationPanel: noop },
+    '@/components/studio/creative-chat': { CreativeChat: noop },
     '@/components/studio/brand-kit': { BrandKitView: noop },
     '@/components/studio/projects': { ProjectsView: noop },
     '@/components/studio/collections': { IdeasView: () => React.createElement('div', null, 'Mounted private idea editor'), IdeaEditor: noop, LibraryView: noop, TasksView: noop },

@@ -54,6 +54,7 @@ import {
   type OnboardingState,
 } from "@/lib/studio/onboarding";
 import { NotificationInbox } from "@/components/studio/notifications";
+import { CreativeChat } from "@/components/studio/creative-chat";
 import { GenerationPanel } from "@/components/studio/generation-panel";
 import { BrandKitView } from "@/components/studio/brand-kit";
 import { ProjectsView } from "@/components/studio/projects";
@@ -1243,16 +1244,14 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
         />
       )}
       {ai && !operationalRoute && (
-        <StudioAI
+        <CreativeChat
+          key={`${workspaceId}:${userId}`}
+          currentProjectId={currentProjectId}
+          onSaved={refreshCanonicalLists}
           data={creativeData}
           demo={demo}
           workspaceId={workspaceId}
           initialQuestion={aiInitialQuestion}
-          onboardingGuide={{
-            route, data: creativeData, userId, state: onboardingState,
-            persistenceAvailable: onboardingPersistenceAvailable,
-            onChange: setOnboardingState, onAction: runOnboardingAction,
-          }}
           onClose={() => setAi(false)}
         />
       )}
