@@ -212,6 +212,9 @@ export function CreativeChat({
     }
     setBusy(true);
     try {
+      const attachedSource = uploads.hasUnfinished && mode !== "comment"
+        ? await uploadSource()
+        : source;
       const selected = chatId || (await createChat());
       const result = await json("/api/studio/creative-chat", {
         workspaceId,
@@ -221,7 +224,7 @@ export function CreativeChat({
         prompt,
         mode,
         projectId: projectId || null,
-        sourceVersionId: mode !== "comment" ? source || null : null,
+        sourceVersionId: mode !== "comment" ? attachedSource || null : null,
         consent,
       });
       setPrompt("");
@@ -242,41 +245,48 @@ export function CreativeChat({
       setBusy(false);
     }
   }
+  async function uploadSource() {
+    let attachedSource = source;
+    if (!projectId)
+      throw Error("Select a project before attaching an image.");
+    const result = await uploads.uploadAll({
+      onRegistered: async (file, item) => {
+        const saved = await json("/api/studio/workspace", {
+          workspaceId,
+          operation: "createVersion",
+          requestId: item.id,
+          input: {
+            project_id: projectId,
+            file_id: file.id,
+            title: item.file.name,
+            body: "Uploaded from Creative Assistant.",
+          },
+        });
+        const version = saved.data;
+        setLocalSources((previous) =>
+          previous.some((v) => v.id === version.id)
+            ? previous
+            : [...previous, version],
+        );
+        attachedSource = version.id;
+        setSource(version.id);
+      },
+    });
+    if (!result.complete)
+      throw Error(
+        result.failures[0]?.message ||
+          "Upload unfinished. Retry to continue.",
+      );
+    onSaved();
+    setNotice("Image attached. Your next request will use it as the source.");
+    return attachedSource;
+  }
   async function attach() {
     setBusy(true);
     setError("");
     try {
-      if (!projectId)
-        throw Error("Select a project before attaching an image.");
-      const result = await uploads.uploadAll({
-        onRegistered: async (file, item) => {
-          const saved = await json("/api/studio/workspace", {
-            workspaceId,
-            operation: "createVersion",
-            requestId: item.id,
-            input: {
-              project_id: projectId,
-              file_id: file.id,
-              title: item.file.name,
-              body: "Uploaded from Creative Assistant.",
-            },
-          });
-          const version = saved.data;
-          setLocalSources((previous) =>
-            previous.some((v) => v.id === version.id)
-              ? previous
-              : [...previous, version],
-          );
-          setSource(version.id);
-          setMode("image");
-        },
-      });
-      if (!result.complete)
-        throw Error(
-          result.failures[0]?.message ||
-            "Upload unfinished. Retry to continue.",
-        );
-      onSaved();
+      await uploadSource();
+      setMode("image");
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -513,9 +523,9 @@ export function CreativeChat({
                             )}
                           {job.retained_version_ids.length > 0 && (
                             <p>
-                              Saved in the project.{" "}
+                              Saved in the project. Open Canvas → Versions to compare.{" "}
                               <a
-                                href={`/w/${workspaceId}/projects/${job.project_id}/canvas`}
+                                href={`/w/${workspaceId}/projects/${job.project_id}/canvas?canvas=versions`}
                               >
                                 Open Canvas
                               </a>{" "}
@@ -647,6 +657,33 @@ export function CreativeChat({
               </small>
             )}
             {notice && <p role="status">{notice}</p>}
+            <label htmlFor="fc-prompt" className="fc-sr-only">
+              Your message or design instructions
+            </label>
+            <textarea
+              id="fc-prompt"
+              value={prompt}
+              maxLength={2000}
+              disabled={busy}
+              onChange={(e) => setPrompt(e.target.value)}
+              placeholder={
+                mode === "image"
+                  ? "Describe your own design, logo, product, or collection. Include the colors, style, materials, and details you want."
+                  : "Tell us what you’re thinking…"
+              }
+              rows={3}
+            />
+            {mode !== "comment" && (
+              <label className="fc-consent">
+                <input
+                  type="checkbox"
+                  checked={consent}
+                  onChange={(e) => setConsent(e.target.checked)}
+                />{" "}
+                I understand AI requests send the selected context to the
+                provider and may incur usage charges.
+              </label>
+            )}
             {mode !== "comment" && (
               <>
                 <label>
@@ -714,6 +751,9 @@ export function CreativeChat({
                     </span>
                   ))}
                   {uploads.hasUnfinished && (
+                    <small role="status">This image is ready to upload. Send your instructions below to upload it and use it as the AI source.</small>
+                  )}
+                  {uploads.hasUnfinished && (
                     <button
                       type="button"
                       disabled={busy}
@@ -729,33 +769,6 @@ export function CreativeChat({
                   your prompt and selected source image.
                 </small>
               </>
-            )}
-            <label htmlFor="fc-prompt" className="fc-sr-only">
-              Your message or design instructions
-            </label>
-            <textarea
-              id="fc-prompt"
-              value={prompt}
-              maxLength={2000}
-              disabled={busy}
-              onChange={(e) => setPrompt(e.target.value)}
-              placeholder={
-                mode === "image"
-                  ? "Describe your own design, logo, product, or collection. Include the colors, style, materials, and details you want."
-                  : "Tell us what you’re thinking…"
-              }
-              rows={3}
-            />
-            {mode !== "comment" && (
-              <label className="fc-consent">
-                <input
-                  type="checkbox"
-                  checked={consent}
-                  onChange={(e) => setConsent(e.target.checked)}
-                />{" "}
-                I understand AI requests send the selected context to the
-                provider and may incur usage charges.
-              </label>
             )}
             {error && (
               <p className="fc-error" role="alert">
@@ -775,7 +788,7 @@ export function CreativeChat({
                 className="fc-primary"
                 disabled={
                   busy ||
-                  uploads.hasUnfinished ||
+                  (uploads.hasUnfinished && mode === "comment") ||
                   !prompt.trim() ||
                   demo ||
                   (mode !== "comment" && !consent) ||
@@ -784,7 +797,9 @@ export function CreativeChat({
               >
                 <Send size={16} />
                 {mode === "image"
-                  ? "Create image"
+                  ? uploads.hasUnfinished
+                    ? "Upload & create image"
+                    : source ? "Edit image" : "Create image"
                   : mode === "comment"
                     ? "Post comment"
                     : "Send"}
