@@ -83,7 +83,7 @@ function renderShell({ path = `/w/${workspace}/ideas`, list, listError, data = r
     react: lifecycle?.react || React, 'react/jsx-runtime': jsxRuntime, 'lucide-react': icons,
     'next/navigation': { useRouter: () => ({ push() {}, replace() {} }), usePathname: () => path, useSearchParams: () => new URLSearchParams() },
     swr: { default: (_key, fetcher) => { if (read === 0 && lifecycle) lifecycle.verify = fetcher; return { mutate: async () => {}, ...reads[read++] }; }, useSWRConfig: () => ({ mutate: async (...args) => lifecycle?.purges.push(args) }) },
-    '@/lib/supabase/client': { createClient: () => { if (lifecycle) return { auth: { getUser: async () => ({ data: { user: lifecycle.verifiedUser }, error: null }) } }; throw Error('No client calls while rendering'); } },
+    '@/lib/supabase/client': { createClient: () => { if (lifecycle) return { auth: { getUser: async () => ({ data: { user: lifecycle.verifiedUser }, error: null }), getSession: async () => ({ data: { session: lifecycle.verifiedUser ? { user: lifecycle.verifiedUser } : null }, error: null }) } }; throw Error('No client calls while rendering'); } },
     '@/components/studio-auth': { StudioAuth: () => React.createElement('div', null, 'Sign in') },
     '@/components/studio/onboarding-guide': { OnboardingGuide: noop },
     '@/lib/studio/onboarding': { createInitialOnboardingState: () => ({}), guideStorageScope: () => 'scope', resolveGuidePageId: () => 'ideas' },
@@ -110,6 +110,7 @@ function renderShell({ path = `/w/${workspace}/ideas`, list, listError, data = r
     '@/components/studio/workflows/context-help': { BusinessSubnav: noop, WorkflowHelp: noop },
     '@/lib/studio/workflows/routes': workflowRoutes,
     '@/components/studio/business/workspace-boundary': { BusinessWorkspaceBoundary: () => React.createElement('div', null, 'Mounted Business board') },
+    '@/components/studio/founder-updates': { FounderUpdatesBoard: () => React.createElement('div', null, 'Mounted Founder Updates'), FounderUpdatesPreview: noop },
   };
   const { FairwayStudio } = load('components/studio/app.tsx', deps, { process: { env: { NEXT_PUBLIC_SUPABASE_URL: 'https://xljhxmyigtxhjtxxzuwk.supabase.co', NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: 'test-public-key' } } });
   if (lifecycle) lifecycle.begin();

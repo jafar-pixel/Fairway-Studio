@@ -4,6 +4,7 @@ export type ContentView = 'board' | 'calendar' | 'feedback';
 export type PrivateLocation = { tab: 'documents' | 'finance'; bookId?: string; recordId?: string };
 export type WorkflowRoute =
  | { kind: 'plans'; planId?: string }
+ | { kind: 'founderUpdates' }
  | ({ kind: 'private' } & PrivateLocation)
  | { kind: 'content'; view: ContentView; postId?: string }
  | { kind: 'invalid' };
@@ -12,6 +13,7 @@ export function parseWorkflowRoute(route: string[], canonicalBusinessProject = f
  if (canonicalBusinessProject) return section && uuid.test(section) ? {kind:'plans',planId:section} : {kind:'invalid'};
  if (root === 'business') {
   if (!section) return {kind:'plans'};
+  if (section === 'founder-updates') return !id ? {kind:'founderUpdates'} : {kind:'invalid'};
   if (section === 'documents' || section === 'finance') {
    if (extra.length || (id && !uuid.test(id)) || (record && !uuid.test(record))) return {kind:'invalid'};
    return {kind:'private',tab:section,bookId:id,recordId:record};
@@ -34,6 +36,7 @@ export function privateBusinessUrl(base: string, location: PrivateLocation) {
  return `${base}/business/${location.tab}${location.bookId ? `/${canonical(location.bookId)}` : ''}${location.recordId ? `/${canonical(location.recordId)}` : ''}`;
 }
 export function workflowRouteLabel(route: WorkflowRoute): string {
+ if (route.kind === 'founderUpdates') return 'Founder Updates';
  if (route.kind === 'private') return route.tab === 'finance' ? 'Budget & Finance' : 'Documents & Contracts';
  if (route.kind === 'content') return route.postId ? 'Content detail' : route.view === 'board' ? 'Content Board' : route.view === 'calendar' ? 'Calendar' : 'Feedback';
  return route.kind === 'plans' ? route.planId ? 'Plan detail' : 'Drafts & Plans' : 'Page unavailable';
