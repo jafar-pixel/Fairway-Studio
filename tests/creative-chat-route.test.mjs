@@ -12,6 +12,7 @@ function load({visible=true,prior=null,sameOrigin=true}={}) {
   const service={from(){return {select(){return this;},eq(){return this;},maybeSingle:async()=>({data:prior,error:null})};}};
   const deps={
     'node:crypto':crypto,
+    '@/lib/studio/google-ai':{GOOGLE_TEXT_MODEL:'gemini-3.8-flash',googleConfigured:()=>true,studioGoogle:()=>()=>({})},
     ai:{generateText:()=>{providerCalls++;throw Error('Unexpected provider call');},gateway:()=>({})},
     '@/lib/studio/server':{authorize:async()=>({client,user:{id:user}}),databaseError:e=>e},
     '@/lib/studio/contracts':{StudioError,uuidPattern:/^[0-9a-f-]{36}$/i},

@@ -161,7 +161,7 @@ export function GenerationPanel({
         <p>Create logo concepts, product mockups, or a selected-source image edit. Your original stays unchanged.</p>
         <div className="fs-ai-model-note">
           <strong>Image Studio</strong>
-          <small>GPT Image 2 · OpenAI</small>
+          <small>Nano Banana · Google</small>
           <span>Write a brief → create a draft image → refine it → review and save deliberately.</span>
           <span>Exploratory raster concepts only: no native vector output, trademark clearance, or production-ready final asset is implied.</span>
         </div>
