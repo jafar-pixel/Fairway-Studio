@@ -216,7 +216,7 @@
 .fc-images img {
   display: block;
   width: 100%;
-  max-height: 430px;
+  max-height: min(280px, 30dvh);
   object-fit: contain;
   border-radius: 9px;
   background: #f4ede1;
@@ -435,3 +435,14 @@
     align-items: stretch;
   }
 }
+.fc-image-actions,.fc-selected-source { display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+.fc-image-actions small { flex-basis:100%; color:#76695f; }
+.fc-manual { width:min(1100px,95vw); max-height:94dvh; margin:auto; padding:22px; overflow:auto; border:1px solid #d9d0c6; border-radius:16px; background:#faf8f4; color:#27221f; }
+.fc-manual::backdrop { background:#20181999; }
+.fc-manual header,.fc-manual footer { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.fc-manual h2 { margin:0; }
+.fc-manual-tools { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:16px 0; }
+.fc-manual-tools label { display:flex; flex-direction:column; gap:5px; font-size:12px; }
+.fc-manual-preview { display:flex; justify-content:center; background:#eee8df; padding:12px; margin-bottom:15px; }
+.fc-manual canvas { max-width:100%; max-height:55dvh; width:auto; height:auto; touch-action:none; cursor:crosshair; }
+.fc-manual footer { position:sticky; bottom:-22px; padding:12px 0; background:#faf8f4; }

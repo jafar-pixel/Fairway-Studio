@@ -7,6 +7,7 @@ import type { StudioWorkspace } from "@/lib/studio/contracts";
 import type { CreativeMode } from "@/lib/studio/creative-chat";
 import { useMediaUploads } from "./media-upload";
 import "./creative-chat.css";
+import { ManualImageEditor } from "./manual-image-editor";
 
 type Chat = { id: string; title: string; visibility: "private" | "workspace" };
 type Turn = {
@@ -52,6 +53,8 @@ export function CreativeChat({
   onClose,
   initialQuestion = "",
   currentProjectId,
+  initialSourceVersionId = "",
+  initialManual = false,
   onSaved,
 }: {
   data: StudioWorkspace;
@@ -60,6 +63,8 @@ export function CreativeChat({
   onClose: () => void;
   initialQuestion?: string;
   currentProjectId?: string;
+  initialSourceVersionId?: string;
+  initialManual?: boolean;
   onSaved: () => void;
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
@@ -71,7 +76,7 @@ export function CreativeChat({
       "private",
     ),
     [projectId, setProjectId] = useState(currentProjectId || "");
-  const [source, setSource] = useState(""),
+  const [source, setSource] = useState(initialSourceVersionId),
     [busy, setBusy] = useState(false),
     [error, setError] = useState(""),
     [consent, setConsent] = useState(false);
@@ -84,7 +89,9 @@ export function CreativeChat({
   const [creatingProject, setCreatingProject] = useState(false);
   const [projectTitle, setProjectTitle] = useState("");
   const [notice, setNotice] = useState("");
+  const [manualEdit, setManualEdit] = useState<{projectId: string; versionId: string} | null>(initialManual && currentProjectId && initialSourceVersionId ? {projectId:currentProjectId,versionId:initialSourceVersionId} : null);
   const saveRequest = useRef<{ key: string; id: string } | null>(null);
+  const loadedChat = useRef("");
   const projects = [...data.projects, ...localProjects].filter(
     (p, i, all) => all.findIndex((other) => other.id === p.id) === i,
   );
@@ -170,6 +177,15 @@ export function CreativeChat({
   useEffect(() => {
     if (chatId) end.current?.scrollIntoView({ block: "nearest" });
   }, [chatId, detail.data?.turns.length, busy]);
+  useEffect(() => {
+    if (!chatId || !detail.data || detail.data.chat.id !== chatId || loadedChat.current === chatId) return;
+    loadedChat.current = chatId;
+    const job = [...detail.data.turns].reverse().map(t => detail.data!.jobs.find(j => j.id === t.job_id)).find(j => j?.retained_version_ids.length);
+    if (job) {
+      const id = job.retained_version_ids[0]; setProjectId(job.project_id); setSource(id);
+      setLocalSources(v => v.some(s => s.id === id) ? v : [...v,{id,project_id:job.project_id,title:"Latest saved design"}]);
+    }
+  }, [chatId,detail.data]);
   async function createChat() {
     const result = await json("/api/studio/creative-chat", {
       action: "create",
@@ -203,6 +219,20 @@ export function CreativeChat({
       setBusy(false);
     }
   }
+  async function editResult(job: Job, versionId: string, manually = false) {
+    setBusy(true); setError("");
+    try {
+      if (!job.retained_version_ids.includes(versionId)) {
+        await json("/api/studio/generation", { workspaceId, action: "retain", jobId: job.id });
+        await detail.mutate(); onSaved();
+      }
+      setProjectId(job.project_id); setSource(versionId); setMode("image"); setPrompt("");
+      setLocalSources(v => v.some(s => s.id === versionId) ? v : [...v,{id:versionId,project_id:job.project_id,title:"Selected design"}]);
+      setNotice(manually ? "" : "Editing the selected design. Describe what to change below.");
+      if (manually) setManualEdit({projectId:job.project_id,versionId});
+      else document.getElementById("fc-prompt")?.focus();
+    } catch(e) { setError((e as Error).message); } finally { setBusy(false); }
+  }
   async function send(e: FormEvent) {
     e.preventDefault();
     setError("");
@@ -212,8 +242,13 @@ export function CreativeChat({
     }
     setBusy(true);
     try {
+      let destination = projectId;
+      if (mode === "image" && !destination) {
+        const saved = await json("/api/studio/workspace", {workspaceId,operation:"createProject",requestId:crypto.randomUUID(),input:{title:prompt.trim().slice(0,80) || "New design",category:"general",brief:prompt.trim(),lead_id:data.userId}});
+        destination = saved.data.id; setProjectId(destination); setLocalProjects(v=>[...v,saved.data]); onSaved();
+      }
       const attachedSource = uploads.hasUnfinished && mode !== "comment"
-        ? await uploadSource()
+        ? await uploadSource(destination)
         : source;
       const selected = chatId || (await createChat());
       const result = await json("/api/studio/creative-chat", {
@@ -223,7 +258,7 @@ export function CreativeChat({
         requestId: crypto.randomUUID(),
         prompt,
         mode,
-        projectId: projectId || null,
+        projectId: destination || null,
         sourceVersionId: mode !== "comment" ? attachedSource || null : null,
         consent,
       });
@@ -231,11 +266,17 @@ export function CreativeChat({
       await detail.mutate();
       if (result.turn.job_id) {
         // The durable job is saved before it runs, so closing this panel does not lose it.
-        await json("/api/studio/generation", {
+        const completed = await json("/api/studio/generation", {
           workspaceId,
           action: "run",
           jobId: result.turn.job_id,
         });
+        if (completed.job?.status === "succeeded") {
+          await json("/api/studio/generation", {workspaceId,action:"retain",jobId:completed.job.id});
+          const id = completed.job.outputs[0]?.versionId;
+          if (id) { setSource(id); setLocalSources(v=>v.some(s=>s.id===id)?v:[...v,{id,project_id:destination,title:"Latest saved design"}]); }
+          setNotice("Design saved. Describe another change to keep editing, or choose Start a new image."); onSaved();
+        }
         await detail.mutate();
       }
     } catch (e) {
@@ -245,9 +286,9 @@ export function CreativeChat({
       setBusy(false);
     }
   }
-  async function uploadSource() {
+  async function uploadSource(destination = projectId) {
     let attachedSource = source;
-    if (!projectId)
+    if (!destination)
       throw Error("Select a project before attaching an image.");
     const result = await uploads.uploadAll({
       onRegistered: async (file, item) => {
@@ -256,7 +297,7 @@ export function CreativeChat({
           operation: "createVersion",
           requestId: item.id,
           input: {
-            project_id: projectId,
+            project_id: destination,
             file_id: file.id,
             title: item.file.name,
             body: "Uploaded from Creative Assistant.",
@@ -446,8 +487,7 @@ export function CreativeChat({
                       )}
                       {turn.mode === "image" && job?.status === "succeeded" && (
                         <p>
-                          Your image is ready. Keep it in your project to edit
-                          or review it together.
+                          Your image is ready. Edit it below or compare it in your project.
                         </p>
                       )}
                       {turn.mode === "image" && job?.status === "queued" && (
@@ -480,33 +520,12 @@ export function CreativeChat({
                                   src={`${base}&chatId=${chatId}&jobId=${job.id}&output=${i}`}
                                   loading="lazy"
                                 />
-                                {job.retained_version_ids.includes(
-                                  o.versionId,
-                                ) && (
-                                  <button
-                                    disabled={busy}
-                                    onClick={() => {
-                                      setProjectId(job.project_id);
-                                      setSource(o.versionId);
-                                      setMode("image");
-                                      setPrompt("");
-                                      setLocalSources((v) =>
-                                        v.some((s) => s.id === o.versionId)
-                                          ? v
-                                          : [
-                                              ...v,
-                                              {
-                                                id: o.versionId,
-                                                project_id: job.project_id,
-                                                title:
-                                                  "Saved generated concept",
-                                              },
-                                            ],
-                                      );
-                                    }}
-                                  >
-                                    Edit this image
-                                  </button>
+                                {(own || job.retained_version_ids.includes(o.versionId)) && (
+                                  <div className="fc-image-actions">
+                                    <button type="button" disabled={busy} onClick={() => void editResult(job,o.versionId)}>Edit with AI</button>
+                                    <button type="button" disabled={busy} onClick={() => void editResult(job,o.versionId,true)}>Edit manually</button>
+                                    {!job.retained_version_ids.includes(o.versionId) && <small>Editing saves this source in the shared project.</small>}
+                                  </div>
                                 )}
                               </figure>
                             ))}
@@ -602,7 +621,7 @@ export function CreativeChat({
                     setSource("");
                   }}
                 >
-                  <option value="">Choose your project</option>
+                  <option value="">Create a project for this design</option>
                   {projects.map((p) => (
                     <option key={p.id} value={p.id}>
                       {String(p.title)}
@@ -652,8 +671,7 @@ export function CreativeChat({
             )}
             {!projectId && mode === "image" && (
               <small>
-                Create your own project above, or select one, to keep your
-                generated designs together.
+                Describe your design below. We’ll create a project for it, or you can choose an existing one.
               </small>
             )}
             {notice && <p role="status">{notice}</p>}
@@ -706,11 +724,12 @@ export function CreativeChat({
                   </select>
                 </label>
                 {source && (
-                  <img
-                    className="fc-source-preview"
-                    alt="Selected source image"
-                    src={`/api/studio/media?workspaceId=${workspaceId}&versionId=${source}`}
-                  />
+                  <div className="fc-selected-source">
+                    <img className="fc-source-preview" alt="Selected source image" src={`/api/studio/media?workspaceId=${workspaceId}&versionId=${source}`} />
+                    <strong>Editing this image</strong>
+                    <button type="button" disabled={busy} onClick={() => setManualEdit({projectId,versionId:source})}>Edit selected image manually</button>
+                    <button type="button" disabled={busy} onClick={() => {setSource("");setNotice("");}}>Start a new image</button>
+                  </div>
                 )}
                 <div className="fc-upload">
                   <label>
@@ -719,7 +738,7 @@ export function CreativeChat({
                       type="file"
                       accept="image/png,image/jpeg,image/webp"
                       disabled={
-                        busy || demo || !projectId || uploads.items.length > 0
+                        busy || demo || uploads.items.length > 0
                       }
                       onChange={(e) => {
                         const f = e.target.files?.[0];
@@ -781,7 +800,7 @@ export function CreativeChat({
                   ? "AI receives the latest 20 completed turns, project context and selected image. Founders make decisions."
                   : mode === "comment"
                     ? "Adds your message without an AI response."
-                    : "Creates one draft image. Keep it before starting another edit."}
+                    : "Creates and saves a new design version in your shared project."}
               </small>
               <button
                 type="submit"
@@ -791,8 +810,7 @@ export function CreativeChat({
                   (uploads.hasUnfinished && mode === "comment") ||
                   !prompt.trim() ||
                   demo ||
-                  (mode !== "comment" && !consent) ||
-                  (mode === "image" && !projectId)
+                  (mode !== "comment" && !consent)
                 }
               >
                 <Send size={16} />
@@ -814,6 +832,10 @@ export function CreativeChat({
           </form>
         </main>
       </div>
+      {manualEdit && <ManualImageEditor workspaceId={workspaceId} userId={data.userId} projectId={manualEdit.projectId} versionId={manualEdit.versionId} onClose={() => setManualEdit(null)} onSaved={id => {
+        setSource(id); setLocalSources(v => [...v,{id,project_id:manualEdit.projectId,title:"Manual design edit"}]);
+        setManualEdit(null); setNotice("Manual edit saved. You can continue editing this version with AI."); onSaved();
+      }} />}
     </dialog>
   );
 }
