@@ -1,7 +1,7 @@
 {
   "name": "fairway-studio-desktop",
   "productName": "Fairway Studio",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "description": "Fairway Studio for Windows",
   "author": "JL Influence",
@@ -17,11 +17,26 @@
   "build": {
     "appId": "com.jlinfluence.fairwaystudio",
     "productName": "Fairway Studio",
-    "copyright": "© JL Influence",
-    "files": ["main.js", "preload.js", "offline.html", "build/icon.png"],
-    "directories": { "output": "dist", "buildResources": "build" },
+    "copyright": "\u00a9 JL Influence",
+    "files": [
+      "main.js",
+      "preload.js",
+      "offline.html",
+      "build/icon.png"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
     "win": {
-      "target": [{ "target": "nsis", "arch": ["x64"] }],
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
       "icon": "build/icon.png",
       "artifactName": "Fairway-Studio-Setup.exe"
     },
