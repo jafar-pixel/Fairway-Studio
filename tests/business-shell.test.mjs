@@ -31,7 +31,7 @@ test('Business canonical projects remain identifiable and route away from creati
 test('creative projection excludes Business approvals/artifacts without deleting or changing canonical workspace rows',()=>{
  const original={projects:[{id:b,category:'Business'},{id:c,category:'Brand'}],tasks:[{id:'task',project_id:b}],files:[{id:'file'}],versions:[{id:'bv',project_id:b},{id:'cv',project_id:c}],nodes:[{id:'bn',project_id:b},{id:'bn2',project_id:c,version_id:'bv'},{id:'cn',project_id:c}],rounds:[{id:'br',project_id:b},{id:'cr',project_id:c}],reviews:[{id:'bre',round_id:'br'},{id:'cre',round_id:'cr'}],decisions:[{id:'bd',project_id:b},{id:'cd',project_id:c}]};
  const before=JSON.stringify(original),out=helpers.creativeWorkspaceData(original);
- assert.deepEqual(plain(out.projects).map(r=>r.id),[c]);assert.deepEqual(plain(out.versions).map(r=>r.id),['cv']);assert.deepEqual(plain(out.nodes).map(r=>r.id),['cn']);assert.deepEqual(plain(out.rounds).map(r=>r.id),['cr']);assert.deepEqual(plain(out.reviews).map(r=>r.id),['cre']);assert.deepEqual(plain(out.decisions).map(r=>r.id),['cd']);assert.equal(out.tasks,original.tasks);assert.equal(out.files,original.files);assert.equal(JSON.stringify(original),before);
+ assert.deepEqual(plain(out.projects).map(r=>r.id),[c]);assert.deepEqual(plain(out.versions).map(r=>r.id),['cv']);assert.deepEqual(plain(out.nodes).map(r=>r.id),['cn']);assert.deepEqual(plain(out.rounds).map(r=>r.id),['cr']);assert.deepEqual(plain(out.reviews).map(r=>r.id),['cre']);assert.deepEqual(plain(out.decisions).map(r=>r.id),['cd']);assert.equal(out.tasks,original.tasks);assert.deepEqual(plain(out.files),original.files);assert.equal(JSON.stringify(original),before);
 });
 test('cached reads preserve mounted drafts on network failures but fail closed on access loss',()=>{
  const data={id:b};for(const err of [undefined,new Error('offline'),{status:503},{status:504}])assert.equal(helpers.keepCachedRead(data,err),true);
@@ -67,7 +67,7 @@ test('locally confirmed canonical callback avoids a second discard prompt and us
 });
 test('demo Business does not mount a real-data board',()=>{const h=boundaryHarness({demo:true});assert.equal(h.tree.type,'section');assert.match(JSON.stringify(h.tree.props.children),/connected workspace/);h.cleanup()});
 test('Business navigation exists on desktop and phone without replacing canonical Tasks',()=>{
- assert.match(source,/\["business", "Business", BriefcaseBusiness\]/);assert.match(source,/\["", "tasks", "business", "content"\]\.includes\(key\)/);assert.match(source,/<TasksView \{\.\.\.common\}/);assert.match(source,/<ProjectsView\s+\{\.\.\.creativeCommon\}/);
+ assert.match(source,/\["business", "Founders Studio", BriefcaseBusiness\]/);assert.match(source,/\["", "studio", "library", "business"\]\.includes\(key\)/);assert.match(source,/<TasksView \{\.\.\.common\}/);assert.match(source,/<ProjectsView\s+\{\.\.\.creativeCommon\}/);
 });
 test('Business board key is account/workspace/route only and revalidation never rekeys or replaces it',()=>{
  assert.match(source,/key=\{`\$\{userId\}:\$\{workspaceId\}:\$\{businessPlanId \|\| "index"\}`\}/);assert.match(source,/Promise\.allSettled\(\[result\.mutate\(\),workflow\.mutate\(\),linkedRecord\.mutate\(\)\]\)/);assert.match(source,/result\.error && !keepCachedRead\(result\.data,result\.error\)/);assert.doesNotMatch(source.match(/BusinessWorkspaceBoundary key=\{[^\n]*?\}\}/)?.[0] || "",/(?:revision|updated_at|refresh)/);

@@ -129,6 +129,7 @@ export class MediaUploadController {
       } catch (error) { errors.push(`${file.name}: ${errorMessage(error)}`); }
     }
     this.emit({ items: [...this.snapshot.items, ...added], selectionErrors: errors });
+    return added.map(item => item.id);
   }
   clearSelectionErrors() { this.emit({ selectionErrors: [] }); }
   updateMetadata(id: string, metadata: Partial<UploadMetadata>) {

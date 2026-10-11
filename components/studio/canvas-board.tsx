@@ -39,6 +39,7 @@ type Props = {
   nodes: Row[];
   references: Row[];
   files: Row[];
+  onVersionSelect?: (id: string) => void;
   onMutate: (operation: string, input: Record<string, unknown>) => Promise<unknown>;
 };
 type DragState = {
@@ -122,6 +123,7 @@ export function CanvasBoard({
   references,
   files,
   onMutate,
+  onVersionSelect,
 }: Props) {
   const [zoom, setZoom] = useState(0.8);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
@@ -489,7 +491,7 @@ export function CanvasBoard({
         </div>
       </div>
       <div className="fp-board-help-row">
-        <span>Drag the handle to arrange ideas. Add separate directions to compare campaign routes.</span>
+        <span>Select a design to edit with AI or review. Drag handles to arrange designs, materials and references.</span>
         <span className="fp-board-save-state" role="status">
           {saving ? <LoaderCircle size={14} className="fp-board-spin" /> : <Check size={14} />}
           {saving ? "Saving…" : error || status || "Changes save to this project"}
@@ -533,7 +535,7 @@ export function CanvasBoard({
                       <strong>{item.title}</strong>
                       <button type="button" className="fp-board-drag-handle" aria-label={`Move ${item.title}`} title="Drag to move this direction" onPointerDown={(event) => beginPointer(event, item, "move")}>⠿</button>
                     </header>
-                    <p>Place a campaign route&apos;s references, concepts, and notes inside this area.</p>
+                    <p>Place this design direction&apos;s references, concepts, and notes inside this area.</p>
                     <button className="fp-board-select-frame" type="button" aria-label={`Select ${item.title}`} onClick={() => setSelectedKeys((current) => current.includes(item.key) ? current.filter((key) => key !== item.key) : current.length < 2 ? [...current, item.key] : current)} aria-pressed={isSelected}>{isSelected ? "Selected" : "Select direction"}</button>
                     <button className="fp-board-resize" type="button" aria-label={`Resize ${item.title}`} onPointerDown={(event) => beginPointer(event, item, "resize")}>
                       <span />
@@ -572,6 +574,7 @@ export function CanvasBoard({
                         <p>{item.kind === "note" ? "Working note" : "Preview not available"}</p>
                       </div>
                     )}
+                    {item.kind === "version" && item.source && onVersionSelect && <button className={cardButton} type="button" onClick={()=>{setSelectedKeys([item.key]);onVersionSelect(item.source!.id);}}>Select design for AI / review</button>}
                     {item.body && <p className="fp-board-object-caption">{item.body}</p>}
                     <button className="fp-board-resize" type="button" aria-label={`Resize ${item.title}`} onPointerDown={(event) => beginPointer(event, item, "resize")}>
                       <span />

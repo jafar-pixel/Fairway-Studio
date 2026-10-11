@@ -49,6 +49,8 @@ import {
 } from "@/lib/studio/project-helpers";
 
 import { MediaPlayer } from "./media-player";
+import { FashionArtStudio } from "./fashion-art-studio";
+import { isVerificationProject } from "@/lib/studio/fashion-samples";
 import { BoardModeSwitch, CanvasBoard } from "./canvas-board";
 import "./projects-visual.css";
 
@@ -199,7 +201,7 @@ export function ProjectsView({
   projectId,
   tab = "overview",
 }: Props) {
-  const projects = rows(data, "projects"),
+  const projects = rows(data, "projects").filter(p => !isVerificationProject(p) || p.id === projectId),
     members = rows(data, "members"),
     allVersions = rows(data, "versions"),
     allRounds = rows(data, "rounds");
@@ -1214,13 +1216,15 @@ export function ProjectsView({
         <section className="fp-project-canvas" aria-label="Project canvas">
           <BoardModeSwitch mode={canvasMode} onChange={setCanvasMode} />
           {canvasMode === "board" ? (
-            <CanvasBoard
+            <FashionArtStudio
+              data={data}
+              workspaceId={workspaceId}
+              userId={userId}
+              onNavigate={onNavigate}
               projectId={project.id}
               demo={demo}
               versions={canvasVersions}
               nodes={nodes}
-              references={rows(data, "references")}
-              files={rows(data, "files")}
               onMutate={onMutate}
             />
           ) : (

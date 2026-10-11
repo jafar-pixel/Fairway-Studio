@@ -103,6 +103,7 @@ function renderShell({ path = `/w/${workspace}/ideas`, list, listError, data = r
     './profile-avatar': { ProfileAvatar: noop, ProfilePhotoProvider: ({ children }) => children },
     './profile-photo-editor': { ProfilePhotoEditor: noop },
     './idea-whiteboard': { IdeaWhiteboard: noop },
+    './fashion-art-studio': {FashionHome:noop,FashionStart:noop,FashionLibrary:({children})=>children,FoundersStudioHome:()=>React.createElement('div',null,'Mounted Business board')},
     '@/lib/studio/profile-photo': { activityLabel: () => 'Activity' },
     '@/lib/studio/business/shell': businessShell,
     '@/lib/studio/business/canonical-hydration': { mergeCanonicalTarget: value => value },

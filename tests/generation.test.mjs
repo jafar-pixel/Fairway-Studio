@@ -74,3 +74,14 @@ test('OpenAI exhausted credit is actionable and is not retried as a temporary ra
     assert.match(result.message, /IMAGE_BILLING/);
   }
 });
+
+test('reference images accept bounded immutable IDs and reject URLs, invalid IDs and excess context',()=>{
+ const parsed=f.parseGenerationInput({projectId:w,prompt:'Apply fabric',referenceVersionIds:[u,u]});assert.equal(parsed.referenceVersionIds.length,1);
+ for(const refs of [['https://evil.test/image.png'],[w,u,w,u],"not-an-array"])assert.throws(()=>f.parseGenerationInput({projectId:w,prompt:'test',referenceVersionIds:refs}));
+});
+test('visual references load only authorized immutable workspace images',async()=>{
+ function client(scope='workspace',path=`supabase-storage://workspace-media/${w}/${u}/sample.png`){const tables={workspace_members:{user_id:u},studio_projects:{id:w},studio_versions:{id:u,file_id:u,source_url:path},workspace_files:{id:u,permission_scope:scope,added_by:'someone-else'}};return{from(table){return{select(){return this},eq(){return this},async maybeSingle(){return{data:tables[table],error:null}}}}};}
+ const result=await f.validateContext(client(),w,u,{projectId:w,sourceVersionId:null,kitVersionId:null,referenceVersionIds:[u]});assert.equal(result.referencePaths[0],`${w}/${u}/sample.png`);
+ await assert.rejects(()=>f.validateContext(client('private'),w,u,{projectId:w,referenceVersionIds:[u]}),e=>e.code==='FORBIDDEN');
+ await assert.rejects(()=>f.validateContext(client('workspace','https://evil.test/reference.png'),w,u,{projectId:w,referenceVersionIds:[u]}),e=>e.code==='SOURCE_UNAVAILABLE');
+});
