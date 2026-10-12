@@ -1,12 +1,15 @@
 export const garmentCategories = [
-  "Hats",
-  "Bags",
-  "Shirts",
   "Polos",
   "Pants",
   "Shorts",
-  "Jackets",
-  "Shoes",
+  "Skorts",
+  "Layers",
+  "Outerwear",
+  "Headwear",
+  "Golf bags",
+  "Accessories",
+  "Footwear",
+  "Clubhouse",
 ] as const;
 export type FashionSample = {
   id: string;
@@ -15,45 +18,73 @@ export type FashionSample = {
   image: string;
   kind: "shell" | "fabric";
   description: string;
+  view?: "front" | "back" | "detail";
 };
-const names: Record<string, string[]> = {
-  Hats: ["Six-panel cap", "Bucket hat"],
-  Bags: ["Tote bag", "Duffle bag"],
-  Shirts: ["Crew-neck shirt", "Long-sleeve shirt"],
-  Polos: ["Classic polo", "Long-sleeve polo"],
-  Pants: ["Straight-leg pants", "Tapered pants"],
-  Shorts: ["Tailored shorts", "Performance shorts"],
-  Jackets: ["Bomber jacket", "Zip-front jacket"],
-  Shoes: ["Low-top shoe", "Golf shoe"],
-};
+const golfProducts = [
+  { id: "performance-polo", title: "Performance golf polo", category: "Polos" },
+  { id: "long-sleeve-polo", title: "Long-sleeve golf polo", category: "Polos" },
+  { id: "golf-pants", title: "Tapered golf pants", category: "Pants" },
+  { id: "golf-shorts", title: "Tailored golf shorts", category: "Shorts" },
+  { id: "golf-skort", title: "Pleated golf skort", category: "Skorts" },
+  { id: "quarter-zip", title: "Golf quarter-zip", category: "Layers" },
+  { id: "golf-vest", title: "Golf layering vest", category: "Layers" },
+  { id: "golf-wind-jacket", title: "Golf wind jacket", category: "Outerwear" },
+  { id: "golf-rain-jacket", title: "Golf rain jacket", category: "Outerwear" },
+  { id: "golf-cap", title: "Six-panel golf cap", category: "Headwear" },
+  { id: "golf-visor", title: "Golf visor", category: "Headwear" },
+  { id: "golf-bucket", title: "Golf bucket hat", category: "Headwear" },
+  { id: "golf-stand-bag", title: "Golf stand bag", category: "Golf bags" },
+  { id: "golf-shoe-bag", title: "Golf shoe bag", category: "Golf bags" },
+  { id: "golf-towel", title: "Golf towel", category: "Accessories" },
+  { id: "golf-headcover", title: "Driver headcover", category: "Accessories" },
+  { id: "golf-shoe", title: "Golf shoe", category: "Footwear" },
+  {
+    id: "clubhouse-knit-polo",
+    title: "Clubhouse knit polo",
+    category: "Clubhouse",
+  },
+  {
+    id: "clubhouse-knit",
+    title: "Clubhouse crew-neck knit",
+    category: "Clubhouse",
+  },
+  {
+    id: "clubhouse-overshirt",
+    title: "Clubhouse overshirt",
+    category: "Clubhouse",
+  },
+];
 export const fashionSamples: FashionSample[] = [
-  ...garmentCategories.flatMap((category) =>
-    names[category].map((title, i) => ({
-      id: `${category.toLowerCase()}-${i}`,
-      title,
-      category,
-      image: `/studio-samples/${category.toLowerCase()}-${i}.svg`,
+  ...golfProducts.flatMap((product) =>
+    (["front", "back", "detail"] as const).map((view) => ({
+      id: `${product.id}-${view}`,
+      title: `${product.title} · ${view}`,
+      category: product.category,
+      image: `/studio-samples/golf/${product.id}-${view}.svg`,
       kind: "shell" as const,
-      description: `Original blank ${title.toLowerCase()} shell. Apply your own colors, fabrics, prints and branding.`,
+      view,
+      description: `Original blank golf collection shell: ${product.title}, ${view} view. Use for our own design development, fabrics, colors and approved branding. Construction is illustrative, not a production specification.`,
     })),
   ),
   ...[
-    "Linen weave",
-    "Cotton twill",
-    "Performance knit",
-    "Denim",
-    "Canvas",
-    "Rib knit",
-    "Herringbone",
-    "Pique",
+    "Performance pique",
+    "Smooth performance jersey",
+    "Four-way stretch reference",
+    "Breathable mesh",
+    "Lightweight wind weave",
+    "Rain-shell fabric reference",
+    "Stretch chino twill",
+    "Cotton blend reference",
+    "Rib-knit trim",
+    "Towel microfiber reference",
   ].map((title, i) => ({
-    id: `fabric-${i}`,
+    id: `golf-fabric-${i}`,
     title,
     category: "Fabrics",
-    image: `/studio-samples/fabric-${i}.svg`,
+    image: `/studio-samples/golf/fabric-${i}.svg`,
     kind: "fabric" as const,
     description:
-      "Illustrative texture reference. Confirm actual material with a supplier before production.",
+      "Illustrative golf fabric reference. Performance, stretch, waterproofing, UV protection and supplier specifications require verification before production.",
   })),
 ];
 export const fashionColors = [

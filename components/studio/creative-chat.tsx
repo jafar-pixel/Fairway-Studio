@@ -462,10 +462,9 @@ export function CreativeChat({
             {!chatId && (
               <div className="fc-empty">
                 <Sparkles size={32} />
-                <h3>What would you like to create?</h3>
+                <h3>What are we designing for our golf collection?</h3>
                 <p>
-                  Start with your own idea. Describe a design, logo, product, or
-                  collection below. No template or existing artwork is required.
+                  Develop our original golf apparel, headwear or accessories. Describe your own collection or select a shell on the artboard.
                   Choose Shared workspace to create together.
                 </p>
               </div>
@@ -622,8 +621,8 @@ export function CreativeChat({
                   disabled={busy}
                   onChange={(e) => setMode(e.target.value as CreativeMode)}
                 >
-                  <option value="chat">Talk with AI</option>
-                  <option value="image">Create / edit image</option>
+                  <option value="chat">Develop collection (AI conversation)</option>
+                  <option value="image">Create / edit artwork</option>
                   <option value="comment">Comment only</option>
                 </select>
               </label>
@@ -702,7 +701,7 @@ export function CreativeChat({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={
                 mode === "image"
-                  ? "Describe your own design, logo, product, or collection. Include the colors, style, materials, and details you want."
+                  ? "Describe our original golf design or collection: garments, fabrics, colors, construction details and branding."
                   : "Tell us what you’re thinking…"
               }
               rows={3}
