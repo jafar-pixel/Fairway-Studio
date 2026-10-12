@@ -284,8 +284,8 @@ export function FashionArtStudio({
   const [productEditor, setProductEditor] = useState(initialManual && !!productDocumentFromVersion(versions.find(v=>v.id===initialSourceVersionId)));
   const [manual, setManual] = useState(initialManual),
     [source, setSource] = useState<string>(
-      versions.find((v) => v.id === initialSourceVersionId && v.file_id)?.id ||
-        versions.find((v) => v.file_id)?.id ||
+      versions.find((v) => v.id === initialSourceVersionId && (v.file_id || v.image_url || v.provenance?.import_asset_path))?.id ||
+        versions.find((v) => v.file_id || v.image_url || v.provenance?.import_asset_path)?.id ||
         "",
     ),
     [panel, setPanel] = useState(initialSourceVersionId ? "ai" : "samples"),
@@ -306,7 +306,7 @@ export function FashionArtStudio({
   useEffect(() => {
     if (
       initialSourceVersionId &&
-      versions.some((v) => v.id === initialSourceVersionId && v.file_id)
+      versions.some((v) => v.id === initialSourceVersionId && (v.file_id || v.image_url || v.provenance?.import_asset_path))
     ) {
       setSource(initialSourceVersionId);
       setManual(initialManual);
@@ -315,6 +315,8 @@ export function FashionArtStudio({
     if (initialQuestion) setPrompt(initialQuestion);
   }, [initialSourceVersionId, initialManual, initialQuestion]);
   const uploads = useMediaUploads({ workspaceId, userId, demo });
+  const sourceUploads = useMediaUploads({ workspaceId, userId, demo });
+  const canonicalCopies=useRef<Record<string,{id?:string;stagedId?:string;title:string}>>({});
   const states = useSWR(
     demo
       ? null
@@ -351,7 +353,8 @@ export function FashionArtStudio({
     reservation =
       state?.checked_out_by && new Date(state.checked_out_until) > new Date(),
     reservedByOther = reservation && state.checked_out_by !== userId;
-  const paletteSource=colorwaySource(versions,source);
+  const originalPaletteSource=colorwaySource(versions,source);
+  const paletteSource=versions.find(v=>v.file_id&&v.provenance?.source==="canonical_concept_source"&&v.provenance?.original_version_id===originalPaletteSource)?.id || canonicalCopies.current[originalPaletteSource]?.id || originalPaletteSource;
   const palette=useSWR(source && !demo ? `/api/studio/colorways?workspaceId=${workspaceId}&versionId=${paletteSource}` : null,json);
   const onSelection = useCallback((id: string) => {
     setSource(id);
@@ -431,13 +434,31 @@ export function FashionArtStudio({
         result.failures[0]?.message || "Upload unfinished. Retry to finish.",
       );
   }
+  async function ensureCanonicalSource(id:string){
+    if(Object.values(canonicalCopies.current).some(copy=>copy.id===id))return id;
+    const saved=versions.find(v=>v.id===id);if(saved?.file_id)return id;
+    const existing=versions.find(v=>v.file_id&&v.provenance?.source==="canonical_concept_source"&&v.provenance?.original_version_id===id);if(existing)return existing.id;
+    const copy=canonicalCopies.current[id] ||= {title:saved?.title || "Saved concept source"};if(copy.id)return copy.id;
+    if(!copy.stagedId){
+      const path=saved?.image_url||saved?.provenance?.import_asset_path;if(!path)throw Error("This concept has no image to edit. Choose a design with a preview or upload its source.");
+      const url=new URL(path,window.location.href);if(url.origin!==window.location.origin)throw Error("Upload the original image before editing an external preview.");
+      const response=await fetch(url.href);if(!response.ok)throw Error("The saved concept image could not be loaded.");
+      const original=await response.blob();if(original.size>10*1024*1024||!original.type.startsWith("image/"))throw Error("The source must be an image under 10 MB.");
+      const blobUrl=URL.createObjectURL(original);let png:Blob;
+      try{const image=new Image();image.src=blobUrl;await image.decode();const canvas=document.createElement("canvas");canvas.width=image.naturalWidth||800;canvas.height=image.naturalHeight||800;canvas.getContext("2d")!.drawImage(image,0,0);png=await new Promise<Blob>((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(Error("Source could not be prepared.")),"image/png"));}finally{URL.revokeObjectURL(blobUrl);}
+      const ids=sourceUploads.addFiles([new File([png],"saved-concept-source.png",{type:"image/png"})]);if(!ids?.[0])throw Error("Source could not be staged.");copy.stagedId=ids[0];sourceUploads.updateMetadata(ids[0],{title:copy.title,tags:["concept_source"],contextNote:"Canonical AI source copied from an existing concept preview; original preserved."});
+    }
+    const result=await sourceUploads.uploadAll({onRegistered:async file=>{const v=await onMutate("createVersion",{project_id:projectId,parent_id:id,file_id:file.id,title:copy.title,body:"Registered image source for AI edits. Original concept and artwork preserved.",provenance:{source:"canonical_concept_source",original_version_id:id,approval_status:"unapproved"}});copy.id=v.id;}});
+    if(!result.complete||!copy.id)throw Error(result.failures[0]?.message||"Source registration unfinished. Retry to finish.");sourceUploads.remove(copy.stagedId!);await onMutate("refresh",{});return copy.id;
+  }
   async function colorway(color?:{name:string;hex:string}) {
     if(color){
       if(!source)throw Error("Select a saved design before choosing its color.");
-      const stored=await json(`/api/studio/colorways?workspaceId=${workspaceId}&versionId=${paletteSource}`);
+      const sourceId=await ensureCanonicalSource(paletteSource);
+      const stored=await json(`/api/studio/colorways?workspaceId=${workspaceId}&versionId=${sourceId}`);
       const cached=stored.options?.find((o:Row)=>o.color_hex===color.hex&&o.scope===colorScope)?.generated_version_id;
       if(cached){await onMutate("refresh",{});setSource(cached);setFocusDesign(true);return;}
-      const input={colorway:{name:color.name,hex:color.hex,scope:colorScope},projectId,sourceVersionId:paletteSource,kitVersionId:data.workspace?.active_kit_id||null,prompt:colorwayPrompt(color.name,color.hex,colorScope),target:`${color.name} colorway`,palette:`${color.name} ${color.hex}`,preserve:"Exact design, construction and existing logo artwork",count:1,referenceVersionIds:references.filter(id=>id!==paletteSource)};
+      const input={colorway:{name:color.name,hex:color.hex,scope:colorScope},projectId,sourceVersionId:sourceId,kitVersionId:data.workspace?.active_kit_id||null,prompt:colorwayPrompt(color.name,color.hex,colorScope),target:`${color.name} colorway`,palette:`${color.name} ${color.hex}`,preserve:"Exact design, construction and existing logo artwork",count:1,referenceVersionIds:references.filter(id=>id!==paletteSource)};
       colorRequest.current={key:crypto.randomUUID(),input};setColorJob(null);
     }
     const pending=colorRequest.current;if(!pending)throw Error("Select a color for this design first.");
@@ -459,7 +480,10 @@ export function FashionArtStudio({
     });
     setComment("");
   }
-  function tool(action: string) {
+  async function tool(action: string) {
+    if(source && !selected?.file_id && !["Create","Curate moodboard"].includes(action)){
+      let ready="";await run(async()=>{ready=await ensureCanonicalSource(source);setSource(ready);},"Saved source ready for AI editing.");if(!ready)return;
+    }
     setToolsOpen(true);
     setPanel("ai");
     if (action === "Create") {
@@ -527,7 +551,7 @@ export function FashionArtStudio({
           <button
             className={B}
             disabled={!source || reservedByOther || busy}
-            onClick={() => productDocumentFromVersion(selected) ? setProductEditor(true) : setManual((v) => !v)}
+            onClick={() => productDocumentFromVersion(selected) ? setProductEditor(true) : void run(async()=>{const id=await ensureCanonicalSource(source);setSource(id);setManual(v=>!v);},"Image source ready for manual editing.")}
           >
             {manual ? "Back to artboard" : "Edit manually"}
           </button>
@@ -555,9 +579,9 @@ export function FashionArtStudio({
             />
           ) : <div>
             {focusDesign && <section className="fas-focused-design" aria-label="Current design">
-              <header><div><strong>{selected?.title || "Choose a design"}</strong><p>{selected ? `Version ${selected.version_number || selected.version || 1} · ${stage === "idea" ? "Design idea" : stage === "concept" ? "Reviewed concept" : "Approved product"}` : "Start with a shell, an upload, or an AI design."}</p></div><select aria-label="Working design" disabled={busy} value={source} onChange={e=>setSource(e.target.value)}><option value="">Choose saved design…</option>{versions.filter(v=>v.file_id).map(v=><option key={v.id} value={v.id}>{v.title} · v{v.version_number || v.version || 1}</option>)}</select></header>
-              {selected?.image_url ? <img src={selected.image_url} alt={selected.title || "Selected design"}/> : <div className="fas-focus-empty"><h2>Your design goes here</h2><p>Choose a saved design above, open Samples & Library, or use AI design to create one.</p><button className={P} onClick={()=>{setToolsOpen(true);setPanel("samples");}}>Choose a shell or reference</button><button className={B} onClick={()=>{setToolsOpen(true);setPanel("ai");}}>Create with AI</button></div>}
-              {selected && <div className="fas-focused-actions"><button className={P} disabled={busy} onClick={()=>{setPanel("colors");setToolsOpen(true);}}>Change colors</button><button className={B} disabled={busy} onClick={()=>{setPanel("ai");setToolsOpen(true);}}>Edit with AI</button><button className={B} onClick={()=>{setPanel("team");setToolsOpen(true);}}>Review with the team</button></div>}
+              <header><div><strong>{selected?.title || "Choose a design"}</strong><p>{selected ? `Version ${selected.version_number || selected.version || 1} · ${stage === "idea" ? "Design idea" : stage === "concept" ? "Reviewed concept" : "Approved product"}` : "Start with a shell, an upload, or an AI design."}</p></div><select aria-label="Working design" disabled={busy} value={source} onChange={e=>setSource(e.target.value)}><option value="">Choose saved design…</option>{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><option key={v.id} value={v.id}>{v.title} · v{v.version_number || v.version || 1}</option>)}</select></header>
+              {(selected?.image_url || selected?.provenance?.import_asset_path) ? <img src={selected.image_url || selected.provenance.import_asset_path} alt={selected.title || "Selected design"}/> : <div className="fas-focus-empty"><h2>Your design goes here</h2><p>Choose a saved design above, open Samples & Library, or use AI design to create one.</p><button className={P} onClick={()=>{setToolsOpen(true);setPanel("samples");}}>Choose a shell or reference</button><button className={B} onClick={()=>{setToolsOpen(true);setPanel("ai");}}>Create with AI</button></div>}
+              {selected && <div className="fas-focused-actions"><button className={P} disabled={busy} onClick={()=>{setPanel("colors");setToolsOpen(true);}}>Change colors</button><button className={B} disabled={busy} onClick={()=>void tool("Edit design")}>Edit with AI</button><button className={B} onClick={()=>{setPanel("team");setToolsOpen(true);}}>Review with the team</button></div>}
               {selected && <p>{productDocumentFromVersion(selected) ? "Editable shell: change panel colors, fabrics and artwork in Product editor." : "Saved visual: use AI to change this image. Its panels and logo are not separate editable layers yet."}</p>}
             </section>}
             <div hidden={focusDesign}><CanvasBoard
@@ -603,7 +627,7 @@ export function FashionArtStudio({
               >
                 <option value="">New design / no selection</option>
                 {versions
-                  .filter((v) => v.file_id)
+                  .filter((v) => v.file_id || v.image_url || v.provenance?.import_asset_path)
                   .map((v) => (
                     <option key={v.id} value={v.id}>
                       {v.title}
@@ -665,7 +689,7 @@ export function FashionArtStudio({
             {colorRequest.current && <button className={P} disabled={busy || reservedByOther} onClick={()=>void run(()=>colorway(),"Colorway saved. Original preserved.")}>Resume / retry colorway</button>}
           </div>
           <div hidden={panel !== "samples"}>
-            <h3>Your concept versions</h3><p>A version is a saved design proposal. Reviewed concepts advance only after team approval.</p><div className="fas-concept-library">{versions.filter(v=>v.file_id).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url} alt=""/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":"Saved visual · AI editable"}</small></button>)}</div>
+            <h3>Your concept versions</h3><p>A version is a saved design proposal. Reviewed concepts advance only after team approval.</p><div className="fas-concept-library">{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url} alt=""/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":"Saved visual · AI editable"}</small></button>)}</div>
             <h3>Golf collection samples</h3>
             <p>
               Blank shells for our own collection. Choose front, back or detail
