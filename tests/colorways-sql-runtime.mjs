@@ -1,0 +1,23 @@
+// Isolated Postgres verification: no provider call, no production test designs.
+import fs from 'node:fs';import assert from 'node:assert/strict';
+const {PGlite}=await import(process.env.PGLITE_MODULE||'@electric-sql/pglite');const db=new PGlite(),root=new URL('../',import.meta.url).pathname;
+const existing=fs.readFileSync(root+'tests/studio-sql-runtime.mjs','utf8');const baseline=existing.slice(existing.indexOf('const baseline=`')+16,existing.indexOf('\n`\nawait db.exec(baseline)'));
+await db.exec(baseline);await db.exec('create role service_role bypassrls; create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);');
+await db.exec(fs.readFileSync(root+'supabase/pending-schema.sql','utf8'));await db.exec(fs.readFileSync(root+'supabase/pending-ai-jobs.sql','utf8'));
+const w='11111111-1111-4111-8111-111111111111',u='22222222-2222-4222-8222-222222222222',other='33333333-3333-4333-8333-333333333333',p='44444444-4444-4444-8444-444444444444',source='55555555-5555-4555-8555-555555555555';
+await db.exec(`insert into auth.users(id) values('${u}'),('${other}');insert into workspaces(id,name,created_by) values('${w}','test','${u}');insert into workspace_members(workspace_id,user_id) values('${w}','${u}');insert into studio_projects(id,workspace_id,title,created_by) values('${p}','${w}','test','${u}');`);
+await db.exec(`insert into studio_versions(id,workspace_id,project_id,title,created_by) values('${source}','${w}','${p}','Concept A','${u}')`);
+await db.exec(fs.readFileSync(root+'supabase/migrations/20261012060025_concept_colorways.sql','utf8'));
+assert.equal((await db.query('select * from studio_sample_colors')).rows.length,12);assert.equal((await db.query(`select * from studio_colorway_options where source_version_id='${source}'`)).rows.length,24);
+const key='66666666-6666-4666-8666-666666666666',f='77777777-7777-4777-8777-777777777777',v='88888888-8888-4888-8888-888888888888';
+const request=JSON.stringify({sourceVersionId:source,prompt:'Forest colorway',colorway:{name:'Forest',hex:'#244a3a',scope:'body'}});
+const job=(await db.query(`select (studio_enqueue_generation('${w}','${p}','${u}','${key}','hash','${request}'::jsonb,'test-model',1)).*`)).rows[0];
+await db.exec(`update studio_generation_jobs set status='succeeded',outputs='[{"fileId":"${f}","versionId":"${v}","retainedPath":"${w}/${u}/forest.png","sha256":"test"}]' where id='${job.id}';set role service_role;`);
+assert.equal((await db.query(`select studio_retain_generation('${job.id}','${u}') as ids`)).rows[0].ids[0],v);assert.equal((await db.query(`select studio_retain_generation('${job.id}','${u}') as ids`)).rows[0].ids[0],v);await db.exec('reset role');
+const cached=(await db.query(`select * from studio_colorway_options where source_version_id='${source}' and color_hex='#244a3a' and scope='body'`)).rows[0];assert.equal(cached.generated_version_id,v);
+const saved=(await db.query(`select * from studio_versions where id='${v}'`)).rows[0];assert.equal(saved.parent_id,source);assert.equal(saved.title,'Concept A · Forest');assert.equal((await db.query(`select * from studio_colorway_options where source_version_id='${v}'`)).rows.length,24);
+const forged='99999999-9999-4999-8999-999999999999';await db.exec(`insert into studio_versions(id,workspace_id,project_id,title,parent_id,provenance,created_by) values('${forged}','${w}','${p}','Fake','${source}','{"origin_job_id":"${job.id}","prompt":{"colorway":{"hex":"#233247","scope":"body"}}}','${u}')`);
+assert.equal((await db.query(`select generated_version_id from studio_colorway_options where source_version_id='${source}' and color_hex='#233247' and scope='body'`)).rows[0].generated_version_id,null);
+await db.exec(`set role authenticated;select set_config('request.jwt.claim.sub','${other}',false)`);assert.equal((await db.query('select * from studio_colorway_options')).rows.length,0);await db.exec(`select set_config('request.jwt.claim.sub','${u}',false)`);assert.equal((await db.query('select * from studio_colorway_options')).rows.length,72);await assert.rejects(db.query(`update studio_colorway_options set generated_version_id=null`));await assert.rejects(db.query(`insert into studio_sample_colors values('#123456','Fake',99)`));await db.exec('reset role');
+assert.equal((await db.query("select has_function_privilege('authenticated','fairway_private.seed_design_colorways()','execute') as allowed")).rows[0].allowed,false);
+console.log('Palette SQL passed: 12 colors per design, both scopes, legacy backfill, automatic new-design seed, exact-job output cache, immutable source, named colorway, idempotent retention, forged provenance rejection, workspace isolation and forbidden palette writes.');await db.close();

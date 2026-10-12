@@ -358,3 +358,23 @@
 .fas-calendar-grid > div > span {
   color: #777;
 }
+.fas-tools-closed .fas-studio-layout{grid-template-columns:minmax(0,1fr)}
+.fas-tools[hidden]{display:none}
+.fas-focused-design{background:#faf9f5;border:1px solid #ddd9ce;border-radius:14px;padding:16px}
+.fas-focused-design header{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.fas-focused-design header strong{font-size:20px}
+.fas-focused-design header p,.fas-focused-design>p{color:#626459;font-size:13px}
+.fas-focused-design select{max-width:100%;padding:9px;border:1px solid #d6d4ca;border-radius:8px}
+.fas-focused-design>img{display:block;width:100%;height:68dvh;min-height:420px;object-fit:contain}
+.fas-focus-empty{min-height:58dvh;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:24px}
+.fas-concept-library{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.fas-more-tools{display:inline-block;position:relative;margin:3px}
+.fas-more-tools summary{cursor:pointer;padding:10px;background:white;border:1px solid #d6d4ca;border-radius:9px}
+.fas-more-tools[open]{padding:8px;background:#faf9f5;border:1px solid #d6d4ca;border-radius:9px}
+/* Tools overlay the work area instead of reserving permanent canvas width. */
+.fas-studio .fas-studio-layout{display:block;position:relative}
+.fas-studio .fas-tools:not([hidden]){position:fixed;right:14px;top:82px;bottom:14px;width:min(390px,calc(100vw - 28px));max-height:none;z-index:60;box-shadow:0 10px 45px #0003;overflow:auto}
+.fas-studio:fullscreen{background:#fffdfa;padding:12px;overflow:auto;width:100%;height:100dvh}
+.fas-studio:fullscreen .fas-focused-design>img{height:calc(100dvh - 235px);min-height:280px}
+.fas-focused-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+@media(max-width:600px){.fas-studio .fas-tools:not([hidden]){top:65px;right:8px;bottom:8px;width:calc(100vw - 16px)}.fas-focused-design>img{min-height:300px}}
