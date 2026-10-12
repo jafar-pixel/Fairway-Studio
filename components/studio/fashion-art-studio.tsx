@@ -172,7 +172,7 @@ function ProjectCard({
 export function FashionStart(props: Props) {
   const { data, userId, workspaceId, onMutate, onNavigate } = props;
   const [name, setName] = useState(""),
-    [category, setCategory] = useState<string>("Jackets"),
+    [category, setCategory] = useState<string>("Polos"),
     [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   async function start(e: FormEvent) {
@@ -183,7 +183,7 @@ export function FashionStart(props: Props) {
       const p = await onMutate("createProject", {
         title: name.trim(),
         category,
-        brief: "Fashion design artboard",
+        brief: "Original golf collection development for Hunter & Heckard",
         lead_id: userId,
       });
       onNavigate(`/w/${workspaceId}/projects/${p.id}/canvas`);
@@ -257,7 +257,14 @@ export function FashionArtStudio({
   initialManual = false,
   initialQuestion = "",
   ...props
-}: Props & { projectId: string; versions: Row[]; nodes: Row[]; initialSourceVersionId?: string; initialManual?: boolean; initialQuestion?: string }) {
+}: Props & {
+  projectId: string;
+  versions: Row[];
+  nodes: Row[];
+  initialSourceVersionId?: string;
+  initialManual?: boolean;
+  initialQuestion?: string;
+}) {
   const {
     data,
     workspaceId,
@@ -267,9 +274,14 @@ export function FashionArtStudio({
     onNavigate,
   } = props;
   const [manual, setManual] = useState(initialManual),
-    [source, setSource] = useState<string>(versions.find((v) => v.id === initialSourceVersionId && v.file_id)?.id || versions.find((v) => v.file_id)?.id || ""),
+    [source, setSource] = useState<string>(
+      versions.find((v) => v.id === initialSourceVersionId && v.file_id)?.id ||
+        versions.find((v) => v.file_id)?.id ||
+        "",
+    ),
     [panel, setPanel] = useState(initialSourceVersionId ? "ai" : "samples"),
     [category, setCategory] = useState<string>("All"),
+    [sampleView, setSampleView] = useState("front"),
     [search, setSearch] = useState(""),
     [prompt, setPrompt] = useState(initialQuestion),
     [count, setCount] = useState<1 | 2>(1),
@@ -282,7 +294,14 @@ export function FashionArtStudio({
     ),
     [rationale, setRationale] = useState("");
   useEffect(() => {
-    if (initialSourceVersionId && versions.some(v=>v.id===initialSourceVersionId && v.file_id)) {setSource(initialSourceVersionId);setManual(initialManual);setPanel("ai");}
+    if (
+      initialSourceVersionId &&
+      versions.some((v) => v.id === initialSourceVersionId && v.file_id)
+    ) {
+      setSource(initialSourceVersionId);
+      setManual(initialManual);
+      setPanel("ai");
+    }
     if (initialQuestion) setPrompt(initialQuestion);
   }, [initialSourceVersionId, initialManual, initialQuestion]);
   const uploads = useMediaUploads({ workspaceId, userId, demo });
@@ -419,7 +438,7 @@ export function FashionArtStudio({
       setSource("");
       setCount(1);
       setPrompt(
-        "Create an original fashion design. Describe the garment, materials, colors and details you want here.",
+        "Create an original Hunter & Heckard golf capsule concept board: coordinate a performance polo, tailored golf shorts, stretch golf pants, quarter-zip layer and cap. Show clear product studies with a cohesive palette. Use blank shells unless approved branding is attached.",
       );
     } else if (action === "Variations") {
       setCount(2);
@@ -430,7 +449,7 @@ export function FashionArtStudio({
       setSource("");
       setCount(1);
       setPrompt(
-        "Curate a cohesive fashion moodboard using the attached sample references: arrange garment directions, fabric textures, a complementary color palette, and detail studies. Keep it useful for developing our own collection.",
+        "Curate a cohesive original golf collection moodboard using the attached sample references: arrange on-course and clubhouse garment directions, golf fabric textures, a complementary color palette, and detail studies. Keep it useful for developing our own Hunter & Heckard collection.",
       );
     } else {
       setCount(1);
@@ -584,13 +603,17 @@ export function FashionArtStudio({
             )}
           </div>
           <div hidden={panel !== "samples"}>
-            <h3>Start with a shell or material</h3>
+            <h3>Golf collection samples</h3>
+            <p>
+              Blank shells for our own collection. Choose front, back or detail
+              views, then apply fabrics, colors and approved branding.
+            </p>
             <label>
               Find a sample
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Jacket, linen, cap…"
+                placeholder="Golf polo, quarter-zip, mesh…"
               />
             </label>
             <label>
@@ -604,11 +627,26 @@ export function FashionArtStudio({
                 ))}
               </select>
             </label>
+            <label>
+              Shell view
+              <select
+                value={sampleView}
+                onChange={(e) => setSampleView(e.target.value)}
+              >
+                <option value="front">Front</option>
+                <option value="back">Back</option>
+                <option value="detail">Construction detail</option>
+                <option value="all">All views</option>
+              </select>
+            </label>
             <div className="fas-samples">
               {fashionSamples
                 .filter(
                   (s) =>
                     (category === "All" || s.category === category) &&
+                    (s.kind === "fabric" ||
+                      sampleView === "all" ||
+                      s.view === sampleView) &&
                     `${s.title} ${s.category}`
                       .toLowerCase()
                       .includes(search.toLowerCase()),

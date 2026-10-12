@@ -56,3 +56,8 @@ test("AI context is bounded to latest twenty completed turns", () => {
   assert.equal(result[0].content, "10");
   assert.equal(result.at(-2).content, "29");
 });
+
+test("short collection requests have persistent original golf development context even after shopping history",()=>{
+ const system=context.exports.golfStudioSystem({title:"Golf clothing collection",brief:"Reference notes"});
+ assert.match(system,/Hunter & Heckard/);assert.match(system,/creating the team's own brand and products/);assert.match(system,/golf clothing collection/);assert.match(system,/capsule lineup/);assert.match(system,/only when explicitly requested/);assert.match(system,/Previous shopping answers/);assert.match(system,/does not claim to have created artwork/);
+});

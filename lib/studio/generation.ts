@@ -1,3 +1,4 @@
+import { GOLF_DESIGN_BRIEF } from "./creative-chat";
 import { createHash, randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { generateImage } from "ai";
@@ -454,6 +455,8 @@ export async function runGeneration(id?: string) {
         422,
       );
     const prompt = [
+      GOLF_DESIGN_BRIEF,
+      "Create actual original golf design artwork, not a shopping guide or competitor catalogue. For a collection request, show a coordinated concept board with clear garment studies. A sample shell is a starting silhouette; its view captions are reference labels, not garment artwork. Preserve requested views and make edits only as instructed.",
       job.request.prompt,
       referenceImages.length ? `Attached images: ${bytes ? "first image is the design to edit; remaining images are references" : "images are visual references for the new design"}. Use reference materials and styling only as requested.` : "",
       `Target: ${job.request.target || "whole concept"}`,
