@@ -10,7 +10,7 @@ export function creativeWorkspaceData<T extends Record<string, any>>(data: T): T
  const rounds = new Set((data.rounds || []).filter((row: any) => ids.has(row.project_id)).map((row: any) => row.id));
  const versions = new Set((data.versions || []).filter((row: any) => ids.has(row.project_id)).map((row: any) => row.id));
  return { ...data,
-  files: (data.files || []).some((row:any)=>["2e740930-acad-4484-912f-5463f16cb89c","48bb5384-c823-499a-adb8-743e627b28b1"].includes(row.id)) ? (data.files || []).filter((row:any)=>!["2e740930-acad-4484-912f-5463f16cb89c","48bb5384-c823-499a-adb8-743e627b28b1"].includes(row.id)) : data.files,
+  files: (data.files || []).some((row:any)=>(["2e740930-acad-4484-912f-5463f16cb89c","48bb5384-c823-499a-adb8-743e627b28b1"].includes(row.id) || row.tags?.includes("internal_mask"))) ? (data.files || []).filter((row:any)=>!["2e740930-acad-4484-912f-5463f16cb89c","48bb5384-c823-499a-adb8-743e627b28b1"].includes(row.id) && !row.tags?.includes("internal_mask")) : data.files,
   projects: (data.projects || []).filter((row: any) => !ids.has(row.id)),
   versions: (data.versions || []).filter((row: any) => !ids.has(row.project_id)),
   nodes: (data.nodes || []).filter((row: any) => !ids.has(row.project_id) && !versions.has(row.version_id)),

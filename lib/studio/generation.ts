@@ -2,6 +2,7 @@ import { GOLF_DESIGN_BRIEF } from "./creative-chat";
 import { createHash, randomUUID } from "node:crypto";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { generateImage } from "ai";
+import sharp from "sharp";
 import { OPENAI_IMAGE_MODEL, openaiConfigured, studioOpenAI } from "./openai-ai";
 import { StudioError, uuidPattern } from "./contracts";
 import { databaseError } from "./server";
@@ -20,6 +21,7 @@ export type GenerationInput = {
   preserve: string;
   count: number;
   referenceVersionIds?: string[];
+  maskFileId?: string;
 };
 export type GenerationOutput = {
   path: string;
@@ -200,7 +202,9 @@ export function parseGenerationInput(
   const references = body.referenceVersionIds || [];
   if (!Array.isArray(references) || references.length > 3) throw new StudioError("Choose up to three reference images.","VALIDATION");
   references.forEach(requiredId);
+  if (body.maskFileId && !body.sourceVersionId) throw new StudioError("A region mask requires a saved source design.", "VALIDATION");
   return {
+    ...(body.maskFileId ? {maskFileId: requiredId(body.maskFileId)} : {}),
     ...(references.length ? {referenceVersionIds: [...new Set(references)]} : {}),
     projectId: requiredId(body.projectId),
     sourceVersionId: body.sourceVersionId
@@ -346,7 +350,20 @@ export async function validateContext(
     if(file.permission_scope !== "workspace" && file.added_by !== userId) throw new StudioError("Reference access denied.","FORBIDDEN",403);
     referencePaths.push(sourceStoragePath(version.source_url,workspaceId));
   }
-  return { sourcePath, kit, ...(referencePaths.length ? {referencePaths} : {}) };
+  let maskPath: string | undefined;
+  if (input.maskFileId) {
+    if (!sourcePath) throw new StudioError("A region mask requires an authorized source.","VALIDATION");
+    const mask=await one(client,"workspace_files",input.maskFileId,workspaceId);
+    if(mask.permission_scope!=="workspace" && mask.added_by!==userId) throw new StudioError("Mask access denied.","FORBIDDEN",403);
+    maskPath=sourceStoragePath(mask.url,workspaceId);
+  }
+  return { ...(maskPath ? {maskPath} : {}), sourcePath, kit, ...(referencePaths.length ? {referencePaths} : {}) };
+}
+/** Validate masks before a paid provider call. Source and mask must share pixel dimensions. */
+export async function validateRegionMask(source:Uint8Array,mask:Uint8Array){
+ if(detectImageType(mask)!=="image/png")throw new StudioError("A region mask must be PNG.","VALIDATION");
+ const [sourceMeta,maskMeta]=await Promise.all([sharp(source,{limitInputPixels:16000000}).metadata(),sharp(mask,{limitInputPixels:16000000}).metadata()]);
+ if(!maskMeta.hasAlpha||maskMeta.width!==sourceMeta.width||maskMeta.height!==sourceMeta.height)throw new StudioError("Mask must contain transparency and match the source dimensions.","VALIDATION");
 }
 export async function createGeneration(
   client: SupabaseClient,
@@ -363,6 +380,7 @@ export async function createGeneration(
     throw new StudioError("A unique request key is required.", "VALIDATION");
   await validateContext(client, workspaceId, userId, input);
   const model = OPENAI_IMAGE_MODEL;
+  if(input.maskFileId && await studioOpenAI().image(model).supportsMaskInputs !== true) throw new StudioError("The configured image model does not support masked region editing.","EDIT_UNAVAILABLE",503);
   if (
     !supportsImageEditRequest(
       model,
@@ -454,6 +472,14 @@ export async function runGeneration(id?: string) {
         "EDIT_UNAVAILABLE",
         422,
       );
+    let maskBytes: Uint8Array | undefined;
+    if(context.maskPath){
+      if(await model.supportsMaskInputs !== true || !bytes) throw new StudioError("Masked editing is unavailable for this request.","EDIT_UNAVAILABLE",422);
+      const {data,error}=await service.storage.from("workspace-media").download(context.maskPath);
+      if(error||!data||data.size>MAX_BYTES)throw new StudioError("Mask could not be loaded.","SOURCE_UNAVAILABLE",422);
+      maskBytes=new Uint8Array(await data.arrayBuffer());
+      await validateRegionMask(bytes,maskBytes);
+    }
     const prompt = [
       GOLF_DESIGN_BRIEF,
       "Create actual original golf design artwork, not a shopping guide or competitor catalogue. For a collection request, show a coordinated concept board with clear garment studies. A sample shell is a starting silhouette; its view captions are reference labels, not garment artwork. Preserve requested views and make edits only as instructed.",
@@ -472,7 +498,7 @@ export async function runGeneration(id?: string) {
     // disabled: every retry is durable, quota-bounded and visible as an attempt.
     const result = await generateImage({
       model,
-      prompt: bytes || referenceImages.length ? { text: prompt, images: [...(bytes ? [bytes] : []), ...referenceImages] } : prompt,
+      prompt: bytes || referenceImages.length ? { text: prompt, images: [...(bytes ? [bytes] : []), ...referenceImages], ...(maskBytes ? {mask:maskBytes} : {}) } : prompt,
       n: job.request.count,
       size: "1024x1024",
       providerOptions: { openai: { quality: "medium", outputFormat: "png" } },
