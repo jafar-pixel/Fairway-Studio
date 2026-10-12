@@ -851,7 +851,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
     : [];
   return (
     <ProfilePhotoProvider key={`${userId}:${workspaceId}`} viewerId={userId} demo={demo}>
-    <div className="fs-app">
+    <div className={`fs-app ${activeView === "studio" ? "fs-canvas-first" : ""} ${menu ? "fs-navigation-open" : ""}`}>
       <aside className={`fs-sidebar ${menu ? "is-open" : ""}`}>
         <a className="fs-brand" href={base} aria-label="Fairway Studio home" onClick={(event) => { event.preventDefault(); navigate(base); }}>
           <img src="/fairway-studio-logo-burgundy.png" alt="Fairway Studio logo in burgundy" />
@@ -914,8 +914,9 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
           </a>
           <button
             className="fs-icon fs-menu-toggle"
-            aria-label="Open navigation"
-            onClick={() => setMenu(true)}
+            aria-label={menu ? "Hide navigation" : "Show navigation"}
+            aria-expanded={menu}
+            onClick={() => setMenu(!menu)}
           >
             <Menu size={22} />
           </button>

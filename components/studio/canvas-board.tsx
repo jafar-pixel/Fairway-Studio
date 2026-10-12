@@ -125,6 +125,7 @@ export function CanvasBoard({
   onMutate,
   onVersionSelect,
 }: Props) {
+  const [hiddenKeys, setHiddenKeys] = useState<string[]>([]);
   const [zoom, setZoom] = useState(0.8);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
   const [rectOverrides, setRectOverrides] = useState<Record<string, Rect>>({});
@@ -476,6 +477,8 @@ export function CanvasBoard({
               )}
             </>
           )}
+          <button className={cardButton} disabled={!selected.length} onClick={()=>{setHiddenKeys(keys=>[...new Set([...keys,...selectedKeys])]);setSelectedKeys([]);}}>Hide selected from board</button>
+          {hiddenKeys.length > 0 && <button className={cardButton} onClick={()=>setHiddenKeys([])}>Show hidden items ({hiddenKeys.length})</button>}
           <button className={cardButton} disabled={selected.length !== 2} onClick={() => setDialog("compare")}>
             <Columns2 size={16} /> Compare{selected.length ? ` (${selected.length}/2)` : ""}
           </button>
@@ -514,7 +517,7 @@ export function CanvasBoard({
               <button className={cardButton} onClick={() => setDialog("direction")}><Plus size={15} /> Create a direction</button>
             </div>
           )}
-          {items.map((item) => {
+          {items.filter(item=>!hiddenKeys.includes(item.key)).map((item) => {
             const rect = rectFor(item);
             const isSelected = selectedKeys.includes(item.key);
             const isFrame = item.kind === "direction";
@@ -553,7 +556,7 @@ export function CanvasBoard({
                         />
                       </label>
                       <div className="fp-board-object-heading">
-                        <span className="fp-board-type-label">{item.kind === "version" ? "Concept" : item.kind}</span>
+                        <span className="fp-board-type-label">{item.kind === "version" ? "Design version" : item.kind}</span>
                         <strong title={item.title}>{item.title}</strong>
                       </div>
                       <button type="button" className="fp-board-drag-handle" aria-label={`Move ${item.title}`} title="Drag to move" onPointerDown={(event) => beginPointer(event, item, "move")}>⠿</button>

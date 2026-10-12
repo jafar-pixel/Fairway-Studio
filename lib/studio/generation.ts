@@ -22,6 +22,7 @@ export type GenerationInput = {
   count: number;
   referenceVersionIds?: string[];
   maskFileId?: string;
+  colorway?: {name:string;hex:string;scope:"body"|"whole"};
 };
 export type GenerationOutput = {
   path: string;
@@ -199,11 +200,14 @@ export function parseGenerationInput(
   const count = body.count ?? 1;
   if (count !== 1 && count !== 2)
     throw new StudioError("Choose one or two images.", "VALIDATION");
+  const colorway=body.colorway as GenerationInput["colorway"];
+  if(colorway && (typeof colorway!=="object" || typeof colorway.name!=="string" || !colorway.name.trim() || colorway.name.length>60 || typeof colorway.hex!=="string" || !/^#[0-9a-f]{6}$/i.test(colorway.hex) || !["body","whole"].includes(colorway.scope) || !body.sourceVersionId)) throw new StudioError("Choose a valid colorway and saved source.","VALIDATION");
   const references = body.referenceVersionIds || [];
   if (!Array.isArray(references) || references.length > 3) throw new StudioError("Choose up to three reference images.","VALIDATION");
   references.forEach(requiredId);
   if (body.maskFileId && !body.sourceVersionId) throw new StudioError("A region mask requires a saved source design.", "VALIDATION");
   return {
+    ...(colorway ? {colorway:{name:colorway.name.trim(),hex:colorway.hex.toLowerCase(),scope:colorway.scope}} : {}),
     ...(body.maskFileId ? {maskFileId: requiredId(body.maskFileId)} : {}),
     ...(references.length ? {referenceVersionIds: [...new Set(references)]} : {}),
     projectId: requiredId(body.projectId),
@@ -379,6 +383,7 @@ export async function createGeneration(
   )
     throw new StudioError("A unique request key is required.", "VALIDATION");
   await validateContext(client, workspaceId, userId, input);
+  if(input.colorway){const {data:color,error}=await client.from("studio_sample_colors").select("name").eq("hex",input.colorway.hex).maybeSingle();if(error)throw databaseError(error);if(!color||color.name!==input.colorway.name)throw new StudioError("Choose a stored sample color.","VALIDATION");}
   const model = OPENAI_IMAGE_MODEL;
   if(input.maskFileId && await studioOpenAI().image(model).supportsMaskInputs !== true) throw new StudioError("The configured image model does not support masked region editing.","EDIT_UNAVAILABLE",503);
   if (

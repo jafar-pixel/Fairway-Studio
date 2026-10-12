@@ -3,15 +3,18 @@ import {
   useCallback,
   useEffect,
   useState,
+  useRef,
   type ReactNode,
   type FormEvent,
 } from "react";
 import useSWR from "swr";
 import { CanvasBoard } from "./canvas-board";
 import { productDocumentFromVersion } from "@/lib/studio/product-design";
+import { colorwayPrompt, completeColorway, colorwaySource } from "@/lib/studio/colorways";
 import { ProductEditor } from "./product-editor";
 import { ManualImageEditor } from "./manual-image-editor";
 import { CreativeChat } from "./creative-chat";
+import { useCreatorNavigationGuard } from "./creator-navigation";
 import { useMediaUploads } from "./media-upload";
 import {
   fashionSamples,
@@ -275,6 +278,9 @@ export function FashionArtStudio({
     onMutate,
     onNavigate,
   } = props;
+  const colorRequest = useRef<{key:string;input:Row;job?:Row}|null>(null);
+  const [colorJob,setColorJob] = useState<Row|null>(null), [colorScope,setColorScope] = useState<"body"|"whole">("body");
+  const [toolsOpen, setToolsOpen] = useState(false), [focusDesign, setFocusDesign] = useState(true);
   const [productEditor, setProductEditor] = useState(initialManual && !!productDocumentFromVersion(versions.find(v=>v.id===initialSourceVersionId)));
   const [manual, setManual] = useState(initialManual),
     [source, setSource] = useState<string>(
@@ -296,6 +302,7 @@ export function FashionArtStudio({
       data.members.map((m: Row) => m.user_id),
     ),
     [rationale, setRationale] = useState("");
+  useCreatorNavigationGuard({dirty:false,busy,onBlocked:setNotice});
   useEffect(() => {
     if (
       initialSourceVersionId &&
@@ -344,6 +351,8 @@ export function FashionArtStudio({
     reservation =
       state?.checked_out_by && new Date(state.checked_out_until) > new Date(),
     reservedByOther = reservation && state.checked_out_by !== userId;
+  const paletteSource=colorwaySource(versions,source);
+  const palette=useSWR(source && !demo ? `/api/studio/colorways?workspaceId=${workspaceId}&versionId=${paletteSource}` : null,json);
   const onSelection = useCallback((id: string) => {
     setSource(id);
     setNotice("");
@@ -422,6 +431,21 @@ export function FashionArtStudio({
         result.failures[0]?.message || "Upload unfinished. Retry to finish.",
       );
   }
+  async function colorway(color?:{name:string;hex:string}) {
+    if(color){
+      if(!source)throw Error("Select a saved design before choosing its color.");
+      const stored=await json(`/api/studio/colorways?workspaceId=${workspaceId}&versionId=${paletteSource}`);
+      const cached=stored.options?.find((o:Row)=>o.color_hex===color.hex&&o.scope===colorScope)?.generated_version_id;
+      if(cached){await onMutate("refresh",{});setSource(cached);setFocusDesign(true);return;}
+      const input={colorway:{name:color.name,hex:color.hex,scope:colorScope},projectId,sourceVersionId:paletteSource,kitVersionId:data.workspace?.active_kit_id||null,prompt:colorwayPrompt(color.name,color.hex,colorScope),target:`${color.name} colorway`,palette:`${color.name} ${color.hex}`,preserve:"Exact design, construction and existing logo artwork",count:1,referenceVersionIds:references.filter(id=>id!==paletteSource)};
+      colorRequest.current={key:crypto.randomUUID(),input};setColorJob(null);
+    }
+    const pending=colorRequest.current;if(!pending)throw Error("Select a color for this design first.");
+    const request=(body:Row)=>json("/api/studio/generation",{workspaceId,...body});
+    if(!pending.job){const result=await request({action:"create",idempotencyKey:pending.key,...pending.input});pending.job=result.job;setColorJob(result.job);}
+    const id=await completeColorway(pending.job!,request,job=>{pending.job=job;setColorJob(job);},!color);
+    colorRequest.current=null;await onMutate("refresh",{});await palette.mutate();setSource(id);setFocusDesign(true);
+  }
   async function postComment() {
     let t = thread;
     if (!t)
@@ -436,6 +460,7 @@ export function FashionArtStudio({
     setComment("");
   }
   function tool(action: string) {
+    setToolsOpen(true);
     setPanel("ai");
     if (action === "Create") {
       setSource("");
@@ -464,13 +489,17 @@ export function FashionArtStudio({
     }
   }
   return (
-    <section className="fas-studio" aria-label="Fashion art studio">
+    <section className={`fas-studio ${toolsOpen ? "" : "fas-tools-closed"}`} aria-label="Fashion art studio">
       <div className="fas-studio-bar">
         <div>
           <strong>ART STUDIO</strong>
-          <p>Idea → reviewed concept → approved product</p>
+          <p>Design an idea → review together → develop an approved product</p>
         </div>
         <div>
+          <button className={B} onClick={e=>{const studio=e.currentTarget.closest("section");if(document.fullscreenElement)void document.exitFullscreen();else if(studio?.requestFullscreen)void studio.requestFullscreen().catch(()=>setNotice("Full-screen is unavailable on this device. Both sidebars can still be hidden."));}}>Full canvas</button>
+          <button className={B} aria-pressed={focusDesign} onClick={()=>setFocusDesign(v=>!v)}>{focusDesign ? "Show project board" : "Focus selected design"}</button>
+          {["samples", "ai", "team"].map(p=><button className={toolsOpen && panel===p ? P : B} key={p} aria-expanded={toolsOpen && panel===p} onClick={()=>{setPanel(p);setToolsOpen(!(toolsOpen && panel===p));}}>{p==="samples"?"Samples & Library":p==="ai"?"AI design":"Team & review"}</button>)}
+          <details className="fas-more-tools"><summary>More design tools</summary>
           {[
             "Create",
             "Edit design",
@@ -493,6 +522,7 @@ export function FashionArtStudio({
               {a}
             </button>
           ))}
+          </details>
           <button className={P} disabled={busy || reservedByOther} onClick={() => setProductEditor(true)}>Product editor · clothing, bags & logos</button>
           <button
             className={B}
@@ -505,7 +535,7 @@ export function FashionArtStudio({
       </div>
       <div className="fas-studio-layout">
         <div className="fas-canvas">
-          {productEditor ? <ProductEditor workspaceId={workspaceId} userId={userId} projectId={projectId} versions={versions} files={data.files} source={selected} kitVersionId={data.workspace?.active_kit_id || null} demo={demo} locked={!!reservedByOther} onMutate={onMutate} onClose={()=>setProductEditor(false)} onSaved={id=>{setSource(id);void onMutate("refresh", {});}} onAI={(id,p)=>{setSource(id);setPrompt(p);setPanel("ai");}} /> : manual && source ? (
+          {productEditor ? <ProductEditor workspaceId={workspaceId} userId={userId} projectId={projectId} versions={versions} files={data.files} source={selected} kitVersionId={data.workspace?.active_kit_id || null} demo={demo} locked={!!reservedByOther} onMutate={onMutate} onClose={()=>setProductEditor(false)} onSaved={id=>{setSource(id);void onMutate("refresh", {});}} onAI={(id,p)=>{setSource(id);setPrompt(p);setPanel("ai");setToolsOpen(true);}} /> : manual && source ? (
             <ManualImageEditor
               key={source}
               embedded
@@ -523,8 +553,14 @@ export function FashionArtStudio({
                 );
               }}
             />
-          ) : (
-            <CanvasBoard
+          ) : <div>
+            {focusDesign && <section className="fas-focused-design" aria-label="Current design">
+              <header><div><strong>{selected?.title || "Choose a design"}</strong><p>{selected ? `Version ${selected.version_number || selected.version || 1} · ${stage === "idea" ? "Design idea" : stage === "concept" ? "Reviewed concept" : "Approved product"}` : "Start with a shell, an upload, or an AI design."}</p></div><select aria-label="Working design" disabled={busy} value={source} onChange={e=>setSource(e.target.value)}><option value="">Choose saved design…</option>{versions.filter(v=>v.file_id).map(v=><option key={v.id} value={v.id}>{v.title} · v{v.version_number || v.version || 1}</option>)}</select></header>
+              {selected?.image_url ? <img src={selected.image_url} alt={selected.title || "Selected design"}/> : <div className="fas-focus-empty"><h2>Your design goes here</h2><p>Choose a saved design above, open Samples & Library, or use AI design to create one.</p><button className={P} onClick={()=>{setToolsOpen(true);setPanel("samples");}}>Choose a shell or reference</button><button className={B} onClick={()=>{setToolsOpen(true);setPanel("ai");}}>Create with AI</button></div>}
+              {selected && <div className="fas-focused-actions"><button className={P} disabled={busy} onClick={()=>{setPanel("colors");setToolsOpen(true);}}>Change colors</button><button className={B} disabled={busy} onClick={()=>{setPanel("ai");setToolsOpen(true);}}>Edit with AI</button><button className={B} onClick={()=>{setPanel("team");setToolsOpen(true);}}>Review with the team</button></div>}
+              {selected && <p>{productDocumentFromVersion(selected) ? "Editable shell: change panel colors, fabrics and artwork in Product editor." : "Saved visual: use AI to change this image. Its panels and logo are not separate editable layers yet."}</p>}
+            </section>}
+            <div hidden={focusDesign}><CanvasBoard
               projectId={projectId}
               demo={demo}
               versions={versions}
@@ -533,10 +569,10 @@ export function FashionArtStudio({
               files={data.files}
               onMutate={onMutate}
               onVersionSelect={onSelection}
-            />
-          )}
+            /></div>
+          </div>}
         </div>
-        <aside className="fas-tools">
+        <aside className="fas-tools" hidden={!toolsOpen}><button className={B} onClick={()=>setToolsOpen(false)}>Hide tools</button>
           <nav aria-label="Artboard tools">
             {["samples", "ai", "team"].map((p) => (
               <button
@@ -606,7 +642,30 @@ export function FashionArtStudio({
               </>
             )}
           </div>
+          <div hidden={panel !== "colors"}>
+            <h3>Change this design’s colors</h3>
+            <h3>AI colorways · selected design</h3><p>Click a color to generate a new version of this exact design. AI usage charges apply. Your original is preserved.</p><label>Change colors on<select value={colorScope} disabled={busy || !!colorRequest.current} onChange={e=>setColorScope(e.target.value as "body"|"whole")}><option value="body">Main body / fabric</option><option value="whole">All fabric / leather panels</option></select></label>
+            {!source && <p>Select a saved design to load its database palette.</p>}
+            {palette.error && <p role="status">Stored colors could not be loaded. <button className={B} onClick={()=>void palette.mutate()}>Reload palette</button></p>}
+            <div className="fas-colors">
+              {(palette.data?.colors || []).map((c: {name:string;hex:string}) => (
+                <button
+                  key={c.hex}
+                  title={`${c.name} · ${palette.data?.options?.some((o:Row)=>o.color_hex===c.hex&&o.scope===colorScope&&o.generated_version_id)?"Saved colorway":"Generate colorway"}`}
+                  style={{ background: c.hex }}
+                  aria-label={`Use ${c.name}`}
+                  disabled={busy || !source || reservedByOther || demo || !!colorRequest.current}
+                  onClick={() => void run(()=>colorway(c), `${c.name} colorway saved as a new version. Your original stays in Samples & Library.`)}
+                />
+              ))}
+            </div>
+            <button className={B} disabled={busy || !source || reservedByOther || demo || !palette.data?.colors?.length} onClick={()=>void run(async()=>{if(colorRequest.current)await colorway();for(const [index,color] of (palette.data?.colors || []).entries()){setNotice(`Preparing ${color.name} · ${index+1}/${palette.data.colors.length}`);await colorway(color);}},"All sample colorways are saved or reused from the database. Original preserved.")}>Generate / reuse all sample colorways</button>
+            <p>Generating all colors creates only missing results. Each new AI image may incur a usage charge.</p>
+            {colorJob && <p role="status">{colorJob.retained_version_ids?.length ? "Colorway saved" : `Colorway request: ${colorJob.status}`}</p>}
+            {colorRequest.current && <button className={P} disabled={busy || reservedByOther} onClick={()=>void run(()=>colorway(),"Colorway saved. Original preserved.")}>Resume / retry colorway</button>}
+          </div>
           <div hidden={panel !== "samples"}>
+            <h3>Your concept versions</h3><p>A version is a saved design proposal. Reviewed concepts advance only after team approval.</p><div className="fas-concept-library">{versions.filter(v=>v.file_id).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url} alt=""/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":"Saved visual · AI editable"}</small></button>)}</div>
             <h3>Golf collection samples</h3>
             <p>
               Blank shells for our own collection. Choose front, back or detail
@@ -671,24 +730,6 @@ export function FashionArtStudio({
                     </small>
                   </button>
                 ))}
-            </div>
-            <h3>Color samples</h3>
-            <div className="fas-colors">
-              {fashionColors.map((c) => (
-                <button
-                  key={c.hex}
-                  title={c.name}
-                  style={{ background: c.hex }}
-                  aria-label={`Use ${c.name}`}
-                  disabled={busy}
-                  onClick={() => {
-                    setPanel("ai");
-                    setPrompt(
-                      `Change the selected design's fabric to ${c.name} (${c.hex}). Preserve the construction and branding.`,
-                    );
-                  }}
-                />
-              ))}
             </div>
             <h3>Your saved designs & references</h3>
             <p>Add existing Library images without changing their originals.</p>

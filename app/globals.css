@@ -2120,3 +2120,9 @@ dialog::backdrop {
   .fs-onboarding-launcher > button { min-height: 40px; font-size: 12px; padding: 8px 10px; }
   .fs-onboarding-popover .fs-onboarding-actions { flex-direction: row; }
 }
+/* Art Studio gives the selected design the full workspace; navigation stays available. */
+.fs-canvas-first:not(.fs-navigation-open)>.fs-sidebar{display:none}
+.fs-canvas-first:not(.fs-navigation-open)>.fs-main{margin-left:0}
+.fs-canvas-first .fs-menu-toggle{display:inline-flex}
+.fs-canvas-first.fs-navigation-open>.fs-sidebar{transform:none}
+@media(min-width:901px){.fs-canvas-first.fs-navigation-open>.fs-main{margin-left:250px}}
