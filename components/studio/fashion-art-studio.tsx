@@ -14,6 +14,7 @@ import { colorwayPrompt, completeColorway, colorwaySource } from "@/lib/studio/c
 import { ProductEditor } from "./product-editor";
 import { ManualImageEditor } from "./manual-image-editor";
 import { CreativeChat } from "./creative-chat";
+import { useCreatorNavigationGuard } from "./creator-navigation";
 import { useMediaUploads } from "./media-upload";
 import {
   fashionSamples,
@@ -301,6 +302,7 @@ export function FashionArtStudio({
       data.members.map((m: Row) => m.user_id),
     ),
     [rationale, setRationale] = useState("");
+  useCreatorNavigationGuard({dirty:false,busy,onBlocked:setNotice});
   useEffect(() => {
     if (
       initialSourceVersionId &&
@@ -657,6 +659,8 @@ export function FashionArtStudio({
                 />
               ))}
             </div>
+            <button className={B} disabled={busy || !source || reservedByOther || demo || !palette.data?.colors?.length} onClick={()=>void run(async()=>{if(colorRequest.current)await colorway();for(const [index,color] of (palette.data?.colors || []).entries()){setNotice(`Preparing ${color.name} · ${index+1}/${palette.data.colors.length}`);await colorway(color);}},"All sample colorways are saved or reused from the database. Original preserved.")}>Generate / reuse all sample colorways</button>
+            <p>Generating all colors creates only missing results. Each new AI image may incur a usage charge.</p>
             {colorJob && <p role="status">{colorJob.retained_version_ids?.length ? "Colorway saved" : `Colorway request: ${colorJob.status}`}</p>}
             {colorRequest.current && <button className={P} disabled={busy || reservedByOther} onClick={()=>void run(()=>colorway(),"Colorway saved. Original preserved.")}>Resume / retry colorway</button>}
           </div>
