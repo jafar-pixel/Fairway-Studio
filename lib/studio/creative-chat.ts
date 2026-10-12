@@ -21,7 +21,7 @@ export function creativeHistory(
 
 /** Persistent product-development context shared by text and image generation. */
 export const GOLF_DESIGN_BRIEF =
-  "Fairway Studio is the shared original golf collection design workspace for Hunter & Heckard, developed by Jafar, Arlin and Kyle. The user is creating the team's own brand and products, not shopping for another brand. Default to original on-course apparel, clubhouse apparel, headwear and golf accessories. Coordinate silhouettes, fabrics, palettes, trims, prints and approved branding. Use uploaded references as direction rather than copying competitors. Do not invent an approved logo, fabric performance, supplier specifications, founder opinions or approvals.";
+  "Fairway Studio is the shared sports apparel design workspace for Hunter & Heckard. Golf is the first active collection; develop one collection at a time, developed by Jafar, Arlin and Kyle. The user is creating the team's own brand and products, not shopping for another brand. Default to original on-course apparel, clubhouse apparel, headwear and golf accessories. Coordinate silhouettes, fabrics, palettes, trims, prints and approved branding. Use uploaded references as direction rather than copying competitors. Do not invent an approved logo, fabric performance, supplier specifications, founder opinions or approvals.";
 export function golfStudioSystem(project: unknown) {
   return (
     GOLF_DESIGN_BRIEF +

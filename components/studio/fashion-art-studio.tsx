@@ -8,6 +8,8 @@ import {
 } from "react";
 import useSWR from "swr";
 import { CanvasBoard } from "./canvas-board";
+import { productDocumentFromVersion } from "@/lib/studio/product-design";
+import { ProductEditor } from "./product-editor";
 import { ManualImageEditor } from "./manual-image-editor";
 import { CreativeChat } from "./creative-chat";
 import { useMediaUploads } from "./media-upload";
@@ -273,6 +275,7 @@ export function FashionArtStudio({
     onMutate,
     onNavigate,
   } = props;
+  const [productEditor, setProductEditor] = useState(initialManual && !!productDocumentFromVersion(versions.find(v=>v.id===initialSourceVersionId)));
   const [manual, setManual] = useState(initialManual),
     [source, setSource] = useState<string>(
       versions.find((v) => v.id === initialSourceVersionId && v.file_id)?.id ||
@@ -490,10 +493,11 @@ export function FashionArtStudio({
               {a}
             </button>
           ))}
+          <button className={P} disabled={busy || reservedByOther} onClick={() => setProductEditor(true)}>Product editor · clothing, bags & logos</button>
           <button
             className={B}
             disabled={!source || reservedByOther || busy}
-            onClick={() => setManual((v) => !v)}
+            onClick={() => productDocumentFromVersion(selected) ? setProductEditor(true) : setManual((v) => !v)}
           >
             {manual ? "Back to artboard" : "Edit manually"}
           </button>
@@ -501,7 +505,7 @@ export function FashionArtStudio({
       </div>
       <div className="fas-studio-layout">
         <div className="fas-canvas">
-          {manual && source ? (
+          {productEditor ? <ProductEditor workspaceId={workspaceId} userId={userId} projectId={projectId} versions={versions} files={data.files} source={selected} kitVersionId={data.workspace?.active_kit_id || null} demo={demo} locked={!!reservedByOther} onMutate={onMutate} onClose={()=>setProductEditor(false)} onSaved={id=>{setSource(id);void onMutate("refresh", {});}} onAI={(id,p)=>{setSource(id);setPrompt(p);setPanel("ai");}} /> : manual && source ? (
             <ManualImageEditor
               key={source}
               embedded
