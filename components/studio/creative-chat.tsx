@@ -61,6 +61,7 @@ export function CreativeChat({
   referenceVersionIds = [],
   outputCount = 1,
   onSourceChange,
+  prepareSource,
 }: {
   data: StudioWorkspace;
   demo: boolean;
@@ -76,6 +77,7 @@ export function CreativeChat({
   referenceVersionIds?: string[];
   outputCount?: 1 | 2;
   onSourceChange?: (id: string) => void;
+  prepareSource?: (id: string) => Promise<string>;
 }) {
   const dialog = useRef<HTMLDialogElement>(null),
     end = useRef<HTMLDivElement>(null);
@@ -261,9 +263,10 @@ export function CreativeChat({
         const saved = await json("/api/studio/workspace", {workspaceId,operation:"createProject",requestId:crypto.randomUUID(),input:{title:prompt.trim().slice(0,80) || "New design",category:"general",brief:prompt.trim(),lead_id:data.userId}});
         destination = saved.data.id; setProjectId(destination); setLocalProjects(v=>[...v,saved.data]); onSaved();
       }
-      const attachedSource = uploads.hasUnfinished && mode !== "comment"
+      let attachedSource = uploads.hasUnfinished && mode !== "comment"
         ? await uploadSource(destination)
         : source;
+      if (attachedSource && mode !== "comment" && prepareSource) {attachedSource=await prepareSource(attachedSource);setSource(attachedSource);}
       const selected = chatId || (await createChat());
       const result = await json("/api/studio/creative-chat", {
         workspaceId,
@@ -437,7 +440,7 @@ export function CreativeChat({
                   ? data.workspace?.studio_kind === "personal" ? "Only you can access this private studio." : "Everyone in this workspace can contribute."
                   : chatId
                     ? "Only you can read this conversation."
-                    : "Choose who can join before sending."}
+                    : studioSimple ? data.workspace?.studio_kind === "personal" ? "Only you can access this private studio." : "Create and develop designs on this team artboard." : "Choose who can join before sending."}
               </p>
             </div>
             {!chatId && !studioSimple && (
@@ -467,7 +470,7 @@ export function CreativeChat({
                 <h3>What are we designing for our golf collection?</h3>
                 <p>
                   Develop our original golf apparel, headwear or accessories. Describe your own collection or select a shell on the artboard.
-                  Choose Shared workspace to create together.
+                  {!studioSimple && "Choose Shared workspace to create together."}
                 </p>
               </div>
             )}
@@ -541,7 +544,7 @@ export function CreativeChat({
                                   <div className="fc-image-actions">
                                     <button type="button" disabled={busy} onClick={() => void editResult(job,o.versionId)}>Edit with AI</button>
                                     <button type="button" disabled={busy} onClick={() => void editResult(job,o.versionId,true)}>Edit manually</button>
-                                    {!job.retained_version_ids.includes(o.versionId) && <small>Editing saves this source in the shared project.</small>}
+                                    {!job.retained_version_ids.includes(o.versionId) && <small>Editing saves this source on the project artboard.</small>}
                                   </div>
                                 )}
                               </figure>
@@ -554,7 +557,7 @@ export function CreativeChat({
                                 disabled={busy}
                                 onClick={() => void jobAction("retain", job.id)}
                               >
-                                Keep as shared project version
+                                Keep on this artboard
                               </button>
                             )}
                           {job.retained_version_ids.length > 0 && (
@@ -816,7 +819,7 @@ export function CreativeChat({
                   ? "AI receives the latest 20 completed turns, project context and selected image. Founders make decisions."
                   : mode === "comment"
                     ? "Adds your message without an AI response."
-                    : "Creates and saves a new design version in your shared project."}
+                    : data.workspace?.studio_kind === "personal" ? "Saves a new version in your private studio." : "Saves a new version on this team artboard."}
               </small>
               <button
                 type="submit"
