@@ -734,7 +734,7 @@ export function FashionArtStudio({
                 .filter(
                   (s) =>
                     (category === "All" || s.category === category) &&
-                    (s.kind === "fabric" ||
+                    (s.kind === "fabric" || s.kind === "logo" ||
                       sampleView === "all" ||
                       s.view === sampleView) &&
                     `${s.title} ${s.category}`
