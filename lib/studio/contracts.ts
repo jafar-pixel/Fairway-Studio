@@ -19,6 +19,8 @@ export type StudioWorkspace = {
     timezone?: string;
     review_policy?: Record<string, unknown>;
     active_kit_id?: string;
+    studio_kind?: "personal" | "team";
+    parent_workspace_id?: string;
   };
   userId: string;
   role: string;

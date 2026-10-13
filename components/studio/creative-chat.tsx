@@ -57,6 +57,7 @@ export function CreativeChat({
   initialManual = false,
   onSaved,
   embedded = false,
+  studioSimple = false,
   referenceVersionIds = [],
   outputCount = 1,
   onSourceChange,
@@ -71,6 +72,7 @@ export function CreativeChat({
   initialManual?: boolean;
   onSaved: () => void;
   embedded?: boolean;
+  studioSimple?: boolean;
   referenceVersionIds?: string[];
   outputCount?: 1 | 2;
   onSourceChange?: (id: string) => void;
@@ -388,7 +390,7 @@ export function CreativeChat({
         </button>
       </header>
       <div className="fc-layout">
-        <aside className="fc-sidebar" aria-label="Conversations">
+        <aside className="fc-sidebar" hidden={studioSimple} aria-label="Conversations">
           <button
             className="fc-new"
             disabled={busy}
@@ -432,13 +434,13 @@ export function CreativeChat({
               <strong>{selectedChat?.title || "What are we creating?"}</strong>
               <p>
                 {selectedChat?.visibility === "workspace"
-                  ? "Everyone in this workspace can contribute."
+                  ? data.workspace?.studio_kind === "personal" ? "Only you can access this private studio." : "Everyone in this workspace can contribute."
                   : chatId
                     ? "Only you can read this conversation."
                     : "Choose who can join before sending."}
               </p>
             </div>
-            {!chatId && (
+            {!chatId && !studioSimple && (
               <label>
                 Conversation
                 <select
@@ -617,17 +619,16 @@ export function CreativeChat({
                 Action
                 <select
                   aria-label="Action"
-                  value={mode}
+                  value={studioSimple && mode === "image" ? (source ? "edit" : "create") : mode}
                   disabled={busy}
-                  onChange={(e) => setMode(e.target.value as CreativeMode)}
+                  onChange={(e) => {const action=e.target.value; setMode(action === "edit" || action === "create" ? "image" : action as CreativeMode); if(action === "create") setSource(""); if(action === "edit") setSource(initialSourceVersionId);}}
                 >
                   <option value="chat">Develop collection (AI conversation)</option>
-                  <option value="image">Create / edit artwork</option>
-                  <option value="comment">Comment only</option>
+                  {studioSimple ? <><option value="create">AI Design · create new</option><option value="edit" disabled={!initialSourceVersionId}>AI Editor · edit selected</option></> : <><option value="image">Create / edit artwork</option><option value="comment">Comment only</option></>}
                 </select>
               </label>
-              <label>
-                Save designs in
+              <label hidden={studioSimple}>
+                {studioSimple ? "Current artboard" : "Save designs in"}
                 <select
                   value={projectId}
                   disabled={embedded || busy || uploads.hasUnfinished}
@@ -645,7 +646,7 @@ export function CreativeChat({
                 </select>
               </label>
             </div>
-            <div className="fc-own-actions">
+            <div className="fc-own-actions" hidden={studioSimple}>
               <button
                 type="button"
                 disabled={busy || uploads.hasUnfinished}
@@ -717,7 +718,7 @@ export function CreativeChat({
                 provider and may incur usage charges.
               </label>
             )}
-            {mode !== "comment" && (
+            {mode !== "comment" && !studioSimple && (
               <>
                 <label>
                   Source image

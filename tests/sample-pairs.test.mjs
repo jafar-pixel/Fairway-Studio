@@ -1,0 +1,8 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {loadModule,plain} from './media-test-harness.mjs';
+const pairs=loadModule('lib/studio/sample-pairs.ts');
+const real={id:'real',project_id:'p'},shell={id:'shell',project_id:'p',parent_id:'real',provenance:{prompt:{target:'Matching shell'}}};
+test('pair preserves exact source association for real selection and shell edits',()=>{assert.deepEqual(plain(pairs.samplePair([real,shell],'real')),{real,shell});const edit={id:'edit',project_id:'p',parent_id:'shell'};assert.deepEqual(plain(pairs.samplePair([real,shell,edit],'edit')),{real,shell:edit});});
+test('unrelated shells and other projects are never shown as matching samples',()=>{assert.deepEqual(plain(pairs.samplePair([real,{...shell,project_id:'other'}],'real')),{});assert.deepEqual(plain(pairs.samplePair([real,{...shell,provenance:{}}],'real')),{});});
+test('realistic sample created from shell retains the inverse pairing',()=>{const flat={id:'flat',project_id:'p'},photo={id:'photo',project_id:'p',parent_id:'flat',provenance:{prompt:{target:'Realistic sample'}}};assert.deepEqual(plain(pairs.samplePair([flat,photo],'flat')),{real:photo,shell:flat});});
+test('malformed cyclic ancestry terminates without inventing a pair',()=>{assert.deepEqual(plain(pairs.samplePair([{id:'a',project_id:'p',parent_id:'b'},{id:'b',project_id:'p',parent_id:'a'}],'a')),{});});
+test('editing the real sample keeps its existing matching shell visible',()=>{const edit={id:'real-v2',project_id:'p',parent_id:'real'};assert.deepEqual(plain(pairs.samplePair([real,shell,edit],'real-v2')),{real:edit,shell});});

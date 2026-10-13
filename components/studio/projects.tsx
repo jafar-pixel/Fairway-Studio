@@ -207,6 +207,8 @@ export function ProjectsView({
   initialManual = false,
   initialQuestion = "",
 }: Props) {
+  const personal = data.workspace?.studio_kind === "personal";
+  if (personal && projectId) tab = "canvas";
   const projects = rows(data, "projects").filter(p => !isVerificationProject(p) || p.id === projectId),
     members = rows(data, "members"),
     allVersions = rows(data, "versions"),
@@ -1040,7 +1042,7 @@ export function ProjectsView({
           Starter collection · exploratory concepts
         </span>
       )}
-      <nav aria-label="Project sections" className="fp-project-tabs">
+      <nav hidden={personal} aria-label="Project sections" className="fp-project-tabs">
         {["overview", "canvas", "reviews", "decisions", "files"].map((t) => (
           <button
             key={t}
@@ -1220,7 +1222,7 @@ export function ProjectsView({
       )}
       {tab === "canvas" && (
         <section className="fp-project-canvas" aria-label="Project canvas">
-          <BoardModeSwitch mode={canvasMode} onChange={setCanvasMode} />
+          {!personal && <BoardModeSwitch mode={canvasMode} onChange={setCanvasMode} />}
           {canvasMode === "board" ? (
             <FashionArtStudio
               data={data}
