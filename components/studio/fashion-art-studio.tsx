@@ -327,6 +327,8 @@ export function FashionArtStudio({
     if (initialQuestion) setPrompt(initialQuestion);
   }, [initialSourceVersionId, initialManual, initialQuestion]);
   const uploads = useMediaUploads({ workspaceId, userId, demo });
+  const catalog = useSWR(!demo ? [`/api/studio/samples?workspaceId=${workspaceId}`,userId] : null, async([url,actor]:string[])=>{const value=await json(url);if(value.userId!==actor || value.workspaceId!==workspaceId)throw Error("Your session changed. Reopen Samples & Library.");return value;});
+  const availableSamples:FashionSample[]=[...(catalog.data?.samples || []),...fashionSamples];
   const sourceUploads = useMediaUploads({ workspaceId, userId, demo });
   const canonicalCopies=useRef<Record<string,{id?:string;stagedId?:string;title:string}>>({});
   const states = useSWR(
@@ -400,9 +402,10 @@ export function FashionArtStudio({
       image.src = sample.image;
       await image.decode();
       const canvas = document.createElement("canvas");
-      canvas.width = 800;
-      canvas.height = 800;
-      canvas.getContext("2d")!.drawImage(image, 0, 0, 800, 800);
+      const width=image.naturalWidth || 800,height=image.naturalHeight || 800,scale=Math.min(1,1600/Math.max(width,height));
+      canvas.width = Math.round(width*scale);
+      canvas.height = Math.round(height*scale);
+      canvas.getContext("2d")!.drawImage(image, 0, 0, canvas.width, canvas.height);
       const blob = await new Promise<Blob>((resolve, reject) =>
         canvas.toBlob(
           (b) =>
@@ -431,12 +434,12 @@ export function FashionArtStudio({
           title: item.metadata.title || item.file.name,
           body: item.metadata.contextNote,
           provenance: {
-            source: sample ? "studio_sample" : "reference_upload",
+            source: sample ? sample.kind === "real" ? "sample_catalog" : "studio_sample" : "reference_upload",
             sample_id: sample?.id,
             kind: sample?.kind || item.metadata.tags?.find((tag:string)=>["real","shell","fabric","logo","reference"].includes(tag)) || "image",
           },
         });
-        if (sample?.kind === "fabric" || item.metadata.tags?.some((tag:string)=>["fabric","logo","reference"].includes(tag))) {
+        if ((sample?.kind === "fabric" || sample?.kind === "logo") || item.metadata.tags?.some((tag:string)=>["fabric","logo","reference"].includes(tag))) {
           setReferences((r) => [...new Set([...r, v.id])].slice(-3));
         } else setSource(v.id);
       },
@@ -687,6 +690,9 @@ export function FashionArtStudio({
             <h3>Your saved design versions</h3><p>{data.workspace?.studio_kind === "personal" ? "Saved versions of your private design." : "A version is a saved design proposal. Reviewed concepts advance only after team approval."}</p><div className="fas-concept-library">{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url} alt=""/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":"Saved visual · AI editable"}</small></button>)}</div>
               {selected && <div className="fas-focused-actions"><button className={B} disabled={busy || demo || reservedByOther} onClick={()=>void run(()=>matchingSample("shell"),"Matching shell saved beside your real sample.")}>{sampleRequest.current ? "Resume matching sample" : "Create matching shell · AI"}</button><button className={B} disabled={busy || demo || reservedByOther || !!sampleRequest.current} onClick={()=>void run(()=>matchingSample("real"),"Realistic sample saved beside your shell.")}>Create realistic sample · AI</button><small>Generates one saved image; AI usage charges apply.</small></div>}
             <h3>Golf collection samples</h3>
+            {catalog.isLoading && <p role="status">Loading shared product samples…</p>}
+            {catalog.error && <p role="alert">{catalog.error.message} <button className={B} onClick={()=>void catalog.mutate()}>Retry samples</button></p>}
+            {catalog.data?.samples?.length > 0 && <p>{catalog.data.samples.length} design samples, shells & brand assets · shared Team catalog</p>}
             <p>
               Editable real samples and blank shells for our golf collection. Choose front, back or detail
               views, then apply fabrics, colors and approved branding.
@@ -718,12 +724,13 @@ export function FashionArtStudio({
               >
                 <option value="front">Front</option>
                 <option value="back">Back</option>
+                <option value="side">Side</option>
                 <option value="detail">Construction detail</option>
                 <option value="all">All views</option>
               </select>
             </label>
             <div className="fas-samples">
-              {fashionSamples
+              {availableSamples
                 .filter(
                   (s) =>
                     (category === "All" || s.category === category) &&
@@ -744,7 +751,7 @@ export function FashionArtStudio({
                     <img src={s.image} alt={s.title} />
                     <strong>{s.title}</strong>
                     <small>
-                      {s.kind === "fabric"
+                      {s.kind === "fabric" || s.kind === "logo"
                         ? "Add as AI reference"
                         : s.kind === "real" ? "Add editable real sample" : "Add shell to board"}
                     </small>
