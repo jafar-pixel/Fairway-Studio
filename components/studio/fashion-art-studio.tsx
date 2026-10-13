@@ -284,6 +284,14 @@ export function FashionArtStudio({
   const colorRequest = useRef<{key:string;input:Row;job?:Row}|null>(null);
   const [colorJob,setColorJob] = useState<Row|null>(null), [colorScope,setColorScope] = useState<"body"|"whole">("body");
   const [toolsOpen, setToolsOpen] = useState(false), [focusDesign, setFocusDesign] = useState(true);
+  const [canvasExpanded,setCanvasExpanded] = useState(false);
+  useEffect(()=>{
+    if(!canvasExpanded) return;
+    const previous=document.body.style.overflow;document.body.style.overflow="hidden";
+    const escape=(event:KeyboardEvent)=>{if(event.key === "Escape")setCanvasExpanded(false);};
+    document.addEventListener("keydown",escape);
+    return ()=>{document.body.style.overflow=previous;document.removeEventListener("keydown",escape);};
+  },[canvasExpanded]);
   const [productEditor, setProductEditor] = useState(initialManual && !!productDocumentFromVersion(versions.find(v=>v.id===initialSourceVersionId)));
   const [manual, setManual] = useState(initialManual),
     [source, setSource] = useState<string>(
@@ -530,14 +538,14 @@ export function FashionArtStudio({
     }
   }
   return (
-    <section className={`fas-studio ${toolsOpen ? "" : "fas-tools-closed"}`} aria-label="Fashion art studio">
+    <section className={`fas-studio ${toolsOpen ? "" : "fas-tools-closed"} ${canvasExpanded ? "fas-expanded" : ""}`} aria-label="Fashion art studio">
       <div className="fas-studio-bar">
         <div>
           <strong>ART STUDIO</strong>
           <p>{data.workspace?.studio_kind === "personal" ? "Your private design board · share when ready" : "Team design board · create and review together"}</p>
         </div>
         <div>
-          <button className={B} onClick={e=>{const studio=e.currentTarget.closest("section");if(document.fullscreenElement)void document.exitFullscreen();else if(studio?.requestFullscreen)void studio.requestFullscreen().catch(()=>setNotice("Full-screen is unavailable on this device. Both sidebars can still be hidden."));}}>Full canvas</button>
+          <button className={B} aria-pressed={canvasExpanded} onClick={()=>setCanvasExpanded(v=>!v)}>{canvasExpanded ? "Exit full canvas" : "Full canvas"}</button>
           <button className={B} aria-pressed={focusDesign} onClick={()=>setFocusDesign(v=>!v)}>{focusDesign ? "Show project board" : "Focus selected design"}</button>
           <button className={P} aria-expanded={toolsOpen} onClick={()=>setToolsOpen(v=>!v)}>Create or edit design</button>
         </div>
