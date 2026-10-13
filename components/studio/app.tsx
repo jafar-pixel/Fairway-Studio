@@ -267,12 +267,29 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
     auth.data ? `fs-workspaces:${auth.data.id}` : null,
     (key: string) => readIdentityWorkspaces(createClient(), key.slice("fs-workspaces:".length)),
   );
+  const [openingPersonal, setOpeningPersonal] = useState(false);
+  const [personalError, setPersonalError] = useState("");
+  async function openPersonal(teamId: string) {
+    setOpeningPersonal(true); setPersonalError("");
+    try {
+      const response=await fetch("/api/studio/spaces", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({teamId})});
+      const value=await response.json(); if(!response.ok) throw Error(value.error || "Unable to open My Studio");
+      await workspaces.mutate(); navigate(`/w/${value.id}`);
+    } catch(error) {setPersonalError((error as Error).message);} finally {setOpeningPersonal(false);}
+  }
+  const personalBootstrap = useRef("");
+  useEffect(()=>{
+    if(demo || path.split("/").filter(Boolean)[0] === "w" || !auth.data || !workspaces.data?.length || workspaces.data.some(w=>w.studio_kind === "personal")) return;
+    const team=workspaces.data.find(w=>w.studio_kind === "team");
+    const key=`${auth.data.id}:${team?.id}`;
+    if(team && personalBootstrap.current !== key) {personalBootstrap.current=key;void openPersonal(team.id);}
+  },[demo,path,auth.data?.id,workspaces.data]);
   const segments = path.split("/").filter(Boolean),
     workspaceId = demo
       ? "demo"
       : segments[0] === "w"
         ? segments[1]
-        : workspaces.data?.[0]?.id || "";
+        : (workspaces.data?.find(w=>w.studio_kind === "personal") || workspaces.data?.[0])?.id || "";
   const route = demo
     ? segments.slice(1)
     : segments[0] === "w"
@@ -802,6 +819,7 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
         <button className="fs-button" onClick={() => void Promise.allSettled([result.mutate(), workflow.mutate(), workspaces.mutate()])}>Retry workspace</button>
       </div>
     );
+  if (!demo && !explicitWorkspace && workspaces.data?.some(w=>w.studio_kind === "team") && !workspaces.data.some(w=>w.studio_kind === "personal")) return <div className="fs-loading">{personalError ? <><p role="alert">{personalError}</p><button className="fs-button" disabled={openingPersonal} onClick={()=>{const team=workspaces.data?.find(w=>w.studio_kind === "team");if(team)void openPersonal(team.id);}}>Retry My Studio</button></> : "Opening your private studio…"}</div>;
   if (!demo && !explicitWorkspace && workspaces.isLoading && !workspaces.data)
     return <div className="fs-loading">Loading your workspaces…</div>;
   if (!demo && !explicitWorkspace && workspaces.error && !keepCachedRead(workspaces.data,workspaces.error))
@@ -866,21 +884,26 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
           >
             {(demo ? [data.workspace] : workspaces.data?.length ? workspaces.data : workspaceAccessVerified ? [result.data.workspace] : [])?.map((w: any) => (
               <option key={w.id} value={w.id}>
-                {w.name}
+                {w.studio_kind === "personal" ? "My Studio · private" : `${w.name} · Team Workspace`}
               </option>
             ))}
           </select>
           <ChevronDown size={16} />
         </label>
+        {!demo && <div className="fs-space-links">
+          <button className="fs-button" disabled={openingPersonal} onClick={()=>{const w=workspaces.data?.find(w=>w.id===workspaceId); const teamId=w?.studio_kind === "personal" ? w.parent_workspace_id : workspaceId; if(teamId) void openPersonal(teamId);}}>{openingPersonal ? "Opening…" : "My Studio · private"}</button>
+          {data.workspace?.studio_kind === "personal" && workspaces.data?.some(w=>w.id===data.workspace.parent_workspace_id) && <a className="fs-button" href={`/w/${data.workspace.parent_workspace_id}`}>Team Workspace</a>}
+          {personalError && <p role="alert">{personalError}</p>}
+        </div>}
         <nav aria-label="Main navigation">
           {nav.map(([key, label, Icon], i) => (
             <a
               className={`${activeView === key ? "active" : ""} ${i === 6 ? "separated" : ""}`}
               key={key}
-              href={`${base}/${key}`}
+              href={`${key === "business" && data.workspace?.studio_kind === "personal" ? `/w/${data.workspace.parent_workspace_id}` : base}/${key}`}
               onClick={(e) => {
                 e.preventDefault();
-                navigate(`${base}/${key}`);
+                navigate(`${key === "business" && data.workspace?.studio_kind === "personal" ? `/w/${data.workspace.parent_workspace_id}` : base}/${key}`);
               }}
               aria-current={activeView === key ? "page" : undefined}
             >
@@ -2222,7 +2245,8 @@ function TeamSettings({
         </p>
       )}
       {section === "profile" && <ProfilePhotoEditor key={userId} userId={userId} name={data.members.find((m: any) => m.user_id === userId)?.display_name || "You"} />}
-      {section === "members" && (
+      {section === "members" && data.workspace?.studio_kind === "personal" && <Card><h2>Your private studio</h2><p>Only you have access. Invite collaborators in Team Workspace.</p><a className="fs-button" href={`/w/${data.workspace.parent_workspace_id}/settings/members`}>Open Team members</a></Card>}
+      {section === "members" && data.workspace?.studio_kind !== "personal" && (
         <div className="fs-brand-grid">
           <div>
             <Card>

@@ -85,9 +85,9 @@ export function StudioAuth({ invitePending = false }: { invitePending?: boolean 
             <span className="flex size-12 items-center justify-center rounded-2xl bg-primary-foreground/10"><Flag className="size-5" /></span>
             <p className="mt-8 text-xs font-semibold uppercase tracking-[0.18em] text-primary-foreground/65">Fairway Studio · Golf, first</p>
             <h1 className="mt-4 max-w-sm text-balance text-3xl font-semibold leading-tight tracking-tight md:text-4xl">A good idea gets better when the whole team can build on it.</h1>
-            <p className="mt-4 max-w-sm text-sm leading-relaxed text-primary-foreground/70">Keep the brand thinking, visual references, and next moves in one private workspace for your founding team.</p>
+            <p className="mt-4 max-w-sm text-sm leading-relaxed text-primary-foreground/70">Create in your own private Art Studio. Share chosen designs in Team Workspace, then plan the business together in Founders Studio.</p>
           </div>
-          <p className="mt-12 text-xs leading-relaxed text-primary-foreground/55">Your ideas are visible only to signed-in members of your workspace.</p>
+          <p className="mt-12 text-xs leading-relaxed text-primary-foreground/55">Your personal boards and Library stay private. The team sees only work you choose to share.</p>
         </section>
 
         <section className="p-7 md:p-10">

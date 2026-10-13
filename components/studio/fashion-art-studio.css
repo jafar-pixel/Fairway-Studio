@@ -378,3 +378,15 @@
 .fas-studio:fullscreen .fas-focused-design>img{height:calc(100dvh - 235px);min-height:280px}
 .fas-focused-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
 @media(max-width:600px){.fas-studio .fas-tools:not([hidden]){top:65px;right:8px;bottom:8px;width:calc(100vw - 16px)}.fas-focused-design>img{min-height:300px}}
+/* Paired samples remain visible together; selecting a card changes the edit target. */
+.fas-sample-pair {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%;}
+.fas-sample-pair button {min-width:0;border:2px solid transparent;border-radius:12px;padding:12px;background:#fff;cursor:pointer;}
+.fas-sample-pair button.is-selected {border-color:#760d24;}
+.fas-sample-pair img {width:100%;height:min(58vh,650px);object-fit:contain;}
+.fas-sample-pair span {display:block;font-size:13px;}
+.fas-sharing {display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px;}
+.fas-sharing small {max-width:500px;}
+.fas-saved .fas-sample img {width:100%;height:100px;object-fit:contain;}
+.fs-space-links {display:grid;gap:8px;margin:12px 0;}
+.fc-sidebar[hidden], .fp-project-tabs[hidden], .fc-own-actions[hidden] {display:none!important;}
+@media(max-width:700px){.fas-sample-pair{gap:6px}.fas-sample-pair button{padding:4px}.fas-sample-pair img{height:40vh}}

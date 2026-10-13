@@ -41,13 +41,13 @@ export async function readIdentityWorkspaces(client: {
     if (!data.user || data.user.id !== expectedUserId) throw scopeError();
   };
   await check();
-  const { data, error } = await client.from("workspaces").select("id,name");
+  const { data, error } = await client.from("workspaces").select("id,name,studio_kind,parent_workspace_id");
   if (error) throw error;
   await check();
   if (!Array.isArray(data) || data.some((row) => !row || typeof row.id !== "string" || typeof row.name !== "string")) {
     throw Object.assign(new Error("The workspace list could not be verified. Retry loading it."), { status: 502, code: "INVALID_WORKSPACE_LIST" });
   }
-  return data as Array<{ id: string; name: string }>;
+  return data as Array<{ id: string; name: string; studio_kind?: string; parent_workspace_id?: string }>;
 }
 
 export function workspaceCacheKey(key: unknown, workspaceId: string | undefined, userId: string): boolean {

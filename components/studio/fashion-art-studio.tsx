@@ -13,6 +13,9 @@ import { productDocumentFromVersion } from "@/lib/studio/product-design";
 import { colorwayPrompt, completeColorway, colorwaySource } from "@/lib/studio/colorways";
 import { ProductEditor } from "./product-editor";
 import { ManualImageEditor } from "./manual-image-editor";
+import { samplePair, pairedSamplePrompt, MATCHING_REAL, MATCHING_SHELL } from "@/lib/studio/sample-pairs";
+import { StudioTeamLibrary } from "./studio-team-library";
+import { StudioSharing } from "./studio-sharing";
 import { CreativeChat } from "./creative-chat";
 import { useCreatorNavigationGuard } from "./creator-navigation";
 import { useMediaUploads } from "./media-upload";
@@ -86,7 +89,7 @@ export function FashionHome({ data, userId, workspaceId, onNavigate }: Props) {
           Browse your Library
         </button>
       </header>
-      <div className="fas-journey">
+      <div className="fas-journey" hidden={data.workspace?.studio_kind === "personal"}>
         <span>1 · Create on an artboard</span>
         <span>2 · Review ideas together</span>
         <span>3 · Develop approved concepts</span>
@@ -115,6 +118,7 @@ export function FashionHome({ data, userId, workspaceId, onNavigate }: Props) {
           </div>
         )}
       </div>
+      {data.workspace?.studio_kind !== "personal" && <>
       <h2>Waiting for your review</h2>
       {reviews.length ? (
         reviews.map((r: Row) => (
@@ -147,6 +151,7 @@ export function FashionHome({ data, userId, workspaceId, onNavigate }: Props) {
           <p>Shared team projects appear here as your team creates them.</p>
         )}
       </div>
+      </>}
     </section>
   );
 }
@@ -186,7 +191,7 @@ export function FashionStart(props: Props) {
     setError("");
     try {
       const p = await onMutate("createProject", {
-        title: name.trim(),
+        title: name.trim() || "Golf design",
         category,
         brief: "Original golf collection development for Hunter & Heckard",
         lead_id: userId,
@@ -202,14 +207,12 @@ export function FashionStart(props: Props) {
     <section className="fas-start">
       <h1>Start a design</h1>
       <p>
-        Give your artboard a project. Next, choose a shell, upload references,
-        or create with AI.
+        Open your board, then choose a real sample or shell, upload your own, or create with AI. You can name the project later.
       </p>
       <form onSubmit={start}>
         <label>
           Project or collection name
           <input
-            required
             maxLength={160}
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -229,8 +232,8 @@ export function FashionStart(props: Props) {
             <option>Brand exploration</option>
           </select>
         </label>
-        <button className={P} disabled={busy || !name.trim()}>
-          {busy ? "Opening your artboard…" : "Create project & open artboard"}
+        <button className={P} disabled={busy}>
+          {busy ? "Opening your artboard…" : "Open my artboard"}
         </button>
         {error && <p role="alert">{error}</p>}
       </form>
@@ -292,6 +295,7 @@ export function FashionArtStudio({
     [category, setCategory] = useState<string>("All"),
     [sampleView, setSampleView] = useState("front"),
     [search, setSearch] = useState(""),
+    [uploadKind, setUploadKind] = useState("real"),
     [prompt, setPrompt] = useState(initialQuestion),
     [count, setCount] = useState<1 | 2>(1),
     [references, setReferences] = useState<string[]>([]),
@@ -421,10 +425,10 @@ export function FashionArtStudio({
           provenance: {
             source: sample ? "studio_sample" : "reference_upload",
             sample_id: sample?.id,
-            kind: sample?.kind || "image",
+            kind: sample?.kind || item.metadata.tags?.find((tag:string)=>["real","shell","fabric","logo","reference"].includes(tag)) || "image",
           },
         });
-        if (sample?.kind === "fabric") {
+        if (sample?.kind === "fabric" || item.metadata.tags?.some((tag:string)=>["fabric","logo","reference"].includes(tag))) {
           setReferences((r) => [...new Set([...r, v.id])].slice(-3));
         } else setSource(v.id);
       },
@@ -466,6 +470,19 @@ export function FashionArtStudio({
     if(!pending.job){const result=await request({action:"create",idempotencyKey:pending.key,...pending.input});pending.job=result.job;setColorJob(result.job);}
     const id=await completeColorway(pending.job!,request,job=>{pending.job=job;setColorJob(job);},!color);
     colorRequest.current=null;await onMutate("refresh",{});await palette.mutate();setSource(id);setFocusDesign(true);
+  }
+  const pair = samplePair(versions, source);
+  const sampleRequest = useRef<{key:string;input:Row;job?:Row} | null>(null);
+  async function matchingSample(kind: "real" | "shell") {
+    if(!sampleRequest.current) {
+      const id=await ensureCanonicalSource(source); setSource(id);
+      sampleRequest.current={key:crypto.randomUUID(),input:{projectId,sourceVersionId:id,kitVersionId:null,prompt:pairedSamplePrompt(kind),target:kind === "shell" ? MATCHING_SHELL : MATCHING_REAL,palette:"Neutral blank sample",preserve:"Exact silhouette and construction",count:1}};
+    }
+    const pending=sampleRequest.current;
+    const request=(body:Row)=>json("/api/studio/generation",{workspaceId,...body});
+    if(!pending.job) pending.job=(await request({action:"create",idempotencyKey:pending.key,...pending.input})).job;
+    const id=await completeColorway(pending.job!,request,job=>{pending.job=job;},true);
+    sampleRequest.current=null; await onMutate("refresh",{});setSource(id);setFocusDesign(true);
   }
   async function postComment() {
     let t = thread;
@@ -517,44 +534,12 @@ export function FashionArtStudio({
       <div className="fas-studio-bar">
         <div>
           <strong>ART STUDIO</strong>
-          <p>Design an idea → review together → develop an approved product</p>
+          <p>{data.workspace?.studio_kind === "personal" ? "Your private design board · share when ready" : "Team design board · create and review together"}</p>
         </div>
         <div>
           <button className={B} onClick={e=>{const studio=e.currentTarget.closest("section");if(document.fullscreenElement)void document.exitFullscreen();else if(studio?.requestFullscreen)void studio.requestFullscreen().catch(()=>setNotice("Full-screen is unavailable on this device. Both sidebars can still be hidden."));}}>Full canvas</button>
           <button className={B} aria-pressed={focusDesign} onClick={()=>setFocusDesign(v=>!v)}>{focusDesign ? "Show project board" : "Focus selected design"}</button>
-          {["samples", "ai", "team"].map(p=><button className={toolsOpen && panel===p ? P : B} key={p} aria-expanded={toolsOpen && panel===p} onClick={()=>{setPanel(p);setToolsOpen(!(toolsOpen && panel===p));}}>{p==="samples"?"Samples & Library":p==="ai"?"AI design":"Team & review"}</button>)}
-          <details className="fas-more-tools"><summary>More design tools</summary>
-          {[
-            "Create",
-            "Edit design",
-            "Variations",
-            "Apply reference",
-            "Curate moodboard",
-          ].map((a) => (
-            <button
-              className={a === "Create" ? P : B}
-              key={a}
-              disabled={
-                busy ||
-                ((a === "Edit design" ||
-                  a === "Variations" ||
-                  a === "Apply reference") &&
-                  !source)
-              }
-              onClick={() => tool(a)}
-            >
-              {a}
-            </button>
-          ))}
-          </details>
-          <button className={P} disabled={busy || reservedByOther} onClick={() => setProductEditor(true)}>Product editor · clothing, bags & logos</button>
-          <button
-            className={B}
-            disabled={!source || reservedByOther || busy}
-            onClick={() => productDocumentFromVersion(selected) ? setProductEditor(true) : void run(async()=>{const id=await ensureCanonicalSource(source);setSource(id);setManual(v=>!v);},"Image source ready for manual editing.")}
-          >
-            {manual ? "Back to artboard" : "Edit manually"}
-          </button>
+          <button className={P} aria-expanded={toolsOpen} onClick={()=>setToolsOpen(v=>!v)}>Create or edit design</button>
         </div>
       </div>
       <div className="fas-studio-layout">
@@ -580,8 +565,10 @@ export function FashionArtStudio({
           ) : <div>
             {focusDesign && <section className="fas-focused-design" aria-label="Current design">
               <header><div><strong>{selected?.title || "Choose a design"}</strong><p>{selected ? `Version ${selected.version_number || selected.version || 1} · ${stage === "idea" ? "Design idea" : stage === "concept" ? "Reviewed concept" : "Approved product"}` : "Start with a shell, an upload, or an AI design."}</p></div><select aria-label="Working design" disabled={busy} value={source} onChange={e=>setSource(e.target.value)}><option value="">Choose saved design…</option>{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><option key={v.id} value={v.id}>{v.title} · v{v.version_number || v.version || 1}</option>)}</select></header>
-              {(selected?.image_url || selected?.provenance?.import_asset_path) ? <img src={selected.image_url || selected.provenance.import_asset_path} alt={selected.title || "Selected design"}/> : <div className="fas-focus-empty"><h2>Your design goes here</h2><p>Choose a saved design above, open Samples & Library, or use AI design to create one.</p><button className={P} onClick={()=>{setToolsOpen(true);setPanel("samples");}}>Choose a shell or reference</button><button className={B} onClick={()=>{setToolsOpen(true);setPanel("ai");}}>Create with AI</button></div>}
-              {selected && <div className="fas-focused-actions"><button className={P} disabled={busy} onClick={()=>{setPanel("colors");setToolsOpen(true);}}>Change colors</button><button className={B} disabled={busy} onClick={()=>void tool("Edit design")}>Edit with AI</button><button className={B} onClick={()=>{setPanel("team");setToolsOpen(true);}}>Review with the team</button></div>}
+              {(selected?.image_url || selected?.provenance?.import_asset_path) ? (pair.real && pair.shell ? <div className="fas-sample-pair">{[["Real sample",pair.real],["Matching shell",pair.shell]].map(([label,v]:any)=><button key={v.id} className={source === v.id ? "is-selected" : ""} aria-pressed={source === v.id} onClick={()=>setSource(v.id)}><strong>{label}</strong><img src={v.image_url || v.provenance?.import_asset_path} alt={`${label}: ${v.title}`}/><span>{source === v.id ? "Editing this design" : "Select to edit"}</span></button>)}</div> : <img src={selected.image_url || selected.provenance.import_asset_path} alt={selected.title || "Selected design"}/>) : <div className="fas-focus-empty"><h2>Your design goes here</h2><p>Choose a saved design above, open Samples & Library, or use AI design to create one.</p><button className={P} onClick={()=>{setToolsOpen(true);setPanel("samples");}}>Choose a shell or reference</button><button className={B} onClick={()=>{setToolsOpen(true);setPanel("ai");}}>Create with AI</button></div>}
+              {selected && <div className="fas-focused-actions"><button className={P} disabled={busy} onClick={()=>{setPanel("colors");setToolsOpen(true);}}>Change colors</button>{data.workspace?.studio_kind !== "personal" && <button className={B} onClick={()=>{setPanel("team");setToolsOpen(true);}}>Review with the team</button>}</div>}
+
+              {selected && data.workspace?.studio_kind === "personal" && <StudioSharing key={`${workspaceId}:${projectId}`} title={data.projects.find((p:Row)=>p.id === projectId)?.title || selected.title} workspaceId={workspaceId} projectId={projectId} versionIds={[source, pair.real?.id, pair.shell?.id, ...references].filter((id):id is string=>!!id)} teamId={data.workspace.parent_workspace_id} demo={demo} onShared={path=>onNavigate(path)} />}
               {selected && <p>{productDocumentFromVersion(selected) ? "Editable shell: change panel colors, fabrics and artwork in Product editor." : "Saved visual: use AI to change this image. Its panels and logo are not separate editable layers yet."}</p>}
             </section>}
             <div hidden={focusDesign}><CanvasBoard
@@ -598,7 +585,7 @@ export function FashionArtStudio({
         </div>
         <aside className="fas-tools" hidden={!toolsOpen}><button className={B} onClick={()=>setToolsOpen(false)}>Hide tools</button>
           <nav aria-label="Artboard tools">
-            {["samples", "ai", "team"].map((p) => (
+            {["samples", "ai"].map((p) => (
               <button
                 className={panel === p ? P : B}
                 aria-pressed={panel === p}
@@ -690,9 +677,10 @@ export function FashionArtStudio({
           </div>
           <div hidden={panel !== "samples"}>
             <h3>Your concept versions</h3><p>A version is a saved design proposal. Reviewed concepts advance only after team approval.</p><div className="fas-concept-library">{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url} alt=""/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":"Saved visual · AI editable"}</small></button>)}</div>
+              {selected && <div className="fas-focused-actions"><button className={B} disabled={busy || demo || reservedByOther} onClick={()=>void run(()=>matchingSample("shell"),"Matching shell saved beside your real sample.")}>{sampleRequest.current ? "Resume matching sample" : "Create matching shell · AI"}</button><button className={B} disabled={busy || demo || reservedByOther || !!sampleRequest.current} onClick={()=>void run(()=>matchingSample("real"),"Realistic sample saved beside your shell.")}>Create realistic sample · AI</button><small>Generates one saved image; AI usage charges apply.</small></div>}
             <h3>Golf collection samples</h3>
             <p>
-              Blank shells for our own collection. Choose front, back or detail
+              Editable real samples and blank shells for our golf collection. Choose front, back or detail
               views, then apply fabrics, colors and approved branding.
             </p>
             <label>
@@ -715,7 +703,7 @@ export function FashionArtStudio({
               </select>
             </label>
             <label>
-              Shell view
+              Product view
               <select
                 value={sampleView}
                 onChange={(e) => setSampleView(e.target.value)}
@@ -750,12 +738,13 @@ export function FashionArtStudio({
                     <small>
                       {s.kind === "fabric"
                         ? "Add as AI reference"
-                        : "Add shell to board"}
+                        : s.kind === "real" ? "Add editable real sample" : "Add shell to board"}
                     </small>
                   </button>
                 ))}
             </div>
-            <h3>Your saved designs & references</h3>
+            {data.workspace?.studio_kind === "personal" && !demo && <StudioTeamLibrary key={`${workspaceId}:${userId}`} userId={userId} workspaceId={workspaceId} teamId={data.workspace.parent_workspace_id} projectId={projectId} onMutate={onMutate} onAdded={(id,reference)=>{if(!reference)setSource(id);setReferences(r=>[...new Set([...r,id])].slice(-3));}} />}
+            <h3>My Library · saved designs & references</h3>
             <p>Add existing Library images without changing their originals.</p>
             <div className="fas-saved">
               {data.versions
@@ -787,10 +776,11 @@ export function FashionArtStudio({
                       }, "Library image added to the board and AI references.")
                     }
                   >
-                    {v.title}
+                    {v.image_url && <img src={v.image_url} alt="" style={{width:90,height:90,objectFit:"contain"}}/>}<span>{v.title}</span>
                   </button>
                 ))}
             </div>
+            <label>Upload type<select value={uploadKind} disabled={busy || uploads.hasUnfinished} onChange={e=>setUploadKind(e.target.value)}><option value="real">Real product sample</option><option value="shell">Product shell</option><option value="fabric">Fabric</option><option value="logo">Logo · transparent PNG</option><option value="reference">Visual reference / Pinterest image</option></select></label>
             <label>
               Upload your own samples
               <input
@@ -799,8 +789,10 @@ export function FashionArtStudio({
                 accept="image/png,image/jpeg,image/webp"
                 disabled={busy || demo}
                 onChange={(e) => {
-                  if (e.target.files)
-                    uploads.addFiles(Array.from(e.target.files));
+                  if (e.target.files) {
+                    const ids=uploads.addFiles(Array.from(e.target.files));
+                    for(const id of ids || []) uploads.updateMetadata(id,{tags:[uploadKind]});
+                  }
                   e.target.value = "";
                 }}
               />
@@ -829,9 +821,16 @@ export function FashionArtStudio({
             )}
           </div>
           <div hidden={panel !== "ai"}>
+          <button
+            className={B}
+            disabled={!source || reservedByOther || busy}
+            onClick={() => productDocumentFromVersion(selected) ? setProductEditor(true) : void run(async()=>{const id=await ensureCanonicalSource(source);setSource(id);setManual(v=>!v);},"Image source ready for manual editing.")}
+          >
+            {manual ? "Back to artboard" : "Edit manually"}
+          </button>
             <h3>Create, edit & generate variations</h3>
             <p>
-              AI works with the selected design and the references below.
+              AI edits the selected real sample or shell using samples attached from Library.
               Results save as new versions on this artboard.
             </p>
             <label>
@@ -844,30 +843,7 @@ export function FashionArtStudio({
                 <option value={2}>Two variations</option>
               </select>
             </label>
-            <fieldset>
-              <legend>Visual references · up to three</legend>
-              {versions
-                .filter((v) => v.file_id && v.id !== source)
-                .map((v) => (
-                  <label className="fas-reference" key={v.id}>
-                    <input
-                      type="checkbox"
-                      checked={references.includes(v.id)}
-                      disabled={
-                        !references.includes(v.id) && references.length >= 3
-                      }
-                      onChange={(e) =>
-                        setReferences((r) =>
-                          e.target.checked
-                            ? [...r, v.id]
-                            : r.filter((id) => id !== v.id),
-                        )
-                      }
-                    />
-                    {v.title}
-                  </label>
-                ))}
-            </fieldset>
+            {references.length > 0 && <p>{references.length} Library samples attached. <button className={B} onClick={()=>setReferences([])}>Clear samples</button></p>}
             {reservedByOther ? (
               <p>
                 This version is checked out. Select another version or start a
@@ -876,6 +852,7 @@ export function FashionArtStudio({
             ) : (
               <CreativeChat
                 embedded
+                studioSimple
                 data={data}
                 demo={demo}
                 workspaceId={workspaceId}

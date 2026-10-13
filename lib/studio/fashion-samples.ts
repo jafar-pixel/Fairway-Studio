@@ -16,7 +16,7 @@ export type FashionSample = {
   title: string;
   category: string;
   image: string;
-  kind: "shell" | "fabric";
+  kind: "shell" | "fabric" | "real";
   description: string;
   view?: "front" | "back" | "detail";
 };
@@ -55,6 +55,15 @@ const golfProducts = [
   },
 ];
 export const fashionSamples: FashionSample[] = [
+  ...[
+    {id:"real-golf-bag",title:"Realistic golf bag",category:"Golf bags",asset:"golf-bag-cream"},
+    {id:"real-cream-polo",title:"Realistic cream polo",category:"Polos",asset:"cream-polo"},
+    {id:"real-blue-polo",title:"Realistic royal blue polo",category:"Polos",asset:"royal-blue-polo"},
+    {id:"real-cream-cap",title:"Realistic cream cap",category:"Headwear",asset:"cream-cap"},
+    {id:"real-blue-cap",title:"Realistic royal blue cap",category:"Headwear",asset:"royal-blue-cap"},
+    {id:"real-knit",title:"Realistic clubhouse knit",category:"Clubhouse",asset:"cream-knit"},
+  ].map(s=>({...s,image:`/mockup-assets/${s.asset}.png`,kind:"real" as const,view:"front" as const,description:"Editable realistic exploratory sample. Existing CF marks are exploratory, not approved Hunter & Heckard branding. Generate a matching blank shell from this exact sample on your board."})),
+
   ...golfProducts.flatMap((product) =>
     (["front", "back", "detail"] as const).map((view) => ({
       id: `${product.id}-${view}`,
