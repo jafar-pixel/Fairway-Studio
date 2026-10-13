@@ -622,7 +622,7 @@ export function FashionArtStudio({
                   ))}
               </select>
             </label>
-            {selected && (
+            {selected && data.workspace?.studio_kind !== "personal" && (
               <>
                 <span className="fas-stage">
                   {stage === "product"
@@ -676,7 +676,7 @@ export function FashionArtStudio({
             {colorRequest.current && <button className={P} disabled={busy || reservedByOther} onClick={()=>void run(()=>colorway(),"Colorway saved. Original preserved.")}>Resume / retry colorway</button>}
           </div>
           <div hidden={panel !== "samples"}>
-            <h3>Your concept versions</h3><p>A version is a saved design proposal. Reviewed concepts advance only after team approval.</p><div className="fas-concept-library">{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url} alt=""/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":"Saved visual · AI editable"}</small></button>)}</div>
+            <h3>Your saved design versions</h3><p>{data.workspace?.studio_kind === "personal" ? "Saved versions of your private design." : "A version is a saved design proposal. Reviewed concepts advance only after team approval."}</p><div className="fas-concept-library">{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url} alt=""/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":"Saved visual · AI editable"}</small></button>)}</div>
               {selected && <div className="fas-focused-actions"><button className={B} disabled={busy || demo || reservedByOther} onClick={()=>void run(()=>matchingSample("shell"),"Matching shell saved beside your real sample.")}>{sampleRequest.current ? "Resume matching sample" : "Create matching shell · AI"}</button><button className={B} disabled={busy || demo || reservedByOther || !!sampleRequest.current} onClick={()=>void run(()=>matchingSample("real"),"Realistic sample saved beside your shell.")}>Create realistic sample · AI</button><small>Generates one saved image; AI usage charges apply.</small></div>}
             <h3>Golf collection samples</h3>
             <p>
@@ -862,7 +862,8 @@ export function FashionArtStudio({
                 referenceVersionIds={references.filter((id) => id !== source)}
                 outputCount={count}
                 onSourceChange={setSource}
-                onClose={() => {}}
+                prepareSource={id=>versions.some(v=>v.id === id) ? ensureCanonicalSource(id) : Promise.resolve(id)}
+                onClose={() => setToolsOpen(false)}
                 onSaved={() => {
                   void onMutate("refresh", {});
                 }}
