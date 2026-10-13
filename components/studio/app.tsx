@@ -274,7 +274,9 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
     try {
       const response=await fetch("/api/studio/spaces", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({teamId})});
       const value=await response.json(); if(!response.ok) throw Error(value.error || "Unable to open My Studio");
-      await workspaces.mutate(); navigate(`/w/${value.id}`);
+      if(value.userId !== auth.data?.id) throw Error("Your session changed. Reopen My Studio.");
+      await workspaces.mutate();
+      if(window.dispatchEvent(new Event(CREATOR_NAVIGATION_EVENT,{cancelable:true}))) router.push(`/w/${value.id}`);
     } catch(error) {setPersonalError((error as Error).message);} finally {setOpeningPersonal(false);}
   }
   const personalBootstrap = useRef("");
