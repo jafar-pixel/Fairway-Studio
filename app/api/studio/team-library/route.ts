@@ -9,7 +9,7 @@ export async function GET(request:NextRequest) {
   const {data:workspace,error:wError}=await client.from("workspaces").select("studio_kind").eq("id",id).single();
   if(wError)throw databaseError(wError);
   if(workspace.studio_kind!=="team")throw new StudioError("Select a Team Library.","FORBIDDEN",403);
-  const {data,error}=await client.from("workspace_files").select("id,title,url,tags").eq("workspace_id",id).eq("permission_scope","workspace").order("created_at",{ascending:false}).limit(100);
+  const {data,error}=await client.from("workspace_files").select("id,title,url,tags").eq("workspace_id",id).eq("permission_scope","workspace").not("tags","cs","{catalog}").order("created_at",{ascending:false}).limit(100);
   if(error)throw databaseError(error);
   const files=(data||[]).filter(f=>/^supabase-storage:\/\/workspace-media\/.*\.(png|jpe?g|webp)$/i.test(f.url)).map(({id,title,tags})=>({id,title,tags}));
   return NextResponse.json({files,userId:user.id,workspaceId:id},{headers:{"Cache-Control":"private, no-store"}});
