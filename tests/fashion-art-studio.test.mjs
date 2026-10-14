@@ -42,13 +42,17 @@ test('canvas selection feeds the embedded AI and manual editor retains the selec
  h.button('Edit manually').props.onClick();await h.flush();const manual=h.find(n=>n.type==='ManualImageEditor');assert.equal(manual.props.embedded,true);assert.equal(manual.props.versionId,'v2');
  manual.props.onSaved('v3');assert.equal(h.find(n=>n.type==='CreativeChat').props.initialSourceVersionId,'v3');
 });
-test('studio has one create/edit entry and only two tool tabs',()=>{
- const h=harness();const tree=h.render();assert.doesNotMatch(h.text(tree),/More design tools|Product editor · clothing|Visual references/);
- const nav=h.find(n=>n.type==='nav'&&n.props['aria-label']==='Artboard tools');assert.equal(h.text(nav),'Samples & LibraryAI design');
- h.button('Create or edit design').props.onClick();assert.equal(h.find(n=>n.type==='aside').props.hidden,false);
- assert.equal(h.find(n=>n.type==='CreativeChat').props.studioSimple,true);
+test('studio opens directly with an embedded creative conversation and optional assets',()=>{
+ const h=harness();const tree=h.render();
+ assert.match(h.text(tree),/Start creating/);
+ assert.ok(h.find(n=>n.type==='CreativeChat'&&n.props.studioSimple===true));
+ const nav=h.find(n=>n.type==='nav'&&n.props['aria-label']==='Artboard tools');
+ assert.equal(h.text(nav),'Assets & templatesHistoryDesign options');
+ assert.equal(h.find(n=>n.type==='aside').props.hidden,true);
+ h.button('Assets & tools').props.onClick();
+ assert.equal(h.find(n=>n.type==='aside').props.hidden,false);
+ assert.doesNotMatch(h.text(tree),/Your design goes here|Focus selected design|Show project board/);
 });
-
 test('Library edit deep links select the requested design rather than another project version',()=>{
  const h=harness({initialSourceVersionId:'v2',initialManual:true,versions:[{id:'v1',file_id:'f1',title:'First'},{id:'v2',file_id:'f2',title:'Second'}]});
  const editor=h.find(n=>n.type==='ManualImageEditor');assert.equal(editor.props.versionId,'v2');assert.equal(editor.props.embedded,true);
@@ -60,7 +64,23 @@ test('golf shell view selector exposes back and detail samples instead of repeat
  view().props.onChange({target:{value:'detail'}});assert.ok(h.find(n=>n.type==='button'&&h.text(n).includes('Golf wind jacket · detailAdd shell')));
 });
 
-test('studio starts with one selected design and collapsible tools; board remains available',()=>{const h=harness({versions:[{id:'v1',file_id:'f1',title:'Concept A',image_url:'/a.png'}]});assert.equal(h.find(n=>n.type==='aside').props.hidden,true);assert.ok(h.find(n=>n.props?.['aria-label']==='Current design'));h.button('Show project board').props.onClick();assert.equal(h.find(n=>n.props?.['aria-label']==='Current design'),undefined);});
+test('version history opens from canvas without sending the user through the project board',()=>{
+ const h=harness({versions:[{id:'v1',file_id:'f1',title:'Concept A',image_url:'/a.png'}]});
+ assert.ok(h.find(n=>n.props?.['aria-label']==='Current design'));
+ h.button('Version history').props.onClick();
+ assert.equal(h.find(n=>n.type==='aside').props.hidden,false);
+ assert.ok(h.find(n=>n.type==='button'&&h.text(n).includes('Concept A · v1')));
+});
+test('attached references can be removed individually without deleting the source',async()=>{
+ const h=harness({versions:[{id:'jacket',file_id:'existing',title:'Jacket',project_id:'project'}]});
+ h.find(n=>n.type==='button'&&h.text(n).includes('Performance piqueAdd as AI reference')).props.onClick();
+ await h.flush();
+ assert.deepEqual(plain(h.find(n=>n.type==='CreativeChat').props.referenceVersionIds),['saved-1']);
+ const remove=h.find(n=>n.type==='button'&&n.props['aria-label']?.startsWith('Remove '));
+ assert.ok(remove);remove.props.onClick();
+ assert.deepEqual(plain(h.find(n=>n.type==='CreativeChat').props.referenceVersionIds),[]);
+ assert.equal(h.calls.filter(c=>c.op==='deleteVersion').length,0);
+});
 test('clicking a color directly creates, runs and retains a linked AI colorway without a chat prompt step',async()=>{const h=harness({versions:[{id:'v1',file_id:'f1',title:'Concept A',image_url:'/a.png'}]});h.find(n=>n.type==='button'&&n.props['aria-label']==='Use Forest').props.onClick();await h.flush();const actions=h.calls.filter(c=>c.api).map(c=>c.api);assert.deepEqual(actions.map(a=>a.action),['create','run','retain']);assert.equal(actions[0].sourceVersionId,'v1');assert.equal(actions[0].colorway.hex,'#244a3a');assert.match(actions[0].prompt,/Preserve the exact product silhouette/);assert.ok(h.calls.some(c=>c.op==='refresh'));});
 test('stored shared colorways reopen without another provider request',async()=>{const h=harness({cachedColorway:true,versions:[{id:'v1',file_id:'f1',title:'Concept A'}]});h.find(n=>n.type==='button'&&n.props['aria-label']==='Use Forest').props.onClick();await h.flush();assert.equal(h.calls.some(c=>c.api?.action==='create'),false);assert.equal(h.find(n=>n.type==='CreativeChat').props.initialSourceVersionId,'cached-colorway');});
 
