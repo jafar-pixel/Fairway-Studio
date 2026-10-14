@@ -11,6 +11,21 @@ const helpButton =
 export function JLInfluenceFooter() {
   const pathname = usePathname();
   const isStudioRoute = pathname === "/demo" || pathname.startsWith("/demo/") || pathname.startsWith("/w/");
+  const studioBase = pathname.startsWith("/demo")
+    ? "/demo"
+    : pathname.startsWith("/w/")
+      ? pathname.split("/").slice(0, 3).join("/")
+      : "";
+
+  function replayOnboarding() {
+    const request = new Event("fs:open-onboarding", { cancelable: true });
+    window.dispatchEvent(request);
+    if (request.defaultPrevented || !studioBase) return;
+    try {
+      window.sessionStorage.setItem("fs:replay-onboarding", "1");
+    } catch {}
+    window.location.assign(`${studioBase}/projects`);
+  }
 
   return (
     <footer
@@ -49,7 +64,7 @@ export function JLInfluenceFooter() {
             <button
               type="button"
               className={`fs-onboarding-trigger ${helpButton} text-primary`}
-              onClick={() => window.dispatchEvent(new Event("fs:open-onboarding"))}
+              onClick={replayOnboarding}
             >
               <RotateCcw className="size-4" aria-hidden="true" /> Replay onboarding
             </button>
@@ -60,4 +75,5 @@ export function JLInfluenceFooter() {
     </footer>
   );
 }
+
 
