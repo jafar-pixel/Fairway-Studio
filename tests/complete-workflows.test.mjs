@@ -11,12 +11,14 @@ const id='11111111-1111-4111-8111-111111111111', book='22222222-2222-4222-8222-2
 const base=`/w/${id}`;
 const src=p=>fs.readFileSync(new URL('../'+p,import.meta.url),'utf8');
 test('Business reserved sections are parsed before plan IDs and cannot reach plan API',()=>{
+ assert.deepEqual(plain(route.parseWorkflowRoute(['business','profile'])),{kind:'profile'});
+ assert.equal(route.workflowRouteLabel(route.parseWorkflowRoute(['business','profile'])),'Business profile');
  for(const tab of ['documents','finance']){
   assert.deepEqual(plain(route.parseWorkflowRoute(['business',tab])),{kind:'private',tab});
   assert.deepEqual(plain(route.parseWorkflowRoute(['business',tab,book,row])),{kind:'private',tab,bookId:book,recordId:row});
  }
  assert.deepEqual(plain(route.parseWorkflowRoute(['business',id])),{kind:'plans',planId:id});
- for(const parts of [['business','documents','title'],['business','finance',book,'bad'],['business','other'],['business',id,'documents'],['business','documents',book,row,'extra']]) assert.equal(route.parseWorkflowRoute(parts).kind,'invalid');
+ for(const parts of [['business','profile',id],['business','documents','title'],['business','finance',book,'bad'],['business','other'],['business',id,'documents'],['business','documents',book,row,'extra']]) assert.equal(route.parseWorkflowRoute(parts).kind,'invalid');
 });
 test('every content view and exact record roundtrips to a deep link',()=>{
  for(const view of ['board','calendar','feedback'])for(const postId of [null,id]){
@@ -64,3 +66,4 @@ test('isolated integration preserves reviewed private backend routes and migrati
  const manifest=JSON.parse(src('tests/fixtures/private-business-owned-files.json'));
  for(const file of manifest.owned_production_files.filter(f=>f.path.startsWith('lib/')||f.path.startsWith('app/api/')||f.path.startsWith('supabase/')))assert.equal(createHash('sha256').update(src(file.path)).digest('hex'),file.sha256,file.path);
 });
+
