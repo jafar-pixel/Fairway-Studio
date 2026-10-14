@@ -117,3 +117,17 @@ unified scroll layout require separate implementation and validation.
 
 The branch is for review. Do not publish without passing build/test checks and
 verifying the existing non-Vercel hosting deployment procedure.
+
+### Footer and setup-error follow-up
+
+The site footer is now a compact utility row instead of a full-width black
+banner. FAQ, onboarding replay, browser installation, and the Windows installer
+link remain available. The embedded creator no longer repeats its own AI Studio
+masthead, and the empty-design placeholder is shorter so the prompt is visible
+sooner.
+
+Generation setup errors now identify only the missing server setting. A failed
+request is shown once after it is saved to conversation history. The October 13
+preview had the Supabase server credential, but its OpenAI key and worker secret
+were scoped to Production, not Preview; no key value was inspected or copied.
+

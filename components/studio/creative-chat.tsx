@@ -371,34 +371,43 @@ export function CreativeChat({
   );
   const selectedChat =
     detail.data?.chat || chats.data?.chats.find((c) => c.id === chatId);
+  const failureAlreadySaved = Boolean(
+    error &&
+      detail.data?.turns.some(
+        (turn) => turn.status === "failed" && turn.error === error,
+      ),
+  );
   const Root = embedded ? "section" : "dialog";
   return (
     <Root
       ref={dialog as any}
       className={`fc-dialog ${embedded ? "fc-embedded" : ""}`}
-      aria-labelledby="fc-title"
+      aria-labelledby={studioSimple ? undefined : "fc-title"}
+      aria-label={studioSimple ? "AI Creative Assistant" : undefined}
       onCancel={(e) => {
         e.preventDefault();
         if (!busy && !uploads.hasUnfinished) onClose();
       }}
     >
-      <header className="fc-header">
-        <div>
-          <span className="fc-eyebrow">FAIRWAY STUDIO / CREATE TOGETHER</span>
-          <h2 id="fc-title">
-            <Sparkles size={22} />
-            {embedded ? "AI Design Studio" : "Creative Assistant"}
-          </h2>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={busy || uploads.hasUnfinished}
-          aria-label="Close Creative Assistant"
-        >
-          <X size={22} />
-        </button>
-      </header>
+      {!studioSimple && (
+        <header className="fc-header">
+          <div>
+            <span className="fc-eyebrow">FAIRWAY STUDIO / CREATE TOGETHER</span>
+            <h2 id="fc-title">
+              <Sparkles size={22} />
+              {embedded ? "AI Design Studio" : "Creative Assistant"}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={busy || uploads.hasUnfinished}
+            aria-label="Close Creative Assistant"
+          >
+            <X size={22} />
+          </button>
+        </header>
+      )}
       <div className="fc-layout">
         <aside className="fc-sidebar" hidden={studioSimple} aria-label="Conversations">
           <button
@@ -831,7 +840,7 @@ export function CreativeChat({
                 </small>
               </>
             )}
-            {error && (
+            {error && !failureAlreadySaved && (
               <p className="fc-error" role="alert">
                 {error}
               </p>
@@ -881,3 +890,4 @@ export function CreativeChat({
     </Root>
   );
 }
+

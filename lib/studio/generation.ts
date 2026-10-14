@@ -135,19 +135,23 @@ export function generationFailure(error: unknown): {
   };
 }
 export function generationSetup() {
-  const available = Boolean(
-    process.env.SUPABASE_SERVICE_ROLE_KEY &&
-      openaiConfigured(),
-  );
+  const databaseConfigured = Boolean(process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const providerConfigured = openaiConfigured();
+  const available = databaseConfigured && providerConfigured;
+  const missing = [
+    !providerConfigured ? "OPENAI_API_KEY" : null,
+    !databaseConfigured ? "SUPABASE_SERVICE_ROLE_KEY" : null,
+  ].filter((value): value is string => Boolean(value));
   return {
     available,
+    missing,
     workerConfigured: Boolean(
       available && process.env.STUDIO_IMAGE_WORKER_SECRET,
     ),
     recoveryMode: "manual-or-external-scheduler",
     setupMessage: available
       ? null
-      : "Image Studio needs the OpenAI API key and reviewed server-side job access. No generation was started.",
+      : `Image creation is unavailable because this deployment is missing ${missing.join(" and ")}. No generation was started. Ask the project owner to configure the server environment and redeploy.`,
   };
 }
 export function requireGenerationSetup() {
@@ -655,3 +659,4 @@ export async function readDraftOutput(job: GenerationJob, index: number) {
     throw new StudioError("Draft output unavailable.", "NOT_FOUND", 404);
   return data;
 }
+
