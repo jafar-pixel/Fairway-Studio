@@ -270,6 +270,20 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
   const [openingPersonal, setOpeningPersonal] = useState(false);
   const [personalError, setPersonalError] = useState("");
   async function openPersonal(teamId: string) {
+    const existing = workspaces.data?.find(
+      (workspace) =>
+        workspace.studio_kind === "personal" &&
+        workspace.parent_workspace_id === teamId,
+    );
+    if (existing) {
+      if (
+        window.dispatchEvent(
+          new Event(CREATOR_NAVIGATION_EVENT, { cancelable: true }),
+        )
+      )
+        router.push(`/w/${existing.id}`);
+      return;
+    }
     setOpeningPersonal(true); setPersonalError("");
     try {
       const response=await fetch("/api/studio/spaces", {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({teamId})});
