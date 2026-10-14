@@ -477,3 +477,9 @@
 .fc-simple-mode small{font-size:12px;color:#756a61;flex-basis:100%}
 .fc-embedded .fc-empty{margin:0 auto}
 .fc-embedded .fc-empty h3{font-size:18px}
+
+.fc-recent-chats{display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:10px 12px;border-bottom:1px solid #e6e0d8}
+.fc-recent-chats strong{font-size:12px;margin-right:6px}
+.fc-recent-chats button{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:6px 9px;font-size:12px}
+.fc-recent-chats button[aria-pressed="true"]{border-color:#760d24;background:#f4e9ed}
+.fc-recent-chats p{font-size:12px}
