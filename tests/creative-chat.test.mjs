@@ -65,9 +65,25 @@ test("short collection requests have persistent original golf development contex
 test("pants creation is product-only even within a golf collection project",()=>{
  const prompt=context.exports.golfVisualPrompt({prompt:"Create tailored golf pants for our golf collection",target:"design"},{hasSource:false,hasReferences:false});
  assert.match(prompt,/Current user request: Create tailored golf pants/);
+ assert.match(prompt,/Create exactly one standalone pair of pants/);
+ assert.match(prompt,/Detected requested subject: pair of pants/);
  assert.match(prompt,/pants means pants only/);assert.match(prompt,/Default to one standalone requested product/);
  assert.match(prompt,/Merely mentioning 'our golf collection'.*is not such a request/);
  assert.doesNotMatch(prompt,/Default to original on-course apparel|For a collection request, show a coordinated concept board/);
+});
+test("single-product scope overrides broad collection context but preserves explicit boards",()=>{
+ const single=context.exports.visualOutputScope("Design performance pants for our golf collection");
+ assert.equal(single.mode,"single");assert.equal(single.product,"pair of pants");assert.match(single.instruction,/product only/);
+ const board=context.exports.visualOutputScope("Create a golf capsule concept board");
+ assert.equal(board.mode,"multiple");
+ const pantsRange=context.exports.visualOutputScope("Create a pants collection");
+ assert.equal(pantsRange.mode,"multiple");
+});
+test("Pants 09 conversation stays inside the single-product project",()=>{
+ const system=context.exports.golfStudioSystem({title:"Pants 09",brief:"Modern golf trousers"});
+ assert.match(system,/Pants 09.*single-product project for one pair of pants/);
+ assert.match(system,/When the user names one product such as pants, discuss and develop only that product/);
+ assert.match(system,/current user message outranks older conversation history/);
 });
 test("extracting pants from a collection board overrides whole-source preservation",()=>{
  const prompt=context.exports.golfVisualPrompt({prompt:"Only the pants from this board",preserve:"Preserve the source design except for the changes requested."},{hasSource:true,hasReferences:true});
