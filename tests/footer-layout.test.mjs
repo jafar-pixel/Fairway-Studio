@@ -15,5 +15,8 @@ test("footer is a compact integrated utility row and preserves install actions",
   assert.doesNotMatch(source, /bg-foreground px-5 py-2/);
   assert.match(source, /<PwaControls \/>/);
   assert.match(source, /Replay onboarding/);
+  assert.match(source, /new Event\("fs:open-onboarding", \{ cancelable: true \}\)/);
+  assert.match(source, /sessionStorage\.setItem\("fs:replay-onboarding", "1"\)/);
 });
+
 
