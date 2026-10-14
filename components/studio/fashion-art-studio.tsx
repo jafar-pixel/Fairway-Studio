@@ -631,22 +631,8 @@ export function FashionArtStudio({
             </p>
           )}
           <div className="fas-selection">
-            <label>
-              Source image for editing
-              <select
-                value={source}
-                onChange={(e) => setSource(e.target.value)}
-              >
-                <option value="">New design / no selection</option>
-                {versions
-                  .filter((v) => v.file_id || v.image_url || v.provenance?.import_asset_path)
-                  .map((v) => (
-                    <option key={v.id} value={v.id}>
-                      {v.title}
-                    </option>
-                  ))}
-              </select>
-            </label>
+            <p><strong>Current source:</strong> {selected?.title || "New design"}</p>
+            <button className={B} onClick={()=>setPanel("versions")}>Choose from history</button>
             {selected && data.workspace?.studio_kind !== "personal" && (
               <>
                 <span className="fas-stage">
@@ -701,7 +687,7 @@ export function FashionArtStudio({
             {colorRequest.current && <button className={P} disabled={busy || reservedByOther} onClick={()=>void run(()=>colorway(),"Colorway saved. Original preserved.")}>Resume / retry colorway</button>}
           </div>
           <div hidden={panel !== "versions"}>
-            <h3>Saved design versions</h3><p>{data.workspace?.studio_kind === "personal" ? "Saved versions of your private design." : "A version is a saved design proposal. Reviewed concepts advance only after team approval."}</p><div className="fas-concept-library">{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url} alt=""/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":"Saved visual · AI editable"}</small></button>)}</div>
+            <h3>Saved design versions</h3><p>{data.workspace?.studio_kind === "personal" ? "Saved versions of your private design." : "A version is a saved design proposal. Reviewed concepts advance only after team approval."}</p><div className="fas-concept-library">{versions.filter(v=>v.file_id || v.image_url || v.provenance?.import_asset_path).map(v=><button className="fas-sample" key={v.id} disabled={busy} onClick={()=>{setSource(v.id);setFocusDesign(true);setManual(false);setProductEditor(false);}}><img src={v.image_url || `/api/studio/media?workspaceId=${workspaceId}&versionId=${v.id}`} alt={v.title || "Saved design"}/><strong>{v.title} · v{v.version_number || v.version || 1}</strong><small>{productDocumentFromVersion(v)?"Editable shell + preview":`${String(v.provenance?.source || "Saved visual").replace(/_/g," ")} · AI editable`}</small></button>)}</div>
               {selected && <div className="fas-focused-actions"><button className={B} disabled={busy || demo || reservedByOther} onClick={()=>void run(()=>matchingSample("shell"),"Matching shell saved beside your real sample.")}>{sampleRequest.current ? "Resume matching sample" : "Create matching shell · AI"}</button><button className={B} disabled={busy || demo || reservedByOther || !!sampleRequest.current} onClick={()=>void run(()=>matchingSample("real"),"Realistic sample saved beside your shell.")}>Create realistic sample · AI</button><small>Generates one saved image; AI usage charges apply.</small></div>}
           </div>
           <div hidden={panel !== "samples"}>
