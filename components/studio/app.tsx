@@ -281,7 +281,10 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
           new Event(CREATOR_NAVIGATION_EVENT, { cancelable: true }),
         )
       )
-        router.push(`/w/${existing.id}`);
+        // Let the pressed button paint before the workspace route replaces this
+        // large application shell. The navigation is still immediate to a person,
+        // but its render work is no longer charged to the click interaction.
+        window.setTimeout(() => router.push(`/w/${existing.id}`), 0);
       return;
     }
     setOpeningPersonal(true); setPersonalError("");
