@@ -98,3 +98,14 @@ test("explicit capsule boards and explicit in-place board edits remain available
  assert.match(prompt,/permitted only when the current request explicitly asks/);
  assert.match(prompt,/Preserve the whole source board only when explicitly asked to edit that board in place/);
 });
+test("approved logo families are exact artwork inputs and never creative suggestions",()=>{
+ const prompt=context.exports.golfVisualPrompt(
+  {prompt:"Create one pair of burgundy golf pants with a small stitched logo"},
+  {hasSource:false,hasReferences:false,kit:{title:"Identity v3",components:[{scope:"palette"}]},approvedLogoScopes:["monogram","logo_embroidery"]},
+ );
+ assert.match(prompt,/ACTIVE APPROVED BRAND KIT/);
+ assert.match(prompt,/exact approved logo artwork/);
+ assert.match(prompt,/monogram, logo_embroidery/);
+ assert.match(prompt,/Never redraw, distort, combine or recolor/);
+ assert.match(prompt,/leave the product unbranded/);
+});

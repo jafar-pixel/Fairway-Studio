@@ -11,6 +11,28 @@ export const JOB_TABLE = "studio_generation_jobs";
 const SOURCE_PREFIX = "supabase-storage://workspace-media/";
 const OUTPUT_BUCKET = "studio-ai-outputs";
 const MAX_BYTES = 10 * 1024 * 1024;
+const BRAND_KIT_SCOPES = new Set([
+  "name",
+  "wordmark",
+  "monogram",
+  "logo_horizontal",
+  "logo_stacked",
+  "logo_reverse",
+  "logo_one_color",
+  "logo_embroidery",
+  "palette",
+  "typography",
+  "guidelines",
+]);
+const LOGO_SCOPES = new Set([
+  "wordmark",
+  "monogram",
+  "logo_horizontal",
+  "logo_stacked",
+  "logo_reverse",
+  "logo_one_color",
+  "logo_embroidery",
+]);
 export type GenerationInput = {
   projectId: string;
   sourceVersionId: string | null;
@@ -300,6 +322,84 @@ async function one(
     throw new StudioError("Selected context is unavailable.", "NOT_FOUND", 404);
   return data;
 }
+export async function approvedBrandKitContext(
+  client: SupabaseClient,
+  workspaceId: string,
+  kit: Record<string, any>,
+) {
+  const entries = Object.entries(
+    kit.components && typeof kit.components === "object" ? kit.components : {},
+  );
+  const resolved = await Promise.all(entries.map(async ([scope, rawDecisionId]) => {
+    if (!BRAND_KIT_SCOPES.has(scope) || typeof rawDecisionId !== "string")
+      throw new StudioError(
+        "The selected Brand Kit contains an unsupported component.",
+        "KIT_INVALID",
+        422,
+      );
+    const decision = await one(
+      client,
+      "studio_decisions",
+      rawDecisionId,
+      workspaceId,
+    );
+    if (decision.scope !== scope || decision.outcome !== "approved")
+      throw new StudioError(
+        "The selected Brand Kit no longer resolves to approved components.",
+        "KIT_INVALID",
+        422,
+      );
+    const version = await one(
+      client,
+      "studio_versions",
+      decision.version_id,
+      workspaceId,
+    );
+    const component = {
+      scope,
+      title: version.title,
+      specification: version.body || "",
+      palette:
+        scope === "palette"
+          ? version.provenance?.palette || version.provenance?.colors || []
+          : undefined,
+    };
+    let logoReference: { scope: string; path: string } | undefined;
+    if (LOGO_SCOPES.has(scope) && version.file_id && version.source_url) {
+      const file = await one(
+        client,
+        "workspace_files",
+        version.file_id,
+        workspaceId,
+      );
+      if (file.permission_scope !== "workspace")
+        throw new StudioError(
+          "An approved logo asset is not shared with this workspace.",
+          "KIT_INVALID",
+          422,
+        );
+      logoReference = {
+        scope,
+        path: sourceStoragePath(version.source_url, workspaceId),
+      };
+    }
+    return { component, logoReference };
+  }));
+  const components = resolved.map((item) => item.component);
+  const logoReferences = resolved.flatMap((item) =>
+    item.logoReference ? [item.logoReference] : [],
+  );
+  return {
+    kit: {
+      schema: "fairway-brand-kit-ai-v1",
+      id: kit.id,
+      title: kit.title,
+      usage_note: kit.usage_note,
+      components,
+    },
+    logoReferences,
+  };
+}
 export async function validateContext(
   client: SupabaseClient,
   workspaceId: string,
@@ -315,7 +415,7 @@ export async function validateContext(
   if (error) throw databaseError(error);
   if (!membership)
     throw new StudioError("Workspace access was removed.", "FORBIDDEN", 403);
-  await one(client, "studio_projects", input.projectId, workspaceId);
+  const project = await one(client, "studio_projects", input.projectId, workspaceId);
   let sourcePath: string | null = null;
   let kit: unknown = null;
   if (input.sourceVersionId) {
@@ -348,8 +448,25 @@ export async function validateContext(
     if(reservationError)throw databaseError(reservationError);
     if(reservation?.checked_out_by && reservation.checked_out_by !== userId && new Date(reservation.checked_out_until).getTime() > Date.now()) throw new StudioError("This design is checked out by a teammate. Choose another version or wait for check-in.","CONFLICT",409);
   }
-  if (input.kitVersionId)
-    kit = await one(client, "studio_kits", input.kitVersionId, workspaceId);
+  const { data: workspace, error: workspaceError } = await client
+    .from("workspaces")
+    .select("active_kit_id")
+    .eq("id", workspaceId)
+    .maybeSingle();
+  if (workspaceError) throw databaseError(workspaceError);
+  const effectiveKitId =
+    input.kitVersionId || project.kit_id || workspace?.active_kit_id || null;
+  let logoReferences: Array<{ scope: string; path: string }> = [];
+  if (effectiveKitId) {
+    const kitRow = await one(client, "studio_kits", effectiveKitId, workspaceId);
+    const approved = await approvedBrandKitContext(
+      client,
+      workspaceId,
+      kitRow,
+    );
+    kit = approved.kit;
+    logoReferences = approved.logoReferences;
+  }
   const referencePaths: string[] = [];
   for (const versionId of input.referenceVersionIds || []) {
     const version = await one(client,"studio_versions",versionId,workspaceId);
@@ -365,7 +482,14 @@ export async function validateContext(
     if(mask.permission_scope!=="workspace" && mask.added_by!==userId) throw new StudioError("Mask access denied.","FORBIDDEN",403);
     maskPath=sourceStoragePath(mask.url,workspaceId);
   }
-  return { ...(maskPath ? {maskPath} : {}), sourcePath, kit, ...(referencePaths.length ? {referencePaths} : {}) };
+  return {
+    ...(maskPath ? { maskPath } : {}),
+    sourcePath,
+    kit,
+    effectiveKitId,
+    logoReferences,
+    ...(referencePaths.length ? { referencePaths } : {}),
+  };
 }
 /** Validate masks before a paid provider call. Source and mask must share pixel dimensions. */
 export async function validateRegionMask(source:Uint8Array,mask:Uint8Array){
@@ -386,7 +510,10 @@ export async function createGeneration(
     !uuidPattern.test(body.idempotencyKey)
   )
     throw new StudioError("A unique request key is required.", "VALIDATION");
-  await validateContext(client, workspaceId, userId, input);
+  const context = await validateContext(client, workspaceId, userId, input);
+  const effectiveInput = context.effectiveKitId && !input.kitVersionId
+    ? { ...input, kitVersionId: context.effectiveKitId }
+    : input;
   if(input.colorway){const {data:color,error}=await client.from("studio_sample_colors").select("name").eq("hex",input.colorway.hex).maybeSingle();if(error)throw databaseError(error);if(!color||color.name!==input.colorway.name)throw new StudioError("Choose a stored sample color.","VALIDATION");}
   const model = OPENAI_IMAGE_MODEL;
   if(input.maskFileId && await studioOpenAI().image(model).supportsMaskInputs !== true) throw new StudioError("The configured image model does not support masked region editing.","EDIT_UNAVAILABLE",503);
@@ -404,7 +531,7 @@ export async function createGeneration(
       "EDIT_UNAVAILABLE",
       503,
     );
-  const hash = createHash("sha256").update(JSON.stringify(input)).digest("hex");
+  const hash = createHash("sha256").update(JSON.stringify(effectiveInput)).digest("hex");
   const { data, error } = await generationService().rpc(
     "studio_enqueue_generation",
     {
@@ -413,9 +540,9 @@ export async function createGeneration(
       p_actor: userId,
       p_key: body.idempotencyKey,
       p_hash: hash,
-      p_request: input,
+      p_request: effectiveInput,
       p_model: model,
-      p_count: input.count,
+      p_count: effectiveInput.count,
     },
   );
   if (error) throw databaseError(error);
@@ -466,6 +593,32 @@ export async function runGeneration(id?: string) {
       if(!detectImageType(image))throw new StudioError("Reference format is invalid.","SOURCE_UNAVAILABLE",422);
       referenceImages.push(image);
     }
+    const brandLogoImages: Uint8Array[] = [];
+    const includedLogoScopes: string[] = [];
+    const brandImageLimit = Math.max(
+      0,
+      10 - (bytes ? 1 : 0) - referenceImages.length,
+    );
+    for (const reference of context.logoReferences.slice(0, brandImageLimit)) {
+      const { data, error } = await service.storage
+        .from("workspace-media")
+        .download(reference.path);
+      if (error || !data || data.size > MAX_BYTES)
+        throw new StudioError(
+          "An approved Brand Kit logo could not be loaded.",
+          "KIT_INVALID",
+          422,
+        );
+      const image = new Uint8Array(await data.arrayBuffer());
+      if (!detectImageType(image))
+        throw new StudioError(
+          "An approved Brand Kit logo has an unsupported format.",
+          "KIT_INVALID",
+          422,
+        );
+      brandLogoImages.push(image);
+      includedLogoScopes.push(reference.scope);
+    }
     if (job.model !== OPENAI_IMAGE_MODEL)
       throw new StudioError("This draft used the previous AI provider. Create a new image request to use OpenAI.", "MODEL_CHANGED", 422);
     const model = studioOpenAI().image(job.model);
@@ -493,12 +646,13 @@ export async function runGeneration(id?: string) {
       hasSource: !!bytes,
       hasReferences: referenceImages.length > 0,
       kit: context.kit,
+      approvedLogoScopes: includedLogoScopes,
     });
     // 150s provider timeout is shorter than the 4-minute database lease. SDK retries are
     // disabled: every retry is durable, quota-bounded and visible as an attempt.
     const result = await generateImage({
       model,
-      prompt: bytes || referenceImages.length ? { text: prompt, images: [...(bytes ? [bytes] : []), ...referenceImages], ...(maskBytes ? {mask:maskBytes} : {}) } : prompt,
+      prompt: bytes || referenceImages.length || brandLogoImages.length ? { text: prompt, images: [...(bytes ? [bytes] : []), ...referenceImages, ...brandLogoImages], ...(maskBytes ? {mask:maskBytes} : {}) } : prompt,
       n: job.request.count,
       size: "1024x1024",
       providerOptions: { openai: { quality: "medium", outputFormat: "png" } },
