@@ -135,7 +135,7 @@ test('app routes New Idea to enhanced editor, retains walkthrough initial values
   assert.match(app, /create === "Idea"[\s\S]*?<IdeaEditor[\s\S]*?initial=\{createInitial\}/);
   assert.match(app, /dispatchEvent\(new Event\(CREATOR_NAVIGATION_EVENT/);
   assert.match(app, /workspace\.studio_kind === "personal" &&\s*workspace\.parent_workspace_id === teamId/);
-  assert.match(app, /router\.push\(`\/w\/\$\{existing\.id\}`\);\s*return;/);
+  assert.match(app, /window\.setTimeout\(\(\) => router\.push\(`\/w\/\$\{existing\.id\}`\), 0\);\s*return;/);
   assert.ok(app.indexOf('const existing = workspaces.data?.find(') < app.indexOf('setOpeningPersonal(true)'));
   assert.match(app, /Promise\.allSettled\(\[result\.mutate\(\), workflow\.mutate\(\), linkedRecord\.mutate\(\)\]\)/);
   const collections = fs.readFileSync(new URL('../components/studio/collections.tsx', import.meta.url), 'utf8');
