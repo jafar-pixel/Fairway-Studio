@@ -54,6 +54,10 @@ export function GenerationPanel({
     [error, setError] = useState("");
   const request = useRef(crypto.randomUUID());
   const previousContextProjectId = useRef(currentProjectId);
+  const selectedProject = data.projects.find((p: any) => p.id === projectId);
+  const selectedKitId =
+    selectedProject?.kit_id || data.workspace?.active_kit_id || "";
+  const selectedKit = data.kits.find((k: any) => k.id === selectedKitId);
   useEffect(() => {
     if (typeof initial.prompt === "string" && initial.prompt.trim()) setPrompt(initial.prompt);
   }, [initial.prompt]);
@@ -124,8 +128,7 @@ export function GenerationPanel({
       prompt,
       target,
       palette,
-      kitVersionId:
-        data.projects.find((p: any) => p.id === projectId)?.kit_id || undefined,
+      kitVersionId: selectedKitId || undefined,
       preserve:
         "Keep source composition, silhouette, and material except the selected target.",
       count,
@@ -258,13 +261,10 @@ export function GenerationPanel({
             </select>
           </label>
           <p className="fs-inline-note">
-            Pinned kit:{" "}
-            {data.kits.find(
-              (k: any) =>
-                k.id ===
-                data.projects.find((p: any) => p.id === projectId)?.kit_id,
-            )?.title || "None selected"}
-            . This exact snapshot is included when selected.
+            Brand Kit: {selectedKit?.title || "No approved kit"}.{" "}
+            {selectedKit
+              ? "Approved logo variants and color rules are attached automatically; AI must not redraw them."
+              : "The draft stays unbranded rather than inventing a logo."}
           </p>
           <label className="fs-ai-usage-consent">
             <input

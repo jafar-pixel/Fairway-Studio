@@ -287,7 +287,11 @@ export function CreativeChat({
         consent,
         referenceVersionIds,
         count: outputCount,
-        kitVersionId: data.workspace?.active_kit_id || null,
+        kitVersionId:
+          (data.projects || []).find((project: any) => project.id === destination)
+            ?.kit_id ||
+          data.workspace?.active_kit_id ||
+          null,
       });
       setPrompt("");
       await detail.mutate();

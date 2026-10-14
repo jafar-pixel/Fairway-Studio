@@ -31,17 +31,45 @@ const scopes = [
   "name",
   "wordmark",
   "monogram",
+  "logo_horizontal",
+  "logo_stacked",
+  "logo_reverse",
+  "logo_one_color",
+  "logo_embroidery",
   "palette",
   "typography",
   "guidelines",
+] as const;
+const logoScopes = [
+  "wordmark",
+  "monogram",
+  "logo_horizontal",
+  "logo_stacked",
+  "logo_reverse",
+  "logo_one_color",
+  "logo_embroidery",
 ] as const;
 const labels: Record<string, string> = {
   name: "Brand name",
   wordmark: "Primary wordmark",
   monogram: "Monogram",
+  logo_horizontal: "Horizontal lockup",
+  logo_stacked: "Stacked lockup",
+  logo_reverse: "Reverse / dark-background logo",
+  logo_one_color: "One-color logo",
+  logo_embroidery: "Embroidery / small-placement logo",
   palette: "Color palette",
   typography: "Typography",
   guidelines: "Guidelines",
+};
+const logoUsage: Record<string, string> = {
+  wordmark: "Primary brand identification and wide placements",
+  monogram: "Compact placements, icons and product details",
+  logo_horizontal: "Wide garment, packaging and digital placements",
+  logo_stacked: "Square or centered placements",
+  logo_reverse: "Approved use on dark backgrounds",
+  logo_one_color: "Single-ink print, engraving and constrained production",
+  logo_embroidery: "Small embroidery and stitched applications",
 };
 const field =
   "min-h-11 w-full rounded-lg border border-stone-200 bg-white px-3 py-2 text-sm";
@@ -301,11 +329,12 @@ export function BrandKitView({
         )
       : undefined;
   const proposalName = proposed("name");
-  const logo =
-    resolveKitComponent(data, displayed, "wordmark").version ||
-    resolveKitComponent(data, displayed, "monogram").version ||
-    proposed("wordmark") ||
-    proposed("monogram");
+  const logoVersions = logoScopes.flatMap((scope) => {
+    const resolved = resolveKitComponent(data, displayed, scope);
+    const version = resolved.version || proposed(scope);
+    return version ? [{ scope, version, decision: resolved.decision }] : [];
+  });
+  const logo = logoVersions[0]?.version;
   const palette =
     resolveKitComponent(data, displayed, "palette").version ||
     proposed("palette");
@@ -333,8 +362,8 @@ export function BrandKitView({
         brandApplicationKeys.indexOf(a.provenance?.import_key) -
         brandApplicationKeys.indexOf(b.provenance?.import_key),
     );
-  const logoAsset = ownedKitFiles(data, displayed).find((a) =>
-    ["wordmark", "monogram"].includes(a.scope),
+  const logoAssets = ownedKitFiles(data, displayed).filter((a) =>
+    logoScopes.includes(a.scope as (typeof logoScopes)[number]),
   );
   const colorData = palette?.provenance?.palette || palette?.provenance?.colors;
   const colors: Row[] = Array.isArray(colorData)
@@ -472,50 +501,87 @@ export function BrandKitView({
   }
   const logoPanel = (
     <section className="fs-card">
-      <h2 className="mb-4 font-semibold">
-        {kit ||
-        resolveKitComponent(data, displayed, "monogram").decision ||
-        resolveKitComponent(data, displayed, "wordmark").decision
-          ? "Approved logo components"
-          : "Proposed logo"}
-      </h2>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="font-semibold">
+            {kit ||
+            resolveKitComponent(data, displayed, "monogram").decision ||
+            resolveKitComponent(data, displayed, "wordmark").decision
+              ? "Approved logo family"
+              : "Proposed logo family"}
+          </h2>
+          <p className="mt-1 text-sm text-stone-500">
+            Each role is approved separately so clothing AI can choose the right
+            variant without redrawing the mark.
+          </p>
+        </div>
+        {kit && (
+          <span className="rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-800">
+            {logoVersions.filter((item) => item.decision).length} approved
+          </span>
+        )}
+      </div>
       {logo ? (
         <>
-          <div className="grid min-h-64 place-items-center overflow-hidden rounded-xl bg-[#f4ede1] p-6">
-            {logoAsset ? (
-              <img
-                className="max-h-64 max-w-full object-contain"
-                src={`/api/studio/media?versionId=${encodeURIComponent(logoAsset.version.id)}`}
-                alt={logo.title || "Approved logo"}
-              />
-            ) : logo.image_url ? (
-              <img
-                className="max-h-64 w-full object-contain"
-                src={logo.image_url}
-                alt={`${logo.title} · proposed, not approved`}
-              />
-            ) : (
-              <div className="text-center">
-                <FileImage size={38} className="mx-auto mb-3 text-stone-400" />
-                <p className="font-medium">{logo.title}</p>
-                <p className="mt-2 text-xs text-stone-500">
-                  No owned production asset is linked to this approved version.
-                </p>
-              </div>
-            )}
+          <div className="grid gap-4 md:grid-cols-2">
+            {logoVersions.map(({ scope, version, decision }) => {
+              const asset = logoAssets.find((item) => item.scope === scope);
+              return (
+                <article
+                  key={scope}
+                  className="overflow-hidden rounded-xl border bg-white"
+                >
+                  <div
+                    className={`grid min-h-48 place-items-center p-5 ${scope === "logo_reverse" ? "bg-stone-900" : "bg-[#f4ede1]"}`}
+                  >
+                    {asset ? (
+                      <img
+                        className="max-h-44 max-w-full object-contain"
+                        src={`/api/studio/media?versionId=${encodeURIComponent(asset.version.id)}`}
+                        alt={`${labels[scope]} · ${version.title || "approved logo"}`}
+                      />
+                    ) : version.image_url ? (
+                      <img
+                        className="max-h-44 max-w-full object-contain"
+                        src={version.image_url}
+                        alt={`${labels[scope]} · proposed, not approved`}
+                      />
+                    ) : (
+                      <FileImage size={36} className="text-stone-400" />
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold">{labels[scope]}</h3>
+                        <p className="mt-1 text-xs text-stone-500">
+                          {version.title}
+                        </p>
+                      </div>
+                      <span
+                        className={`rounded-full px-2 py-1 text-[11px] font-semibold ${decision ? "bg-green-50 text-green-800" : "bg-amber-50 text-amber-900"}`}
+                      >
+                        {decision ? "Approved" : "Proposed"}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-xs leading-relaxed text-stone-500">
+                      {logoUsage[scope]}
+                    </p>
+                    {decisionLink(scope)}
+                  </div>
+                </article>
+              );
+            })}
           </div>
-          <p className="mt-3 whitespace-pre-wrap text-sm text-stone-500">
-            {logo.body ||
-              "Clear space, backgrounds, and minimum sizes have not been specified."}
+          <p className="mt-4 rounded-lg bg-stone-50 p-3 text-sm text-stone-600">
+            Clothing AI receives only these approved, published variants. It
+            must preserve the selected artwork, proportions, and approved colors.
           </p>
-          {["wordmark", "monogram"].map((scope) => (
-            <div key={scope}>{decisionLink(scope)}</div>
-          ))}
         </>
       ) : (
-        <Empty title="Your logo is still taking shape">
-          A name approval does not approve a logo. Record a wordmark or monogram
-          decision in an identity project.
+        <Empty title="Your logo family is still taking shape">
+          A name approval does not approve a logo. Record a primary wordmark or
+          monogram first, then add role-specific variants as they are reviewed.
         </Empty>
       )}
     </section>
@@ -816,7 +882,9 @@ export function BrandKitView({
               included. Raster files are never described as SVG.
             </p>
             {assets
-              .filter((a) => ["wordmark", "monogram"].includes(a.scope))
+              .filter((a) =>
+                logoScopes.includes(a.scope as (typeof logoScopes)[number]),
+              )
               .map((a) => (
                 <div
                   key={a.file.id}
@@ -840,7 +908,7 @@ export function BrandKitView({
                 </div>
               ))}
             {!assets.some((a) =>
-              ["wordmark", "monogram"].includes(a.scope),
+              logoScopes.includes(a.scope as (typeof logoScopes)[number]),
             ) && (
               <p className="mt-5 text-sm text-stone-500">
                 No verified owned logo exports are available in this kit.
@@ -1007,9 +1075,10 @@ export function BrandKitView({
         >
           <form onSubmit={submit} className="space-y-4">
             <p className="text-sm text-stone-500">
-              Select recorded approvals. Name, a wordmark or monogram, palette,
-              and a usage note are required. Existing kits and project pins
-              remain unchanged.
+              Select recorded approvals. Name, a primary wordmark or monogram,
+              palette, and a usage note are required. Add every approved logo
+              role the clothing AI may use. Existing kits and project pins remain
+              unchanged.
             </p>
             <label className="grid gap-2 text-sm">
               Kit name
@@ -1024,7 +1093,7 @@ export function BrandKitView({
             {scopes.map((scope) => (
               <label key={scope} className="grid gap-2 text-sm">
                 {labels[scope]}{" "}
-                {["typography", "guidelines"].includes(scope)
+                {!['name', 'palette'].includes(scope)
                   ? "(optional)"
                   : ""}
                 <select

@@ -92,4 +92,17 @@ test('visual references load only authorized immutable workspace images',async()
  await assert.rejects(()=>f.validateContext(client('private'),w,u,{projectId:w,referenceVersionIds:[u]}),e=>e.code==='FORBIDDEN');
  await assert.rejects(()=>f.validateContext(client('workspace','https://evil.test/reference.png'),w,u,{projectId:w,referenceVersionIds:[u]}),e=>e.code==='SOURCE_UNAVAILABLE');
 });
+test('published logo family resolves exact approved workspace-owned artwork',async()=>{
+ const rows={
+  'd-logo':{id:'d-logo',workspace_id:w,scope:'logo_embroidery',outcome:'approved',version_id:'v-logo'},
+  'v-logo':{id:'v-logo',workspace_id:w,title:'Small stitch mark',body:'Use for embroidery',file_id:'f-logo',source_url:`supabase-storage://workspace-media/${w}/${u}/logo.png`},
+  'f-logo':{id:'f-logo',workspace_id:w,permission_scope:'workspace'},
+ };
+ const client={from(table){let id='';return{select(){return this},eq(key,value){if(key==='id')id=value;return this},async maybeSingle(){return{data:rows[id],error:null}}}}};
+ const result=await f.approvedBrandKitContext(client,w,{id:'kit',title:'Identity v3',usage_note:'Approved use only',components:{logo_embroidery:'d-logo'}});
+ assert.equal(result.kit.components[0].scope,'logo_embroidery');
+ assert.equal(result.logoReferences[0].path,`${w}/${u}/logo.png`);
+ rows['d-logo'].outcome='rejected';
+ await assert.rejects(()=>f.approvedBrandKitContext(client,w,{id:'kit',components:{logo_embroidery:'d-logo'}}),e=>e.code==='KIT_INVALID');
+});
 

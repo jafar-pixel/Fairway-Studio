@@ -281,6 +281,10 @@ export function FashionArtStudio({
     onMutate,
     onNavigate,
   } = props;
+  const projectKitId =
+    data.projects.find((project: Row) => project.id === projectId)?.kit_id ||
+    data.workspace?.active_kit_id ||
+    null;
   const colorRequest = useRef<{key:string;input:Row;job?:Row}|null>(null);
   const [colorJob,setColorJob] = useState<Row|null>(null), [colorScope,setColorScope] = useState<"body"|"whole">("body");
   const [toolsOpen, setToolsOpen] = useState(false), [focusDesign, setFocusDesign] = useState(true);
@@ -473,7 +477,7 @@ export function FashionArtStudio({
       const stored=await json(`/api/studio/colorways?workspaceId=${workspaceId}&versionId=${sourceId}`);
       const cached=stored.options?.find((o:Row)=>o.color_hex===color.hex&&o.scope===colorScope)?.generated_version_id;
       if(cached){await onMutate("refresh",{});setSource(cached);setFocusDesign(true);return;}
-      const input={colorway:{name:color.name,hex:color.hex,scope:colorScope},projectId,sourceVersionId:sourceId,kitVersionId:data.workspace?.active_kit_id||null,prompt:colorwayPrompt(color.name,color.hex,colorScope),target:`${color.name} colorway`,palette:`${color.name} ${color.hex}`,preserve:"Exact design, construction and existing logo artwork",count:1,referenceVersionIds:references.filter(id=>id!==paletteSource)};
+      const input={colorway:{name:color.name,hex:color.hex,scope:colorScope},projectId,sourceVersionId:sourceId,kitVersionId:projectKitId,prompt:colorwayPrompt(color.name,color.hex,colorScope),target:`${color.name} colorway`,palette:`${color.name} ${color.hex}`,preserve:"Exact design, construction and existing logo artwork",count:1,referenceVersionIds:references.filter(id=>id!==paletteSource)};
       colorRequest.current={key:crypto.randomUUID(),input};setColorJob(null);
     }
     const pending=colorRequest.current;if(!pending)throw Error("Select a color for this design first.");
@@ -555,7 +559,7 @@ export function FashionArtStudio({
       </div>
       <div className="fas-studio-layout">
         <div className="fas-canvas">
-          {productEditor ? <ProductEditor workspaceId={workspaceId} userId={userId} projectId={projectId} versions={versions} files={data.files} source={selected} kitVersionId={data.workspace?.active_kit_id || null} demo={demo} locked={!!reservedByOther} onMutate={onMutate} onClose={()=>setProductEditor(false)} onSaved={id=>{setSource(id);void onMutate("refresh", {});}} onAI={(id,p)=>{setSource(id);setPrompt(p);setPanel("ai");setToolsOpen(true);}} /> : manual && source ? (
+          {productEditor ? <ProductEditor workspaceId={workspaceId} userId={userId} projectId={projectId} versions={versions} files={data.files} source={selected} kitVersionId={projectKitId} demo={demo} locked={!!reservedByOther} onMutate={onMutate} onClose={()=>setProductEditor(false)} onSaved={id=>{setSource(id);void onMutate("refresh", {});}} onAI={(id,p)=>{setSource(id);setPrompt(p);setPanel("ai");setToolsOpen(true);}} /> : manual && source ? (
             <ManualImageEditor
               key={source}
               embedded
