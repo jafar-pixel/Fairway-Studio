@@ -467,9 +467,9 @@ export function CreativeChat({
             {!chatId && (
               <div className="fc-empty">
                 <Sparkles size={32} />
-                <h3>What are we designing for our golf collection?</h3>
+                <h3>What would you like to create?</h3>
                 <p>
-                  Develop our original golf apparel, headwear or accessories. Describe your own collection or select a shell on the artboard.
+                  Create original apparel, headwear, accessories, or branding for any sport. Describe an idea or select a starting design.
                   {!studioSimple && "Choose Shared workspace to create together."}
                 </p>
               </div>
@@ -617,7 +617,11 @@ export function CreativeChat({
             <div ref={end} />
           </div>
           <form className="fc-composer" onSubmit={send}>
-            <div className="fc-controls">
+            {studioSimple ? <div className="fc-simple-mode" role="group" aria-label="Creative action">
+              <button type="button" aria-pressed={mode === "image"} disabled={busy} onClick={()=>setMode("image")}>Create or edit image</button>
+              <button type="button" aria-pressed={mode === "chat"} disabled={busy} onClick={()=>setMode("chat")}>Discuss an idea</button>
+              <small>{source ? "Using the selected design as your source image." : "Starting a new design. Your first image will be saved in this project."}</small>
+            </div> : <div className="fc-controls">
               <label>
                 Action
                 <select
@@ -649,6 +653,7 @@ export function CreativeChat({
                 </select>
               </label>
             </div>
+            }
             <div className="fc-own-actions" hidden={studioSimple}>
               <button
                 type="button"
@@ -705,7 +710,7 @@ export function CreativeChat({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={
                 mode === "image"
-                  ? "Describe our original golf design or collection: garments, fabrics, colors, construction details and branding."
+                  ? "Describe the design you want to create, or tell me what to change in the selected image."
                   : "Tell us what you’re thinking…"
               }
               rows={3}
