@@ -155,7 +155,8 @@ export function OnboardingGuide({
   }, [playbackScope, inheritedPlayback]);
 
   useEffect(() => {
-    const openFromFooter = () => {
+    const openFromFooter = (event?: Event) => {
+      event?.preventDefault();
       window.scrollTo({ top: 0, behavior: "smooth" });
       setAnchorTop(true);
       setOpen(true);
@@ -164,6 +165,12 @@ export function OnboardingGuide({
       window.requestAnimationFrame(() => headingRef.current?.focus({ preventScroll: true }));
     };
     window.addEventListener("fs:open-onboarding", openFromFooter);
+    try {
+      if (window.sessionStorage.getItem("fs:replay-onboarding") === "1") {
+        window.sessionStorage.removeItem("fs:replay-onboarding");
+        openFromFooter();
+      }
+    } catch {}
     return () => window.removeEventListener("fs:open-onboarding", openFromFooter);
   }, []);
 
@@ -505,3 +512,4 @@ function AIWorkflowNote() {
 }
 
 export { goalCategoryLabel };
+
