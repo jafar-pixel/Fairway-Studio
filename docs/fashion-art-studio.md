@@ -83,3 +83,51 @@ Focused canvas release validation: 48 focused checks, TypeScript and production 
 The palette drawer can generate/reuse all sample colorways sequentially, skipping saved results. Usage charges apply only to new AI generation requests; existing cached images are reopened. App navigation is guarded during active saves/generation.
 
 Legacy bundled concept previews are now selectable even without an original file_id. Before AI color, generic AI or manual editing, the app registers a same-origin image source through canonical upload and creates a linked source version. Registration retries keep the staged file and original remains intact. Original Concept A in Signature golf bag was verified to be such a bundled preview; the source-registration path is covered by the focused suite, now 49 passing checks.
+
+
+## Creator-first redesign (October 2026, first pass)
+
+The product flow begins at **Start a design → Canvas + AI Creative Assistant**.
+Creating an image no longer requires entering a Samples & Library drawer. The AI
+conversation is embedded directly beneath the current design; existing generation,
+retention, and version services remain in use. A design can be refined from the
+selected version or restarted with **Start new design**.
+
+**Assets & tools** is optional. It contains Assets & templates, History, and Design
+options. References attached for AI appear beside the conversation with individual
+Remove controls; removing a reference detaches it from the current request, not
+from the Library. The comparison board is available from Design options instead
+of a competing top-level mode toggle.
+
+**Scope limitation:** The underlying catalog is still golf-first, even though the
+entry workflow and labels are now sport-neutral. Broader sports templates,
+source/version provenance display, persisted reference selections, and a fully
+unified scroll layout require separate implementation and validation.
+
+### Acceptance checklist
+
+- Start a new project named Pants 09 and reach the canvas with AI conversation.
+- Generate an image without opening a tools drawer.
+- Select a saved version from History and refine that same source.
+- Attach and individually remove a visual reference without deleting its original.
+- Reopen the project and verify saved versions and conversation history.
+- Confirm personal studio work stays private until explicitly shared.
+- Check narrow/mobile viewport, keyboard focus, and scroll behavior.
+- Validate generation success, failure, retry, and usage consent in the deployed app.
+
+The branch is for review. Do not publish without passing build/test checks and
+verifying the existing non-Vercel hosting deployment procedure.
+
+### Footer and setup-error follow-up
+
+The site footer is now a compact utility row instead of a full-width black
+banner. FAQ, onboarding replay, browser installation, and the Windows installer
+link remain available. The embedded creator no longer repeats its own AI Studio
+masthead, and the empty-design placeholder is shorter so the prompt is visible
+sooner.
+
+Generation setup errors now identify only the missing server setting. A failed
+request is shown once after it is saved to conversation history. The October 13
+preview had the Supabase server credential, but its OpenAI key and worker secret
+were scoped to Production, not Preview; no key value was inspected or copied.
+

@@ -397,3 +397,21 @@
 .fas-expanded .fas-focused-design>img {height:calc(100dvh - 205px);min-height:280px;}
 .fas-expanded .fas-sample-pair img {height:calc(100dvh - 225px);min-height:240px;}
 .fas-expanded .fas-tools:not([hidden]) {top:70px;}
+
+
+/* Creator-first workflow: the canvas and AI conversation are the primary workspace. */
+.fas-creative-primary{margin-top:16px;border:1px solid #ddd9ce;border-radius:14px;background:#faf9f5;padding:14px}
+.fas-creative-intro{margin:0 0 12px}
+.fas-creative-intro strong{font-size:18px;color:#292b25}
+.fas-creative-intro p{font-size:13px;color:#626459;margin:4px 0}
+.fas-attached-references{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.fas-reference-chip{display:flex;align-items:center;gap:8px;max-width:100%;padding:6px;border:1px solid #d8d2c6;border-radius:10px;background:white}
+.fas-reference-chip img{width:46px;height:46px;object-fit:contain;border-radius:6px}
+.fas-reference-chip span{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.fas-reference-chip button{margin:0}
+.fas-studio .fas-focus-empty{min-height:150px}
+.fas-studio .fas-focused-design>img{height:min(55dvh,580px);min-height:250px}
+.fas-studio .fas-samples{max-height:none;overflow:visible}
+.fas-studio .fas-saved{max-height:none;overflow:visible}
+@media(max-width:600px){.fas-creative-primary{padding:8px}.fas-studio .fas-focus-empty{min-height:120px}.fas-studio .fas-focused-design>img{height:42dvh;min-height:220px}}
+

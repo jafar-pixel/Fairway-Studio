@@ -39,16 +39,20 @@ test('fabric sample becomes a visual AI reference rather than replacing the garm
 });
 test('canvas selection feeds the embedded AI and manual editor retains the selected source',async()=>{
  const h=harness({versions:[{id:'v1',file_id:'f1',title:'First'},{id:'v2',file_id:'f2',title:'Second'}]});h.find(n=>n.type==='CanvasBoard').props.onVersionSelect('v2');assert.equal(h.find(n=>n.type==='CreativeChat').props.initialSourceVersionId,'v2');
- h.button('Edit manually').props.onClick();await h.flush();const manual=h.find(n=>n.type==='ManualImageEditor');assert.equal(manual.props.embedded,true);assert.equal(manual.props.versionId,'v2');
+ h.button('Assets & tools').props.onClick();h.button('Design options').props.onClick();h.button('Edit selected image manually').props.onClick();await h.flush();const manual=h.find(n=>n.type==='ManualImageEditor');assert.equal(manual.props.embedded,true);assert.equal(manual.props.versionId,'v2');
  manual.props.onSaved('v3');assert.equal(h.find(n=>n.type==='CreativeChat').props.initialSourceVersionId,'v3');
 });
-test('studio has one create/edit entry and only two tool tabs',()=>{
- const h=harness();const tree=h.render();assert.doesNotMatch(h.text(tree),/More design tools|Product editor · clothing|Visual references/);
- const nav=h.find(n=>n.type==='nav'&&n.props['aria-label']==='Artboard tools');assert.equal(h.text(nav),'Samples & LibraryAI design');
- h.button('Create or edit design').props.onClick();assert.equal(h.find(n=>n.type==='aside').props.hidden,false);
- assert.equal(h.find(n=>n.type==='CreativeChat').props.studioSimple,true);
+test('studio opens directly with an embedded creative conversation and optional assets',()=>{
+ const h=harness();const tree=h.render();
+ assert.match(h.text(tree),/Start creating/);
+ assert.ok(h.find(n=>n.type==='CreativeChat'&&n.props.studioSimple===true));
+ const nav=h.find(n=>n.type==='nav'&&n.props['aria-label']==='Artboard tools');
+ assert.equal(h.text(nav),'Assets & templatesHistoryDesign options');
+ assert.equal(h.find(n=>n.type==='aside').props.hidden,true);
+ h.button('Assets & tools').props.onClick();
+ assert.equal(h.find(n=>n.type==='aside').props.hidden,false);
+ assert.doesNotMatch(h.text(tree),/Your design goes here|Focus selected design|Show project board/);
 });
-
 test('Library edit deep links select the requested design rather than another project version',()=>{
  const h=harness({initialSourceVersionId:'v2',initialManual:true,versions:[{id:'v1',file_id:'f1',title:'First'},{id:'v2',file_id:'f2',title:'Second'}]});
  const editor=h.find(n=>n.type==='ManualImageEditor');assert.equal(editor.props.versionId,'v2');assert.equal(editor.props.embedded,true);
@@ -60,7 +64,23 @@ test('golf shell view selector exposes back and detail samples instead of repeat
  view().props.onChange({target:{value:'detail'}});assert.ok(h.find(n=>n.type==='button'&&h.text(n).includes('Golf wind jacket · detailAdd shell')));
 });
 
-test('studio starts with one selected design and collapsible tools; board remains available',()=>{const h=harness({versions:[{id:'v1',file_id:'f1',title:'Concept A',image_url:'/a.png'}]});assert.equal(h.find(n=>n.type==='aside').props.hidden,true);assert.ok(h.find(n=>n.props?.['aria-label']==='Current design'));h.button('Show project board').props.onClick();assert.equal(h.find(n=>n.props?.['aria-label']==='Current design'),undefined);});
+test('version history opens from canvas without sending the user through the project board',()=>{
+ const h=harness({versions:[{id:'v1',file_id:'f1',title:'Concept A',image_url:'/a.png'}]});
+ assert.ok(h.find(n=>n.props?.['aria-label']==='Current design'));
+ h.button('Version history').props.onClick();
+ assert.equal(h.find(n=>n.type==='aside').props.hidden,false);
+ assert.ok(h.find(n=>n.type==='button'&&h.text(n).includes('Concept A · v1')));
+});
+test('attached references can be removed individually without deleting the source',async()=>{
+ const h=harness({versions:[{id:'jacket',file_id:'existing',title:'Jacket',project_id:'project'}]});
+ h.find(n=>n.type==='button'&&h.text(n).includes('Performance piqueAdd as AI reference')).props.onClick();
+ await h.flush();
+ assert.deepEqual(plain(h.find(n=>n.type==='CreativeChat').props.referenceVersionIds),['saved-1']);
+ const remove=h.find(n=>n.type==='button'&&n.props['aria-label']?.startsWith('Remove '));
+ assert.ok(remove);remove.props.onClick();
+ assert.deepEqual(plain(h.find(n=>n.type==='CreativeChat').props.referenceVersionIds),[]);
+ assert.equal(h.calls.filter(c=>c.op==='deleteVersion').length,0);
+});
 test('clicking a color directly creates, runs and retains a linked AI colorway without a chat prompt step',async()=>{const h=harness({versions:[{id:'v1',file_id:'f1',title:'Concept A',image_url:'/a.png'}]});h.find(n=>n.type==='button'&&n.props['aria-label']==='Use Forest').props.onClick();await h.flush();const actions=h.calls.filter(c=>c.api).map(c=>c.api);assert.deepEqual(actions.map(a=>a.action),['create','run','retain']);assert.equal(actions[0].sourceVersionId,'v1');assert.equal(actions[0].colorway.hex,'#244a3a');assert.match(actions[0].prompt,/Preserve the exact product silhouette/);assert.ok(h.calls.some(c=>c.op==='refresh'));});
 test('stored shared colorways reopen without another provider request',async()=>{const h=harness({cachedColorway:true,versions:[{id:'v1',file_id:'f1',title:'Concept A'}]});h.find(n=>n.type==='button'&&n.props['aria-label']==='Use Forest').props.onClick();await h.flush();assert.equal(h.calls.some(c=>c.api?.action==='create'),false);assert.equal(h.find(n=>n.type==='CreativeChat').props.initialSourceVersionId,'cached-colorway');});
 
@@ -68,11 +88,12 @@ test('generate all sample colorways skips cached results and keeps every new req
 
 test('older bundled concepts open in focus and register an owned source before AI color editing',async()=>{const h=harness({versions:[{id:'legacy',title:'Concept A',provenance:{import_asset_path:'/mockup-assets/golf-bag-cream.png'}}]});assert.ok(h.find(n=>n.type==='img'&&n.props.src==='/mockup-assets/golf-bag-cream.png'));h.find(n=>n.props?.['aria-label']==='Use Forest').props.onClick();await h.flush();const source=h.calls.find(c=>c.op==='createVersion');assert.equal(source.input.parent_id,'legacy');assert.equal(source.input.provenance.source,'canonical_concept_source');const create=h.calls.find(c=>c.api?.action==='create').api;assert.notEqual(create.sourceVersionId,'legacy');assert.equal(h.calls.some(c=>c.op==='createVersion'),true);});
 
-test('project naming is optional when opening a new board',async()=>{const h=harness();await h.find(n=>n.type==='form','FashionStart').props.onSubmit({preventDefault(){}});assert.equal(h.calls[0].input.title,'Golf design');assert.match(h.calls[1].url,/canvas$/);});
+test('project naming is optional and the fallback stays sport-neutral',async()=>{const h=harness();await h.find(n=>n.type==='form','FashionStart').props.onSubmit({preventDefault(){}});assert.equal(h.calls[0].input.title,'New design');assert.match(h.calls[1].url,/canvas$/);});
 test('matching shell generation uses the current real source and retains the result',async()=>{const h=harness({versions:[{id:'real',file_id:'photo',title:'Golf bag',project_id:'project'}]});h.button('Create matching shell · AI').props.onClick();await h.flush();const req=h.calls.find(c=>c.api?.action==='create').api;assert.equal(req.sourceVersionId,'real');assert.equal(req.target,'Matching shell');assert.match(req.prompt,/pocket count and layout/);assert.equal(h.calls.some(c=>c.api?.action==='retain'),true);});
 test('real sample and matching shell appear together and both can be selected for editing',()=>{const versions=[{id:'real',project_id:'project',file_id:'f1',image_url:'/real.png',title:'Real'},{id:'shell',project_id:'project',file_id:'f2',image_url:'/shell.png',parent_id:'real',title:'Shell',provenance:{prompt:{target:'Matching shell'}}}];const h=harness({versions});assert.ok(h.find(n=>n.props?.src==='/real.png'));assert.ok(h.find(n=>n.props?.src==='/shell.png'));const shell=h.find(n=>n.type==='button'&&h.text(n)==='Matching shellSelect to edit');shell.props.onClick();assert.equal(h.find(n=>n.type==='CreativeChat').props.initialSourceVersionId,'shell');});
 test('personal studio hides team review and offers explicit snapshot sharing',()=>{const h=harness({workspace:{id:'workspace',studio_kind:'personal',parent_workspace_id:'team'},versions:[{id:'v1',file_id:'f1',image_url:'/a.png',title:'Bag'}]});assert.equal(h.find(n=>n.type==='button'&&h.text(n)==='Review with the team'),undefined);assert.ok(h.find(n=>n.type==='StudioSharing'));assert.ok(h.find(n=>n.type==='StudioTeamLibrary'));});
 
-test('sending an AI edit prepares a legacy preview source even when opened through the unified drawer',async()=>{const h=harness({versions:[{id:'legacy',title:'Concept A',provenance:{import_asset_path:'/mockup-assets/golf-bag-cream.png'}}]});const ai=h.find(n=>n.type==='CreativeChat');const ready=await ai.props.prepareSource('legacy');assert.notEqual(ready,'legacy');assert.equal(h.calls.find(c=>c.op==='createVersion').input.parent_id,'legacy');h.button('Create or edit design').props.onClick();ai.props.onClose();assert.equal(h.find(n=>n.type==='aside').props.hidden,true);});
+test('sending an AI edit prepares a legacy preview source while optional tools stay dismissible',async()=>{const h=harness({versions:[{id:'legacy',title:'Concept A',provenance:{import_asset_path:'/mockup-assets/golf-bag-cream.png'}}]});const ai=h.find(n=>n.type==='CreativeChat');const ready=await ai.props.prepareSource('legacy');assert.notEqual(ready,'legacy');assert.equal(h.calls.find(c=>c.op==='createVersion').input.parent_id,'legacy');h.button('Assets & tools').props.onClick();assert.equal(h.find(n=>n.type==='aside').props.hidden,false);h.button('Close tools').props.onClick();assert.equal(h.find(n=>n.type==='aside').props.hidden,true);});
 
 test('full canvas works without native fullscreen and preserves the selected design when exiting',()=>{const h=harness({versions:[{id:'v1',file_id:'f1',title:'Bag',image_url:'/bag.png'}]});h.button('Full canvas').props.onClick();assert.match(h.render().props.className,/fas-expanded/);assert.equal(h.find(n=>n.type==='CreativeChat').props.initialSourceVersionId,'v1');h.button('Exit full canvas').props.onClick();assert.doesNotMatch(h.render().props.className,/fas-expanded/);assert.equal(h.find(n=>n.type==='CreativeChat').props.initialSourceVersionId,'v1');});
+

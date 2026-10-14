@@ -104,6 +104,7 @@ export function CreativeChat({
   const [manualEdit, setManualEdit] = useState<{projectId: string; versionId: string} | null>(initialManual && currentProjectId && initialSourceVersionId ? {projectId:currentProjectId,versionId:initialSourceVersionId} : null);
   const saveRequest = useRef<{ key: string; id: string } | null>(null);
   const loadedChat = useRef("");
+  const initializedProjectChat = useRef(false);
   const projects = [...data.projects, ...localProjects].filter(
     (p, i, all) => all.findIndex((other) => other.id === p.id) === i,
   );
@@ -181,6 +182,12 @@ export function CreativeChat({
     ([url]: [string, string]) => json(url),
     { refreshInterval: 4000 },
   );
+  useEffect(() => {
+    if (!embedded || !studioSimple || initializedProjectChat.current || !chats.data) return;
+    initializedProjectChat.current = true;
+    const recent = chats.data.chats.find(c => c.project_id === currentProjectId);
+    if (recent) setChatId(recent.id);
+  }, [embedded, studioSimple, chats.data, currentProjectId]);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     if (!embedded) dialog.current?.showModal();
@@ -364,34 +371,43 @@ export function CreativeChat({
   );
   const selectedChat =
     detail.data?.chat || chats.data?.chats.find((c) => c.id === chatId);
+  const failureAlreadySaved = Boolean(
+    error &&
+      detail.data?.turns.some(
+        (turn) => turn.status === "failed" && turn.error === error,
+      ),
+  );
   const Root = embedded ? "section" : "dialog";
   return (
     <Root
       ref={dialog as any}
       className={`fc-dialog ${embedded ? "fc-embedded" : ""}`}
-      aria-labelledby="fc-title"
+      aria-labelledby={studioSimple ? undefined : "fc-title"}
+      aria-label={studioSimple ? "AI Creative Assistant" : undefined}
       onCancel={(e) => {
         e.preventDefault();
         if (!busy && !uploads.hasUnfinished) onClose();
       }}
     >
-      <header className="fc-header">
-        <div>
-          <span className="fc-eyebrow">FAIRWAY STUDIO / CREATE TOGETHER</span>
-          <h2 id="fc-title">
-            <Sparkles size={22} />
-            {embedded ? "AI Design Studio" : "Creative Assistant"}
-          </h2>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          disabled={busy || uploads.hasUnfinished}
-          aria-label="Close Creative Assistant"
-        >
-          <X size={22} />
-        </button>
-      </header>
+      {!studioSimple && (
+        <header className="fc-header">
+          <div>
+            <span className="fc-eyebrow">FAIRWAY STUDIO / CREATE TOGETHER</span>
+            <h2 id="fc-title">
+              <Sparkles size={22} />
+              {embedded ? "AI Design Studio" : "Creative Assistant"}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={busy || uploads.hasUnfinished}
+            aria-label="Close Creative Assistant"
+          >
+            <X size={22} />
+          </button>
+        </header>
+      )}
       <div className="fc-layout">
         <aside className="fc-sidebar" hidden={studioSimple} aria-label="Conversations">
           <button
@@ -432,6 +448,17 @@ export function CreativeChat({
           ))}
         </aside>
         <main className="fc-main">
+          {studioSimple && <div className="fc-recent-chats" aria-label="Project creative conversations">
+            <strong>Conversations</strong>
+            <button type="button" disabled={busy} onClick={()=>{setChatId("");setPrompt("");setSource("");setError("");}}>+ New</button>
+            {(chats.data?.chats || []).filter(c=>c.project_id===currentProjectId).slice(0,6).map(c=>
+              <button type="button" key={c.id} disabled={busy} aria-pressed={chatId===c.id}
+                onClick={()=>{setChatId(c.id);setPrompt("");setError("");}}>
+                {c.title}
+              </button>
+            )}
+            {chats.error && <p role="alert">Conversations could not be loaded.</p>}
+          </div>}
           <div className="fc-context">
             <div>
               <strong>{selectedChat?.title || "What are we creating?"}</strong>
@@ -467,9 +494,9 @@ export function CreativeChat({
             {!chatId && (
               <div className="fc-empty">
                 <Sparkles size={32} />
-                <h3>What are we designing for our golf collection?</h3>
+                <h3>What would you like to create?</h3>
                 <p>
-                  Develop our original golf apparel, headwear or accessories. Describe your own collection or select a shell on the artboard.
+                  Create original apparel, headwear, accessories, or branding for any sport. Describe an idea or select a starting design.
                   {!studioSimple && "Choose Shared workspace to create together."}
                 </p>
               </div>
@@ -617,7 +644,11 @@ export function CreativeChat({
             <div ref={end} />
           </div>
           <form className="fc-composer" onSubmit={send}>
-            <div className="fc-controls">
+            {studioSimple ? <div className="fc-simple-mode" role="group" aria-label="Creative action">
+              <button type="button" aria-pressed={mode === "image"} disabled={busy} onClick={()=>setMode("image")}>Create or edit image</button>
+              <button type="button" aria-pressed={mode === "chat"} disabled={busy} onClick={()=>setMode("chat")}>Discuss an idea</button>
+              <small>{source ? "Using the selected design as your source image." : "Starting a new design. Your first image will be saved in this project."}</small>
+            </div> : <div className="fc-controls">
               <label>
                 Action
                 <select
@@ -649,6 +680,7 @@ export function CreativeChat({
                 </select>
               </label>
             </div>
+            }
             <div className="fc-own-actions" hidden={studioSimple}>
               <button
                 type="button"
@@ -705,7 +737,7 @@ export function CreativeChat({
               onChange={(e) => setPrompt(e.target.value)}
               placeholder={
                 mode === "image"
-                  ? "Describe our original golf design or collection: garments, fabrics, colors, construction details and branding."
+                  ? "Describe the design you want to create, or tell me what to change in the selected image."
                   : "Tell us what you’re thinking…"
               }
               rows={3}
@@ -808,7 +840,7 @@ export function CreativeChat({
                 </small>
               </>
             )}
-            {error && (
+            {error && !failureAlreadySaved && (
               <p className="fc-error" role="alert">
                 {error}
               </p>
@@ -858,3 +890,4 @@ export function CreativeChat({
     </Root>
   );
 }
+
