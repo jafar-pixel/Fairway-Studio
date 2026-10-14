@@ -104,6 +104,7 @@ export function CreativeChat({
   const [manualEdit, setManualEdit] = useState<{projectId: string; versionId: string} | null>(initialManual && currentProjectId && initialSourceVersionId ? {projectId:currentProjectId,versionId:initialSourceVersionId} : null);
   const saveRequest = useRef<{ key: string; id: string } | null>(null);
   const loadedChat = useRef("");
+  const initializedProjectChat = useRef(false);
   const projects = [...data.projects, ...localProjects].filter(
     (p, i, all) => all.findIndex((other) => other.id === p.id) === i,
   );
@@ -181,6 +182,12 @@ export function CreativeChat({
     ([url]: [string, string]) => json(url),
     { refreshInterval: 4000 },
   );
+  useEffect(() => {
+    if (!embedded || !studioSimple || initializedProjectChat.current || !chats.data) return;
+    initializedProjectChat.current = true;
+    const recent = chats.data.chats.find(c => c.project_id === currentProjectId);
+    if (recent) setChatId(recent.id);
+  }, [embedded, studioSimple, chats.data, currentProjectId]);
   useEffect(() => {
     const previous = document.activeElement as HTMLElement | null;
     if (!embedded) dialog.current?.showModal();
@@ -432,6 +439,17 @@ export function CreativeChat({
           ))}
         </aside>
         <main className="fc-main">
+          {studioSimple && <div className="fc-recent-chats" aria-label="Project creative conversations">
+            <strong>Conversations</strong>
+            <button type="button" disabled={busy} onClick={()=>{setChatId("");setPrompt("");setSource("");setError("");}}>+ New</button>
+            {(chats.data?.chats || []).filter(c=>c.project_id===currentProjectId).slice(0,6).map(c=>
+              <button type="button" key={c.id} disabled={busy} aria-pressed={chatId===c.id}
+                onClick={()=>{setChatId(c.id);setPrompt("");setError("");}}>
+                {c.title}
+              </button>
+            )}
+            {chats.error && <p role="alert">Conversations could not be loaded.</p>}
+          </div>}
           <div className="fc-context">
             <div>
               <strong>{selectedChat?.title || "What are we creating?"}</strong>
