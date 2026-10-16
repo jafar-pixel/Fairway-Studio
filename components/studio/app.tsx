@@ -95,6 +95,7 @@ const nav = [
   ["projects", "Projects", FolderKanban],
   ["studio", "Art Studio", Sparkles],
   ["library", "Library", Images],
+  ["content", "Social Studio", Images],
   ["business", "Founders Studio", BriefcaseBusiness],
   ["settings", "Settings", Settings],
 ] as const;
@@ -919,10 +920,10 @@ function StudioShell({ demo = false }: { demo?: boolean }) {
             <a
               className={`${activeView === key ? "active" : ""} ${i === 6 ? "separated" : ""}`}
               key={key}
-              href={`${key === "business" && data.workspace?.studio_kind === "personal" ? `/w/${data.workspace.parent_workspace_id}` : base}/${key}`}
+              href={`${key === "business" && data.workspace?.studio_kind === "personal" ? `/w/${data.workspace.parent_workspace_id}` : base}/${key === "content" ? "content/overview" : key}`}
               onClick={(e) => {
                 e.preventDefault();
-                navigate(`${key === "business" && data.workspace?.studio_kind === "personal" ? `/w/${data.workspace.parent_workspace_id}` : base}/${key}`);
+                navigate(`${key === "business" && data.workspace?.studio_kind === "personal" ? `/w/${data.workspace.parent_workspace_id}` : base}/${key === "content" ? "content/overview" : key}`);
               }}
               aria-current={activeView === key ? "page" : undefined}
             >

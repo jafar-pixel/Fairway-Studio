@@ -84,3 +84,27 @@ export function instantFromWall(value: string, timezone: string): string | null 
   if (candidates.size !== 1) throw new Error(candidates.size ? 'This time occurs twice when clocks change. Choose an unambiguous time.' : 'This local time does not exist when clocks change. Choose another time.');
   return [...candidates][0];
 }
+
+export type SocialProject = {id:string;title:string;brief:string;category:string;status:string};
+export async function readSocialProjects(workspaceId:string,signal?:AbortSignal):Promise<SocialProject[]> {
+ const all:SocialProject[]=[];let total=-1;
+ for(let page=0;;page++){
+  const data=await json<{projects:SocialProject[];total:number;page:number;pageSize:number}>(endpoint(workspaceId,{campaigns:'1',page:String(page)}),{signal});
+  if(!Array.isArray(data.projects)||!Number.isSafeInteger(data.total)||data.total<0||data.page!==page||data.pageSize!==50)invalid('Campaign data is incomplete. Refresh to try again.');
+  if(total!==-1&&total!==data.total)invalid('Projects changed while loading. Refresh campaigns.');total=data.total;
+  all.push(...data.projects);if(all.length>=total)break;
+  if(data.projects.length!==50)invalid('Some campaigns could not be loaded.');
+ }
+ if(new Set(all.map(p=>p.id)).size!==total)invalid('Projects changed while loading. Refresh campaigns.');
+ return all;
+}
+export async function readAllSocialPosts(workspaceId:string,signal?:AbortSignal):Promise<SocialList> {
+ const first=await readSocialList(workspaceId,0,signal),posts=[...first.posts];
+ for(let page=1;page<Math.ceil(first.total/first.pageSize);page++){
+  const next=await readSocialList(workspaceId,page,signal);
+  if(next.total!==first.total)invalid('Content changed while loading. Refresh Social Studio.');
+  posts.push(...next.posts);
+ }
+ if(new Set(posts.map(p=>p.id)).size!==first.total)invalid('Some content could not be loaded. Refresh Social Studio.');
+ return {...first,posts};
+}

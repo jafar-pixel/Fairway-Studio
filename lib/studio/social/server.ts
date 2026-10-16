@@ -15,6 +15,13 @@ async function capability(workspaceId:string) {
 export async function readSocial(params:URLSearchParams) {
  const workspaceId=params.get('workspaceId')??'';
  const {client}=await capability(workspaceId);
+ if(params.get('campaigns')==='1'){
+  const page=Number(params.get('page')??0);
+  if(!Number.isSafeInteger(page)||page<0||page>100000)throw new StudioError('Invalid campaign page.','VALIDATION');
+  const {data,error,count}=await client.from('studio_projects').select('id,title,brief,category,status', {count:'exact'}).eq('workspace_id',workspaceId).neq('category','Business').order('created_at',{ascending:false}).order('id').range(page*50,page*50+49);
+  if(error)throw socialDatabaseError(error);
+  return {kind:'data' as const,data:{projects:data,total:count,page,pageSize:50}};
+ }
  const snapshot=params.get('package')||params.get('snapshotId');
  if(snapshot){
   if(!uuidPattern.test(snapshot))throw new StudioError('Choose a valid package.','VALIDATION');
@@ -40,6 +47,15 @@ export async function readSocial(params:URLSearchParams) {
 }
 export async function mutateSocial(mutation:SocialMutation){
  const {client}=await capability(mutation.workspaceId);
+ if(mutation.operation==='createCampaign'){
+  const {data:member,error:memberError}=await client.from('workspace_members').select('user_id').eq('workspace_id',mutation.workspaceId).eq('user_id',String(mutation.input.owner_id)).maybeSingle();
+  if(memberError)throw socialDatabaseError(memberError);
+  if(!member)throw new StudioError('Choose a current campaign owner.','VALIDATION');
+  const {data,error}=await client.rpc('studio_mutate',{p_workspace:mutation.workspaceId,p_operation:'createProject',p_request:mutation.requestId,p_input:{title:mutation.input.title,brief:mutation.input.purpose,lead_id:mutation.input.owner_id,category:'campaign'}});
+  if(error)throw socialDatabaseError(error);
+  if(!data?.id||!Number.isInteger(data.revision))throw new StudioError('The campaign save could not be confirmed. Retry the same request.','DATABASE_ERROR',503);
+  return {postId:data.id,revision:data.revision};
+ }
  const {data,error}=await client.rpc('studio_social_mutate',{p_workspace:mutation.workspaceId,p_operation:mutation.operation,p_request:mutation.requestId,p_input:mutation.input});
  if(error)throw socialDatabaseError(error);
  return data;

@@ -21,7 +21,7 @@ test('Business reserved sections are parsed before plan IDs and cannot reach pla
  for(const parts of [['business','profile',id],['business','documents','title'],['business','finance',book,'bad'],['business','other'],['business',id,'documents'],['business','documents',book,row,'extra']]) assert.equal(route.parseWorkflowRoute(parts).kind,'invalid');
 });
 test('every content view and exact record roundtrips to a deep link',()=>{
- for(const view of ['board','calendar','feedback'])for(const postId of [null,id]){
+ for(const view of ['board','overview','campaigns','review','calendar','feedback','connections'])for(const postId of [null,id]){
   const url=route.contentUrl(base,view,postId);
   assert.deepEqual(plain(route.parseWorkflowRoute(url.split('/').slice(3))),{kind:'content',view,...(postId?{postId}: {})});
  }
