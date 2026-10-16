@@ -91,9 +91,10 @@ async function listBoardHarness(kind,{initial=false}={}){
  const mutation={busy:false,error:null,blocked:false,mutate(op,input,message,callback){mutation.busy=true;mutation.blocked=true;mutationCallback=callback},retry(){},clear(){}};
  const isBusiness=kind==='business',prefix=isBusiness?'business':'social',uiFile=`components/studio/${prefix}/ui.tsx`,clientPath=`../../../lib/studio/${prefix}/client`;
  const client={[isBusiness?'readBusinessList':'readSocialList']:async()=>isBusiness?{plans:[],members:[],userId,page:0,pageSize:20,total:0,overview:{}}:{posts:[],members:[],actorId:userId,page:0,pageSize:20,total:0},[isBusiness?'asBusinessError':'asSocialError']:value=>value,[isBusiness?'BusinessApiError':'SocialApiError']:Error};
+ if(!isBusiness){client.readAllSocialPosts=client.readSocialList;client.readSocialProjects=async()=>[];}
  const ui=loadModule(uiFile,{react:h.react,'react/jsx-runtime':jsx,[clientPath]:client,[`./${prefix}.module.css`]:css},{window:h.window});
  const editor=()=>null,detail=()=>null;
- const loaded=loadModule(`components/studio/${prefix}/board.tsx`,{react:h.react,'react/jsx-runtime':jsx,[clientPath]:client,'./ui':{...ui,[isBusiness?'useBusinessMutation':'useSocialMutation']:(id,callback)=>{committed=callback;return mutation}},[`./${prefix}.module.css`]:css,...(isBusiness?{'./plan-editor':{PlanEditor:editor},'./plan-detail':{PlanDetail:detail}}:{'./editor':{SocialEditor:editor},'./detail':{SocialContentDetail:detail},'./calendar':{SocialCalendar:Dummy}})},{window:h.window});
+ const loaded=loadModule(`components/studio/${prefix}/board.tsx`,{react:h.react,'react/jsx-runtime':jsx,[clientPath]:client,'./ui':{...ui,[isBusiness?'useBusinessMutation':'useSocialMutation']:(id,callback)=>{committed=callback;return mutation}},[`./${prefix}.module.css`]:css,...(isBusiness?{'./plan-editor':{PlanEditor:editor},'./plan-detail':{PlanDetail:detail}}:{'./editor':{SocialEditor:editor},'./detail':{SocialContentDetail:detail},'./calendar':{SocialCalendar:Dummy},'./media-preview':{MediaPreview:Dummy}})},{window:h.window});
  const Board=isBusiness?loaded.BusinessBoard:loaded.SocialBoard,scope=h.create();
  let tree;
  const render=()=>{const inner=Board(h.tree.props);tree=h.renderComponent(scope,inner.type,inner.props);return tree};
@@ -102,7 +103,7 @@ async function listBoardHarness(kind,{initial=false}={}){
  return{...h,mutation,editor,detail,get tree(){return tree},renderBoard:render,flushBoard:flush,renderBoundary:h.render,complete(){mutation.busy=false;mutation.blocked=false;mutationCallback(isBusiness?{plan:{id:recordId}}:{postId:recordId});committed()},cleanup(){h.cleanup();h.cleanupComponent(scope)}};
 }
 for(const kind of ['business','content'])test(`${kind}: confirmed new record updates the deep link exactly once after child effects`,async()=>{
- const h=await listBoardHarness(kind);button(h.tree,kind==='business'?'New idea or plan':'New content idea').props.onClick();h.renderBoard();h.flushBoard();
+ const h=await listBoardHarness(kind);button(h.tree,kind==='business'?'New idea or plan':'+ Create content').props.onClick();h.renderBoard();h.flushBoard();
  const editor=elements(h.tree,node=>node.type===h.editor)[0];assert.ok(editor);editor.props.onDirty(true);h.renderBoard();h.flushBoard();h.renderBoundary();h.renderBoard();h.flushBoard();
  editor.props.onSave({title:'Local test record'});h.renderBoard();h.flushBoard();h.renderBoundary();h.renderBoard();h.flushBoard();assert.equal(h.navigate('/elsewhere'),false);
  h.complete();h.renderBoard();h.flushBoard();h.renderBoundary();h.renderBoard();h.flushBoard();
@@ -115,7 +116,7 @@ test('Content seeded detail stays in its Calendar view and Back produces one boa
 
 test('integrated boundaries delegate native warnings once and do not leak private records into shell data',()=>{
  const read=path=>fs.readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
- assert.match(read('components/studio/social/board.tsx'),/useLeaveWarning\(!externalNavigationGuard/);assert.match(read('components/studio/social/detail.tsx'),/useLeaveWarning\(!externalNavigationGuard/);assert.match(read('components/studio/private-business/board.tsx'),/!externalNavigationGuard/);
+ assert.match(read('components/studio/social/board.tsx'),/useLeaveWarning\(\s*!externalNavigationGuard/);assert.match(read('components/studio/social/detail.tsx'),/useLeaveWarning\(\s*!externalNavigationGuard/);assert.match(read('components/studio/private-business/board.tsx'),/!externalNavigationGuard/);
  const app=read('components/studio/app.tsx');assert.match(app,/key=\{`\$\{userId\}:\$\{workspaceId\}:\$\{route\.join\("\/"\)\}`\}/);assert.match(app,/ai && !operationalRoute/);assert.match(app,/generation && !operationalRoute/);assert.match(app,/onboardingScopeReady && !operationalRoute/);assert.match(app,/\["ideas", "projects", "tasks", "references", "files"\]\.flatMap/);assert.doesNotMatch(app,/studio_private_|private-business\/client|private-business\/server/);
 });
 
@@ -154,7 +155,7 @@ test('Private seeded record reads exact scoped IDs and Back keeps the register a
 });
 
 for(const kind of ['business','content'])test(`${kind}: declined route dispatch does not mark the selected record URL committed`,async()=>{
- const h=await listBoardHarness(kind);button(h.tree,kind==='business'?'New idea or plan':'New content idea').props.onClick();h.renderBoard();h.flushBoard();const form=elements(h.tree,node=>node.type===h.editor)[0];form.props.onSave({title:'Local retry fixture'});h.renderBoard();h.flushBoard();h.renderBoundary();h.renderBoard();h.flushBoard();
+ const h=await listBoardHarness(kind);button(h.tree,kind==='business'?'New idea or plan':'+ Create content').props.onClick();h.renderBoard();h.flushBoard();const form=elements(h.tree,node=>node.type===h.editor)[0];form.props.onSave({title:'Local retry fixture'});h.renderBoard();h.flushBoard();h.renderBoundary();h.renderBoard();h.flushBoard();
  h.setAccepted(false);h.complete();h.renderBoard();h.flushBoard();assert.deepEqual(h.navigations,[]);
  // Parent renders after the other navigation guard is dismissed.
  h.setAccepted(true);h.renderBoundary();h.renderBoard();h.flushBoard();assert.deepEqual(h.navigations,[`${base}/${kind==='business'?'business':'content/calendar'}/${recordId}`]);h.cleanup();

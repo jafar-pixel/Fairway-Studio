@@ -1,6 +1,6 @@
 /** Only canonical IDs belong in workflow URLs. Private text never enters the URL. */
 const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export type ContentView = 'board' | 'calendar' | 'feedback';
+export type ContentView = 'board' | 'overview' | 'campaigns' | 'review' | 'calendar' | 'feedback' | 'connections';
 export type PrivateLocation = { tab: 'documents' | 'finance'; bookId?: string; recordId?: string };
 export type WorkflowRoute =
  | { kind: 'plans'; planId?: string }
@@ -24,7 +24,8 @@ export function parseWorkflowRoute(route: string[], canonicalBusinessProject = f
  }
  if (root === 'content') {
   if (!section) return {kind:'content',view:'board'};
-  if (section === 'calendar' || section === 'feedback') return !record && (!id || uuid.test(id)) ? {kind:'content',view:section,postId:id} : {kind:'invalid'};
+  if(extra.length)return {kind:'invalid'};
+  if (['overview','campaigns','review','calendar','feedback','connections'].includes(section)) return !record && (!id || uuid.test(id)) ? {kind:'content',view:section as ContentView,postId:id} : {kind:'invalid'};
   return uuid.test(section) && !id ? {kind:'content',view:'board',postId:section} : {kind:'invalid'};
  }
  return {kind:'invalid'};
@@ -41,7 +42,7 @@ export function workflowRouteLabel(route: WorkflowRoute): string {
  if (route.kind === 'profile') return 'Business profile';
  if (route.kind === 'founderUpdates') return 'Founder Updates';
  if (route.kind === 'private') return route.tab === 'finance' ? 'Budget & Finance' : 'Documents & Contracts';
- if (route.kind === 'content') return route.postId ? 'Content detail' : route.view === 'board' ? 'Content Board' : route.view === 'calendar' ? 'Calendar' : 'Feedback';
+ if (route.kind === 'content') return route.postId ? 'Content detail' : ({board:'Content Library',overview:'Overview',campaigns:'Campaigns',review:'Founder Review',calendar:'Calendar',feedback:'Results & Feedback',connections:'Connections'}[route.view]);
  return route.kind === 'plans' ? route.planId ? 'Plan detail' : 'Drafts & Plans' : 'Page unavailable';
 }
 
