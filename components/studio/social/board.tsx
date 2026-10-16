@@ -116,7 +116,26 @@ function SocialWorkspace({
   const lastRoute = useRef(
     JSON.stringify([initialView, initialPostId || null]),
   );
+  const incomingRoute = JSON.stringify([initialView, initialPostId || null]);
+  const observedRoute = useRef(incomingRoute);
+  const routeChanged = observedRoute.current !== incomingRoute;
   useEffect(() => {
+    if (!routeChanged) return;
+    observedRoute.current = incomingRoute;
+    // Internal navigation acknowledgements retain filters and open forms.
+    // Browser history and sidebar navigation supply a different canonical route.
+    if (lastRoute.current !== incomingRoute) {
+      lastRoute.current = incomingRoute;
+      setView(initialView);
+      setSelected(initialPostId || null);
+      setCreating(false);
+      setNewCampaign(false);
+      setDirty(false);
+      setDetailNavigation({dirty:false,pending:false,uncertain:false});
+    }
+  }, [routeChanged, incomingRoute, initialView, initialPostId]);
+  useEffect(() => {
+    if (routeChanged) return;
     const next = JSON.stringify([view, selected]);
     if (
       next !== lastRoute.current &&
@@ -129,6 +148,7 @@ function SocialWorkspace({
         lastRoute.current = next;
     }
   }, [
+    routeChanged,
     view,
     selected,
     mutation.busy,

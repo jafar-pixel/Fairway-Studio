@@ -47,6 +47,11 @@ export async function readSocial(params:URLSearchParams) {
 }
 export async function mutateSocial(mutation:SocialMutation){
  const {client}=await capability(mutation.workspaceId);
+ if(mutation.operation==='submitReview'){
+  const {data,error}=await client.rpc('studio_social_read',{p_workspace:mutation.workspaceId,p_post:mutation.input.post_id,p_page:0,p_options:false,p_query:''});
+  if(error)throw socialDatabaseError(error);
+  if(!data?.post?.account_label||data.post.account_label==='Account not selected')throw new StudioError('Choose the destination account under Campaign, account & timing before requesting publication review.','VALIDATION');
+ }
  if(mutation.operation==='createCampaign'){
   const {data:member,error:memberError}=await client.from('workspace_members').select('user_id').eq('workspace_id',mutation.workspaceId).eq('user_id',String(mutation.input.owner_id)).maybeSingle();
   if(memberError)throw socialDatabaseError(memberError);

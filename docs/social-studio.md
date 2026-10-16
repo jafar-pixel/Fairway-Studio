@@ -18,14 +18,13 @@ Sidebar entry opens `/w/:workspace/content/overview`. Existing `/content` links 
 
 ## Create and refine a post
 
-1. Choose Create content, or create content from a campaign card.
-2. Enter a title, purpose, audience, destination account label and channel.
-3. In the AI writing partner, describe your own direction. The assistant receives only the working title, purpose, audience, channel, format and caption plus your instruction. It does not see images or internal release/rights notes.
-4. Read/edit the proposed caption. Refine it with another instruction, discard it, or choose Use as working caption. Applying replaces the working caption; it does not save or approve it.
-5. Link the source project and exact design version. The media preview uses the existing authenticated media endpoint. Enter the planned time and timezone if useful.
-6. Save. Reopen the saved draft to edit or request publication review.
-7. Select the named reviewers. Reviewers inspect the immutable submitted package and make independent decisions. Editing a reviewed draft continues to require renewed publication approval.
-8. Download the approved package, publish manually in the destination platform, then record its actual URL. Record measured metrics and observations afterward.
+1. Choose **Create content** and describe your idea.
+2. Choose **Create draft**, then edit or refine the proposed caption.
+3. Choose **Save this draft**. A title is derived from your direction and the current user becomes the owner. No account handle or campaign setup is needed to capture the draft.
+
+Manual writing, design/project linking, campaign/account/timing and media permissions live in optional disclosure sections. Account selection and existing exact-version media checks are required before publication review, not before initial draft capture. The API blocks review while the account is still “Account not selected.”
+
+From a saved draft, edit the optional details and request publication review when ready. Named reviewers approve the immutable package independently. Approved content can be exported for manual publishing; record the real publication URL and observations afterward.
 
 AI instructions and unused suggestions remain in the editor until applied and saved as the caption. Leaving dirty forms prompts before discarding. Network-uncertain mutations retain the exact request ID for safe replay. No AI response changes saved records automatically.
 
@@ -51,4 +50,6 @@ No database migration or new environment variable is required. The writing endpo
 
 Production build and TypeScript pass. Focused social, routing and navigation tests cover the new routes, authorization-before-AI, private-field exclusion, safe retry, campaign owner validation and complete pagination. Isolated PostgreSQL tests exercise campaign create/replay/list and social draft create/replay/reload/revision conflicts/revoked membership (11 checks).
 
-A broader suite on the base commit already fails ten tests relating to guide playback, historical source snapshots and stale guide-provider mocks. Those failures were reproduced in a detached unmodified main worktree. Live signed-in verification requires an authenticated Fairway Studio browser session; a signed-out page is not evidence of successful private saves or AI calls.
+A broader suite on the base commit already fails ten tests relating to guide playback, historical source snapshots and stale guide-provider mocks. Those failures were reproduced in a detached unmodified main worktree. After secure sign-in, live verification created the campaign “Our first social story,” generated an OpenAI caption from the founder brief, and saved “Three founders. One direction.” as an unapproved draft. No publication or founder decision was created.
+
+Social tab changes preserve the mounted workspace and filters. Incoming browser-history routes are synchronized without routing back to the previous view. A regression test covers internal URL acknowledgement and external history.

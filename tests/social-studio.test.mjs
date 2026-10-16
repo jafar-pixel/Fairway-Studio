@@ -239,3 +239,10 @@ test("workspace overview pagination fails closed on missing or duplicate records
     (e) => e.code === "INVALID_RESPONSE",
   );
 });
+
+test('publication review refuses a draft that has no destination account yet',async()=>{
+ const calls=[];
+ const server=loadModule('lib/studio/social/server.ts',{'../contracts':shared,'./contracts':contracts,'../server':{authorize:async()=>({client:{rpc:async(name)=>{calls.push(name);return {data:name==='studio_social_capabilities'?{schemaVersion:1,manualPackages:true}:{post:{account_label:'Account not selected'}},error:null}}}}),databaseError:e=>e}});
+ await assert.rejects(()=>server.mutateSocial({workspaceId,requestId,operation:'submitReview',input:{post_id:requestId,expected_revision:0,reviewers:[userId]}}),e=>e.code==='VALIDATION');
+ assert.ok(!calls.includes('studio_social_mutate'));
+});
