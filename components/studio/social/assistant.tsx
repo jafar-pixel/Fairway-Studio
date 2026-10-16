@@ -6,14 +6,14 @@ export function SocialAssistant({
   workspaceId,
   fields,
   disabled,
-  onApply,
   onDirty,
+  onSaveDraft,
 }: {
   workspaceId: string;
   fields: DraftFields;
   disabled: boolean;
-  onApply: (caption: string) => void;
   onDirty: () => void;
+  onSaveDraft: (caption:string,instruction:string) => void;
 }) {
   const [instruction, setInstruction] = useState(""),
     [answer, setAnswer] = useState(""),
@@ -74,14 +74,12 @@ export function SocialAssistant({
       <div className={styles.spread}>
         <div>
           <p className={styles.eyebrow}>Creative partner · OpenAI</p>
-          <h3>What do you want to say?</h3>
+          <h3>Describe your idea</h3>
         </div>
         <span className={styles.badge}>Suggestions, then your approval</span>
       </div>
       <p className={styles.muted}>
-        Describe your own idea, ask for a new angle, or refine the suggestion.
-        Uses this draft’s title, brief, audience and caption; it does not
-        inspect the image.
+        Tell AI what you want to say. Make the result your own, then save.
       </p>
       <label className={styles.field}>
         Your direction
@@ -103,7 +101,7 @@ export function SocialAssistant({
           disabled={disabled || busy || !instruction.trim()}
           onClick={() => void ask()}
         >
-          {busy ? "Writing…" : answer ? "Refine suggestion" : "Draft with AI"}
+          {busy ? "Writing…" : answer ? "Refine suggestion" : "Create draft"}
         </button>
         {busy ? (
           <button
@@ -141,15 +139,11 @@ export function SocialAssistant({
           <div className={styles.row}>
             <button
               type="button"
-              className={styles.button}
+              className={styles.primary}
               disabled={disabled || busy || !answer.trim()}
-              onClick={() => {
-                onApply(answer);
-                setAnswer("");
-                setIssue("");
-              }}
+              onClick={() => onSaveDraft(answer,instruction)}
             >
-              Use as working caption
+              Save this draft
             </button>
             <button
               type="button"
@@ -161,8 +155,7 @@ export function SocialAssistant({
             </button>
           </div>
           <p className={styles.small}>
-            Applying replaces the working caption. Save the draft to keep it.
-            Founder approval is a separate step.
+            Saving keeps this as a draft. It does not publish.
           </p>
         </>
       ) : null}

@@ -55,7 +55,7 @@ test('shell preserves auth/workspace route keys and excludes operational routes 
  const app=src('components/studio/app.tsx');
  assert.match(app,/\["studio", "Art Studio", Sparkles\]/);assert.match(app,/\["", "studio", "library", "business"\]\.includes\(key\)/);
  assert.match(app,/parseWorkflowRoute\(route, canonicalBusinessProject\)/);assert.match(app,/workflowRoute\.kind === "plans" \? workflowRoute\.planId : undefined/);
- assert.match(app,/key=\{`\$\{userId\}:\$\{workspaceId\}:\$\{route\.join\("\/"\)\}`\}/);
+ assert.match(app,/key=\{`\$\{userId\}:\$\{workspaceId\}:\$\{contentRoute \? "content" : route\.join\("\/"\)\}`\}/);
  assert.match(app,/onboardingScopeReady && !operationalRoute/);assert.match(app,/generation && !operationalRoute/);assert.match(app,/ai && !operationalRoute/);
  assert.match(app,/operationalRoute \? \(contentRoute \? "content"/);
  assert.match(app,/onNavigationStateChange=\{setBusinessNavigation\}/);assert.match(app,/businessNavigation\.dirty \|\| businessNavigation\.pending \|\| businessNavigation\.uncertain/);

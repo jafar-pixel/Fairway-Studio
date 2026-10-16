@@ -87,3 +87,6 @@ button.stat { text-align:left; color:inherit; font:inherit; cursor:pointer; }
 button.stat:hover { border-color:#531e32; }
 @media(max-width:760px) { .hero { padding:24px; flex-direction:column; align-items:flex-start; } .filters { grid-template-columns:1fr 1fr; } }
 @media(max-width:460px) { .filters { grid-template-columns:1fr; } .heroButton { width:100%; } }
+.optional { border:1px solid #e3dcd2; border-radius:10px; background:#fffdf9; }
+.optional summary { cursor:pointer; padding:16px; font-size:14px; font-weight:600; min-height:48px; }
+.optional > div { padding:0 16px 18px; }

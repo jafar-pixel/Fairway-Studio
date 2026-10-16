@@ -38,7 +38,7 @@ function boundaryHarness({kind='content',route,dirty=false,pending=false,uncerta
  const render=()=>{tree=h.render(scope,Component,props);return tree};
  render();h.flush(scope);
  if(tree.type===Dummy){tree.props.onNavigationStateChange({dirty,pending,uncertain});render();h.flush(scope)}
- return{...h,renderComponent:h.render,cleanupComponent:h.cleanup,window,listeners,navigations,history,messages,navigate,render,get tree(){return tree},setAccepted:value=>{accepted=value},setConfirm:value=>{confirm=value},confirms:()=>confirms,cleanup:()=>h.cleanup(scope)};
+ return{...h,renderComponent:h.render,cleanupComponent:h.cleanup,window,listeners,navigations,history,messages,navigate,render,setRoute:value=>{props.route=value;render();h.flush(scope)},get tree(){return tree},setAccepted:value=>{accepted=value},setConfirm:value=>{confirm=value},confirms:()=>confirms,cleanup:()=>h.cleanup(scope)};
 }
 
 for(const kind of ['business','content','private']){
@@ -117,7 +117,7 @@ test('Content seeded detail stays in its Calendar view and Back produces one boa
 test('integrated boundaries delegate native warnings once and do not leak private records into shell data',()=>{
  const read=path=>fs.readFileSync(new URL(`../${path}`,import.meta.url),'utf8');
  assert.match(read('components/studio/social/board.tsx'),/useLeaveWarning\(\s*!externalNavigationGuard/);assert.match(read('components/studio/social/detail.tsx'),/useLeaveWarning\(\s*!externalNavigationGuard/);assert.match(read('components/studio/private-business/board.tsx'),/!externalNavigationGuard/);
- const app=read('components/studio/app.tsx');assert.match(app,/key=\{`\$\{userId\}:\$\{workspaceId\}:\$\{route\.join\("\/"\)\}`\}/);assert.match(app,/ai && !operationalRoute/);assert.match(app,/generation && !operationalRoute/);assert.match(app,/onboardingScopeReady && !operationalRoute/);assert.match(app,/\["ideas", "projects", "tasks", "references", "files"\]\.flatMap/);assert.doesNotMatch(app,/studio_private_|private-business\/client|private-business\/server/);
+ const app=read('components/studio/app.tsx');assert.match(app,/key=\{`\$\{userId\}:\$\{workspaceId\}:\$\{contentRoute \? "content" : route\.join\("\/"\)\}`\}/);assert.match(app,/ai && !operationalRoute/);assert.match(app,/generation && !operationalRoute/);assert.match(app,/onboardingScopeReady && !operationalRoute/);assert.match(app,/\["ideas", "projects", "tasks", "references", "files"\]\.flatMap/);assert.doesNotMatch(app,/studio_private_|private-business\/client|private-business\/server/);
 });
 
 for(const kind of ['business','content','private'])test(`${kind}: canonical dispatch cancelled by a second guard never disables the local guard`,()=>{
@@ -174,4 +174,16 @@ test('native history cancellation restores the exact canonical seeded record URL
 test('Private integrated unload causes one warning and backgrounding clears visible data without changing route',async()=>{
  const h=await privateBoardHarness({initialBook:true,initialRecord:true});button(h.tree,'Edit record').props.onClick();h.renderBoard();h.flushBoard();const form=elements(h.tree,node=>node.type===h.RecordForm)[0];assert.ok(form);form.props.onDirty();h.renderBoard();h.flushBoard();h.renderBoundary();h.renderBoard();h.flushBoard();let warnings=0;for(const fn of h.listeners.get('beforeunload')||[])fn({preventDefault(){warnings++}});assert.equal(warnings,1);
  h.document.visibilityState='hidden';for(const fn of h.documentListeners.get('visibilitychange')||[])fn();h.renderBoard();h.flushBoard();h.renderBoundary();h.renderBoard();h.flushBoard();assert.doesNotMatch(nodeText(h.tree),/Saved private fixture|Restricted fixture/);assert.deepEqual(h.navigations,[]);h.cleanup();
+});
+
+test('Content retains selected filters when the URL acknowledges internal navigation and follows external history without bouncing',async()=>{
+ const h=await listBoardHarness('content');
+ button(h.tree,'Content Library').props.onClick();h.renderBoard();h.flushBoard();
+ const status=elements(h.tree,n=>n.type==='select'&&elements(n,c=>c.type==='option'&&c.props.value==='approved').length)[0];assert.ok(status);
+ status.props.onChange({target:{value:'approved'}});h.renderBoard();h.flushBoard();
+ h.setRoute({kind:'content',view:'board'});h.renderBoard();h.flushBoard();h.renderBoard();h.flushBoard();
+ assert.ok(elements(h.tree,n=>n.type==='select'&&n.props.value==='approved').length);
+ const before=h.navigations.length;
+ h.setRoute({kind:'content',view:'overview'});h.renderBoard();h.flushBoard();h.renderBoard();h.flushBoard();
+ assert.equal(button(h.tree,'Overview').props['aria-pressed'],true);assert.equal(h.navigations.length,before);h.cleanup();
 });
